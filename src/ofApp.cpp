@@ -10,6 +10,7 @@ using namespace ofxCv;
 int serialPort;
 const char* portName="/dev/ttyACM3";
 
+
 //--------------------------------------------------------------
 void ofApp::setup(){
 red = 100; blue = 200; green = 27;
