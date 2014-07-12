@@ -8,7 +8,7 @@
 using namespace cv;
 using namespace ofxCv;
 int serialPort;
-const char* portName="/dev/ttyACM31";
+const char* portName="/dev/ttyACM3";
 
 //--------------------------------------------------------------
 void ofApp::setup(){
