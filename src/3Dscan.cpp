@@ -11,10 +11,10 @@ float finc;
 long npt=0;
 
 
-
 void camera(Cam *cam,const char *CamFile)
 {
     int i,j;
+
 
 cam->fcl1=(char *)malloc(sizeof(char)*50);
 cam->fcl2=(char *)malloc(sizeof(char)*50);

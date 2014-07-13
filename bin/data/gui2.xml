@@ -9,7 +9,7 @@
     <Kind>6</Kind>
     <Name>R</Name>
     <HighValue>253.743850708</HighValue>
-    <LowValue>52.758621216</LowValue>
+    <LowValue>41.453201294</LowValue>
 </Widget>
 <Widget>
     <Kind>6</Kind>
@@ -26,7 +26,7 @@
 <Widget>
     <Kind>4</Kind>
     <Name>Gray PLL</Name>
-    <Value>0.000000000</Value>
+    <Value>22.610836029</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
@@ -61,12 +61,12 @@
 <Widget>
     <Kind>12</Kind>
     <Name>Videonum</Name>
-    <Value>1</Value>
+    <Value>2</Value>
 </Widget>
 <Widget>
     <Kind>12</Kind>
     <Name>Camera Focus</Name>
-    <Value>75</Value>
+    <Value>65</Value>
 </Widget>
 <Widget>
     <Kind>12</Kind>
@@ -76,15 +76,15 @@
 <Widget>
     <Kind>12</Kind>
     <Name>Camera Exposition</Name>
-    <Value>333</Value>
+    <Value>600</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
     <Name>Laser (ms)</Name>
-    <Value>79.704437256</Value>
+    <Value>116.157638550</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
     <Name>Stepper (ms)</Name>
-    <Value>28.078819275</Value>
+    <Value>35.467979431</Value>
 </Widget>

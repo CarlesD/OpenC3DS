@@ -17,7 +17,6 @@ red = 100; blue = 200; green = 27;
     hideGUI      = false;
     bdrawGrid    = false;
     bdrawPadding = false;
-
     CamFile = NULL;
     SerialPort = NULL;
 

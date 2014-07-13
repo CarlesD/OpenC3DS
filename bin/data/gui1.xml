@@ -38,7 +38,7 @@
 <Widget>
     <Kind>6</Kind>
     <Name>RAXIS1</Name>
-    <HighValue>130.541870117</HighValue>
+    <HighValue>125.615760803</HighValue>
     <LowValue>0.000000000</LowValue>
 </Widget>
 <Widget>
@@ -56,7 +56,7 @@
 <Widget>
     <Kind>4</Kind>
     <Name>IAXIS1</Name>
-    <Value>0.295566499</Value>
+    <Value>5.000000000</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
