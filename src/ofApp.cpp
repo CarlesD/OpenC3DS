@@ -417,7 +417,7 @@ if(x>210&& y>0 &&x<(210+890)&&y<500&button==2) {zoom=zoom-1;if(zoom<1){zoom=1;X=
 if(x>210&& y>500 &&x<(210+295)&&y<(500+166)&button==0) {if(Pview==true){Pview=false;}else{Pview=true;}}
 cam.draw(210,500,295,166);
 
-cout<<button<<endl;
+//cout<<button<<endl;
 }
 
 //--------------------------------------------------------------
@@ -691,7 +691,7 @@ clouderr=clouderr+cloudaux;
         IncAxis1_Steps=(int)((IncAxis1)*(3200/(12*PI)));
 //        FiAxis1=(float)(((int)((FiAxis1-IniAxis1)/IncAxis1))*IncAxis1_Steps)*(12*PI)/3200;
         STp(1,(30.*IniAxis1)/PI,0,0, &serialPort,(unsigned int)Sto);
-          cout << IncAxis1_Steps << endl;  cout << FiAxis1 << endl;
+         // cout << IncAxis1_Steps << endl;  cout << FiAxis1 << endl;
         sleep(1);
 Axis1=true;
 PosAxis1=IniAxis1;
@@ -717,10 +717,24 @@ void ofApp::check_scan(Punts p[],Punts pok[], int *n)
 {
     int i;
     *n=0;
-
+ofVec3f v(1, 0, 0);
     for(i=0;i<=cam3d.resy-1;i++)
     {
-        if(p[i].x!=-10000 && p[i].y!=-10000 && p[i].z!=-10000){pok[*n]=p[i];*n=*n+1;}
+        if(p[i].x!=-10000 && p[i].y!=-10000 && p[i].z!=-10000){
+                pok[*n]=p[i];
+                if(*n>0){
+                ofVec3f s(0,pok[*n-1].y- pok[*n].y, pok[*n-1].z- pok[*n].z);
+                ofVec3f u=v.getCrossed(s);
+                ofVec3f un=u.getNormalized();
+                pok[*n].nx=un.x;
+                pok[*n].ny=un.y;
+                pok[*n].nz=un.z;
+                }else{                pok[*n].nx=0;
+                pok[*n].ny=-1;
+                pok[*n].nz=0;}
+
+        *n=*n+1;
+        }
     }
 
 }
@@ -745,9 +759,9 @@ void ofApp::fill_cloud(Punts pok[], int n,int nt)
      cloud.points[nt+i].y = pok[i].y;
      cloud.points[nt+i].z = pok[i].z;
 
-     cloud.points[nt+i].normal_x = 0;
-     cloud.points[nt+i].normal_y = 0;
-     cloud.points[nt+i].normal_z = 0;
+     cloud.points[nt+i].normal_x = pok[i].nx;
+     cloud.points[nt+i].normal_y = pok[i].ny;
+     cloud.points[nt+i].normal_z = pok[i].nz;
 
      cloud.points[nt+i].r = pok[i].r;
      cloud.points[nt+i].g = pok[i].g;
@@ -757,9 +771,9 @@ void ofApp::fill_cloud(Punts pok[], int n,int nt)
      clouderr.points[nt+i].y = pok[i].y;
      clouderr.points[nt+i].z = pok[i].z;
 
-     clouderr.points[nt+i].normal_x = 0;
-     clouderr.points[nt+i].normal_y = 0;
-     clouderr.points[nt+i].normal_z = 0;
+     clouderr.points[nt+i].normal_x = pok[i].nx;
+     clouderr.points[nt+i].normal_y = pok[i].ny;
+     clouderr.points[nt+i].normal_z = pok[i].nz;
 
      clouderr.points[nt+i].r =(25*pok[i].q);
      clouderr.points[nt+i].g = 50;
