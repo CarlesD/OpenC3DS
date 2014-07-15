@@ -29,6 +29,7 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
         void drawGrid(float x, float y);
+
         bool hideGUI;
         float red, green, blue;
         bool bdrawGrid;
@@ -41,7 +42,9 @@ class ofApp : public ofBaseApp{
         float IniAxis1,FiAxis1;
         float IncAxis1;
         float PosAxis1,PosAxis1_ant;
-        bool LScan,Laser,Manual,Axis1_Left_Button,Axis1_Right_Button,Axis1;
+
+        bool Scan,Laser,Manual,Axis1_Left_Button,Axis1_Right_Button,Axis1;
+        bool CartessianXAxis,CylindricalPhiAxis,SphericalPhiZhetaAxis;
 
         Cam cam3d;
         Punts punts[1300];
@@ -62,7 +65,7 @@ class ofApp : public ofBaseApp{
         ofxUISuperCanvas *gui3;
         ofVideoGrabber cam;
 
-        void LinealScan ();
+        void Run_Scan();
         void capture_image(ofImage *image);
 
         void reset_scan(Punts p[]);

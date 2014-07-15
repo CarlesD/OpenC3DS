@@ -9,7 +9,7 @@
     <Kind>6</Kind>
     <Name>R</Name>
     <HighValue>253.743850708</HighValue>
-    <LowValue>41.453201294</LowValue>
+    <LowValue>64.064041138</LowValue>
 </Widget>
 <Widget>
     <Kind>6</Kind>
@@ -26,7 +26,7 @@
 <Widget>
     <Kind>4</Kind>
     <Name>Gray PLL</Name>
-    <Value>46.477832794</Value>
+    <Value>26.379310608</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
@@ -36,7 +36,7 @@
 <Widget>
     <Kind>4</Kind>
     <Name>Peak MP</Name>
-    <Value>3.000000000</Value>
+    <Value>3.650246382</Value>
 </Widget>
 <Widget>
     <Kind>12</Kind>

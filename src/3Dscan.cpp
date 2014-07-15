@@ -166,8 +166,8 @@ int Component_3D_LinScan(Cam cam, int Laser,ofImage Tot, Punts p[], float incx)
 
 
 
-            p[i].x=-incx-Xp;
-            p[i].y=Yp;
+            p[i].x=incx-Xp;
+            p[i].y=-Yp;
             p[i].z=dist_alfa*sin(delta_alfa);
             }else{p[i].x=-10000;
             p[i].y=-10000;
@@ -544,7 +544,7 @@ imax1=0;
 							{
 							    //for (jj = 0; jj <k; jj++)x1=x1+xcan[jj];
 							cont=0;
-							if(x1>0 && x1<1024){cam->p[i].x=x1;cam->p[i].y=i;cam->p[i].a=k;cam->p[i].q=k;}
+							if(x1>0 && x1<1024 && k>=cam->PMP){cam->p[i].x=x1;cam->p[i].y=i;cam->p[i].a=k;cam->p[i].q=k;}
 
 
 							}

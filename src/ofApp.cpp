@@ -35,8 +35,8 @@ red = 100; blue = 200; green = 27;
     cam_laser(1,0,&serialPort,Lto);
 
     PosAxis1=-1;
-
-    LScan=false;
+CartessianXAxis=true;
+    Scan=false;
     Laser=true;
     Axis1_Left_Button=false;
     Axis1_Right_Button=false;
@@ -91,9 +91,30 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
 
 	cout << "got event from: " << name << endl;
 
+
+
 	if(name == "SCAN")
         {
-		LScan=true;
+		Scan=true;
+        }
+
+    else if(name == "Cartesian X Axis")
+        {
+            CartessianXAxis=true;
+            CylindricalPhiAxis=false;
+            SphericalPhiZhetaAxis=false;
+        }
+    else if(name == "Cylindrical Phi Axis")
+        {
+            CartessianXAxis=false;
+            CylindricalPhiAxis=true;
+            SphericalPhiZhetaAxis=false;
+        }
+    else if(name == "Spherical Phi Zheta Axis")
+        {
+            CartessianXAxis=false;
+            CylindricalPhiAxis=false;
+            SphericalPhiZhetaAxis=true;
         }
     else if(name == "Apply Blur")
         {
@@ -138,7 +159,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
     else if(name == "SCAN STOP")
         {
         Axis1=false;
-		LScan=false;
+		Scan=false;
         }
 	else if(name == "Save Point Cloud"&&mp==true)
         {
@@ -174,7 +195,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
 		Axis1_Left_Button=false;
         Axis1_Right_Button=false;
         PosAxis1=0;
-        LScan=false;
+        Scan=false;
         STp(1,1,0,1, &serialPort,(unsigned int)Sto);
         }
     else if(name == "Load Camera"&&mp==true)
@@ -278,28 +299,32 @@ void ofApp::update(){
     cam3d.PMP=(int)PMP;
     pview.update();
 
-	if(cam.isFrameNew()&&LScan==true)
+	if(cam.isFrameNew()&&Scan==true)
         {
-		if(s==1)
+            if (CartessianXAxis==true)
             {
-             copy(cam, TaL);
-             cam_laser(1,0,&serialPort,(int)Lto);
-             s=-1;
+                if(s==1)
+                {
+                     copy(cam, TaL);
+                     cam_laser(1,0,&serialPort,(int)Lto);
+                     s=-1;
+                }
+                else
+                {
+                    s=1;
+                    copy(cam, TsL);
+                    cam_laser(1,1,&serialPort,(int)Lto);
+                    TsL.update();
+                    TaL.update();
+                    Run_Scan();
+                    //contenidor(cam3d, &grisl);
+                    grisl.update();
+                }
             }
-        else
-            {
-            s=1;
-            copy(cam, TsL);
-            cam_laser(1,1,&serialPort,(int)Lto);
-            TsL.update();
-            TaL.update();
-            LinealScan();
-            //contenidor(cam3d, &grisl);
-            grisl.update();
-            }
+
         }
 
-    if(LScan==false && Manual ==true)
+    if(Scan==false && Manual ==true)
         {
         int sense=0;
         if(Axis1_Left_Button==true){sense=-1; STp(1,(180/PI)*(sense*IncAxis1/6),0,0, &serialPort,(int)Sto);}
@@ -458,11 +483,12 @@ void ofApp::setGUI1()
     SerialPort->setAutoClear(false);
 
     gui1->addSpacer();
-    vector<string> vnames; vnames.push_back("LINEAL 1-AXIS"); vnames.push_back("ANGULAR 1-AXIS"); vnames.push_back("ANGULAR 2-AXIS");
+    vector<string> vnames; vnames.push_back("Cartesian X Axis"); vnames.push_back("Cylindrical Phi Axis"); vnames.push_back("Spherical Phi Zheta Axis");
     gui1->addLabel("SCAN TYPE", OFX_UI_FONT_MEDIUM);
     gui1->setWidgetFontSize(OFX_UI_FONT_SMALL);
     ofxUIRadio *radio = gui1->addRadio("SCANTYPE", vnames, OFX_UI_ORIENTATION_VERTICAL);
-    radio->activateToggle("LINEAL 1-AXIS");
+    radio->activateToggle("Cartesian X Axis");
+
 
     gui1->addLabel("", OFX_UI_FONT_LARGE);
     gui1->addSpacer();
@@ -475,7 +501,6 @@ void ofApp::setGUI1()
     PCDFile = gui1->addTextInput("POINT CLOUD FILE", "scan.pcd");
     PCDFile->setAutoUnfocus(false);
     PCDFile->setAutoClear(false);
-
 
     gui1->addButton( "Save Point Cloud", false);
     gui1->addButton( "Reset Point Cloud", false);
@@ -647,65 +672,63 @@ void ofApp::drawGrid(float x, float y)
     }
 }
 
-void ofApp::LinealScan()
+void ofApp::Run_Scan()
 {
 Punts Punts_Ok[cam3d.resy];
 int n=0;
 
-if(LScan==true){
-    if(PosAxis1<FiAxis1&& Axis1==true)
-    {
 
-        STp(1,0,IncAxis1_Steps,0, &serialPort,(unsigned int)Sto);
-        PosAxis1=PosAxis1+IncAxis1;
+if(Scan==true){
 
-        scan(&cam3d,&serialPort,&grisl,&TaL,&TsL);
-        TsL.update();TaL.update();
-        Component_3D_LinScan(cam3d,1,TsL, punts, PosAxis1);
-        check_scan(punts, Punts_Ok, &n);
+if (CartessianXAxis==true)
+        {
+            if(PosAxis1<FiAxis1&& Axis1==true)
+            {
 
+                STp(1,0,IncAxis1_Steps,0, &serialPort,(unsigned int)Sto);
+                PosAxis1=PosAxis1+IncAxis1;
 
+                scan(&cam3d,&serialPort,&grisl,&TaL,&TsL);
+                TsL.update();TaL.update();
+                Component_3D_LinScan(cam3d,1,TsL, punts, PosAxis1);
+                check_scan(punts, Punts_Ok, &n);
 
-         if(n!=0){
-    cloudaux.width    = n;
-    cloudaux.height   = 1;
-    cloudaux.is_dense = false;
+                 if(n!=0)
+                    {
+                    cloudaux.width    = n;
+                    cloudaux.height   = 1;
+                    cloudaux.is_dense = false;
 
-    cloudaux.points.resize (cloudaux.width * cloudaux.height);
+                    cloudaux.points.resize (cloudaux.width * cloudaux.height);
 
-cloud=cloud+cloudaux;
-clouderr=clouderr+cloudaux;
-    fill_cloud(Punts_Ok,n,nt);
+                    cloud=cloud+cloudaux;
+                    clouderr=clouderr+cloudaux;
+                    fill_cloud(Punts_Ok,n,nt);
+                    reset_scan(punts);
+                    nt=nt+n;
+                    }
 
-    reset_scan(punts);
-        nt=nt+n;
-    }
+            }
+            if(Axis1==false)
+            {
 
-    }
-    if(Axis1==false)
-    {
+                STp(1,0,0,1, &serialPort,(unsigned int)Sto);
+                sleep(1);
+                IncAxis1_Steps=(int)((IncAxis1)*(3200/(12*PI)));
+                STp(1,(30.*IniAxis1)/PI,0,0, &serialPort,(unsigned int)Sto);
+                sleep(1);
+                Axis1=true;
+                PosAxis1=IniAxis1;
 
-        STp(1,0,0,1, &serialPort,(unsigned int)Sto);
-        sleep(1);
-        //IncAxis1=((int)((30.*IncAxis1/PI)/0.1125))*0.1125*(PI/30); //steps sencers
-        IncAxis1_Steps=(int)((IncAxis1)*(3200/(12*PI)));
-//        FiAxis1=(float)(((int)((FiAxis1-IniAxis1)/IncAxis1))*IncAxis1_Steps)*(12*PI)/3200;
-        STp(1,(30.*IniAxis1)/PI,0,0, &serialPort,(unsigned int)Sto);
-         // cout << IncAxis1_Steps << endl;  cout << FiAxis1 << endl;
-        sleep(1);
-Axis1=true;
-PosAxis1=IniAxis1;
+            }
+             if(PosAxis1>=FiAxis1)
+            {
+                STp(1,1,0,1, &serialPort,(unsigned int)Sto);
 
-        //PosAxis1=PosAxis1+IncAxis1;
-
-    }
-     if(PosAxis1>=FiAxis1)
-    {
-        STp(1,1,0,1, &serialPort,(unsigned int)Sto);
-
-        Axis1=false;
-        LScan=false;
-    }
+                Axis1=false;
+                Scan=false;
+            }
+        }
 
 }
 
@@ -720,21 +743,27 @@ void ofApp::check_scan(Punts p[],Punts pok[], int *n)
 ofVec3f v(1, 0, 0);
     for(i=0;i<=cam3d.resy-1;i++)
     {
-        if(p[i].x!=-10000 && p[i].y!=-10000 && p[i].z!=-10000){
-                pok[*n]=p[i];
-                if(*n>0){
-                ofVec3f s(0,pok[*n-1].y- pok[*n].y, pok[*n-1].z- pok[*n].z);
-                ofVec3f u=v.getCrossed(s);
-                ofVec3f un=u.getNormalized();
-                pok[*n].nx=un.x;
-                pok[*n].ny=un.y;
-                pok[*n].nz=un.z;
-                }else{                pok[*n].nx=0;
-                pok[*n].ny=-1;
-                pok[*n].nz=0;}
+        if (CartessianXAxis==true)
+            {
+                 if(p[i].x!=-10000 && p[i].y!=-10000 && p[i].z!=-10000)
+                    {
+                        pok[*n]=p[i];
+                        if(*n>0){
+                        ofVec3f s(0,pok[*n-1].y- pok[*n].y, pok[*n-1].z- pok[*n].z);
+                        ofVec3f u=v.getCrossed(s);
+                        ofVec3f un=u.getNormalized();
+                        pok[*n].nx=un.x;
+                        pok[*n].ny=un.y;
+                        pok[*n].nz=un.z;
+                        }else{
+                        pok[*n].nx=0;
+                        pok[*n].ny=-1;
+                        pok[*n].nz=0;}
 
-        *n=*n+1;
-        }
+                    *n=*n+1;
+                    }
+            }
+
     }
 
 }
