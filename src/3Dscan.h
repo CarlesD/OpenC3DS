@@ -48,7 +48,7 @@ int cam_cap_subpixel(Cam *cam,Mat ima1,Mat thr1);
 int calibracio(Cam *cam);
 void camera(Cam *cam,const char *CamFile);
 
-void scan(Cam *cam,int *serialPort, ofImage *grislaser,ofImage *TaL,ofImage *TsL);
+void scan(Cam *cam, ofImage *grislaser,ofImage *TaL,ofImage *TsL);
 
 int Component_3D_LinScan(Cam cam, int Laser,ofImage Tot, Punts p[], float incx);
 int cam_cap(Cam *cam,Mat thr1, Mat thr2);
