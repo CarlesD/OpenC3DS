@@ -24,15 +24,37 @@ red = 100; blue = 200; green = 27;
     setGUI2();
     setGUI3();
 
+//    	serial.listDevices();
+//	vector <ofSerialDeviceInfo> deviceList = serial.getDeviceList();
+	baud = 115200;
+serial.setup("/dev/ttyACM3", baud);
+//serial.writeByte('2');
+//serial.writeByte('5');
+//serial.writeByte(' ');
+//serial.writeByte('1');
+//serial.writeByte(' ');
+//serial.writeByte('1');
+//serial.writeByte(' ');
+//serial.writeByte('1');
+//serial.writeByte('\n');
+
+//unsigned char buf[4]={'5','1','1','1'};
+//serial.writeBytes(&buf[0], 3);
+
+//serial.writeByte('8');
+//sleep(1);
+//serial.writeByte('9');
+
     gui1->loadSettings("gui1.xml");
     gui2->loadSettings("gui2.xml");
     gui3->loadSettings("gui3.xml");
 
     camera(&cam3d,CamFile->getTextString().c_str());
 
-    //Serial_setup(&serialPort,SerialPort->getTextString().c_str());
-    serialPort=openPort(SerialPort->getTextString().c_str(), 115200);
-    cam_laser(1,0,&serialPort,Lto);
+//    Serial_setup(&serialPort,SerialPort->getTextString().c_str());
+//    serialPort=openPort(SerialPort->getTextString().c_str(), 115200);
+//    cam_laser(1,0,&serialPort,Lto);
+    cam_laser(1,0,&serial,Lto);
 
     PosAxis1=-1;
 CartessianXAxis=true;
@@ -77,7 +99,7 @@ void ofApp::exit()
     delete gui1;
 	delete gui2;
 	delete gui3;
-    cam_laser(1,0,&serialPort,Sto);
+    cam_laser(1,0,&serial,Sto);
     close(serialPort);
 
 
@@ -179,11 +201,13 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
         {
 		Axis1_Left_Button=true;
         Axis1_Right_Button=false;
+        serial.writeByte('1');
         }
 	else if(name == "Right-->"&&mp==true)
         {
 		Axis1_Left_Button=false;
         Axis1_Right_Button=true;
+        serial.writeByte('2');
         }
     else if(mp==false)
         {
@@ -196,7 +220,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
         Axis1_Right_Button=false;
         PosAxis1=0;
         Scan=false;
-        STp(1,1,0,1, &serialPort,(unsigned int)Sto);
+        STp(1,1,0,1, &serial,(unsigned int)Sto);
         }
     else if(name == "Load Camera"&&mp==true)
         {
@@ -231,8 +255,9 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
         if(SerialPort->getTriggerType() == OFX_UI_TEXTINPUT_ON_ENTER)
             {
 //            Serial_setup(&serialPort,SerialPort->getTextString().c_str());
-              serialPort=openPort(SerialPort->getTextString().c_str(), 115200);
+//              serialPort=openPort(SerialPort->getTextString().c_str(), 115200);
 
+serial.setup(SerialPort->getTextString().c_str(), baud);
             cout << "ON ENTER: ";
             }
         else if(SerialPort->getTriggerType() == OFX_UI_TEXTINPUT_ON_FOCUS)
@@ -245,7 +270,8 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
             }
         string output = SerialPort->getTextString();
         cout << output << endl;
-         serialPort=openPort(SerialPort->getTextString().c_str(), 115200);
+//         serialPort=openPort(SerialPort->getTextString().c_str(), 115200);
+serial.setup(SerialPort->getTextString().c_str(), baud);
 
         }
     else if(name == "POINT CLOUD FILE")
@@ -306,14 +332,14 @@ void ofApp::update(){
                 if(s==1)
                 {
                      copy(cam, TaL);
-                     cam_laser(1,0,&serialPort,(int)Lto);
+                     cam_laser(1,0,&serial,(int)Lto);
                      s=-1;
                 }
                 else
                 {
                     s=1;
                     copy(cam, TsL);
-                    cam_laser(1,1,&serialPort,(int)Lto);
+                    cam_laser(1,1,&serial,(int)Lto);
                     TsL.update();
                     TaL.update();
                     Run_Scan();
@@ -327,8 +353,8 @@ void ofApp::update(){
     if(Scan==false && Manual ==true)
         {
         int sense=0;
-        if(Axis1_Left_Button==true){sense=-1; STp(1,(180/PI)*(sense*IncAxis1/6),0,0, &serialPort,(int)Sto);}
-        if(Axis1_Right_Button==true){sense=1;STp(1,(180/PI)*(sense*IncAxis1/6),0,0, &serialPort,(int)Sto);}
+        if(Axis1_Left_Button==true){sense=-1; STp(1,(180/PI)*(sense*IncAxis1/6),0,0, &serial,(int)Sto);}
+        if(Axis1_Right_Button==true){sense=1;STp(1,(180/PI)*(sense*IncAxis1/6),0,0, &serial,(int)Sto);}
         PosAxis1=PosAxis1+sense*IncAxis1;
         }
 
@@ -677,7 +703,6 @@ void ofApp::Run_Scan()
 Punts Punts_Ok[cam3d.resy];
 int n=0;
 
-
 if(Scan==true){
 
 if (CartessianXAxis==true)
@@ -685,10 +710,10 @@ if (CartessianXAxis==true)
             if(PosAxis1<FiAxis1&& Axis1==true)
             {
 
-                STp(1,0,IncAxis1_Steps,0, &serialPort,(unsigned int)Sto);
+                STp(1,0,IncAxis1_Steps,0, &serial,(unsigned int)Sto);
                 PosAxis1=PosAxis1+IncAxis1;
 
-                scan(&cam3d,&serialPort,&grisl,&TaL,&TsL);
+                scan(&cam3d,&grisl,&TaL,&TsL);
                 TsL.update();TaL.update();
                 Component_3D_LinScan(cam3d,1,TsL, punts, PosAxis1);
                 check_scan(punts, Punts_Ok, &n);
@@ -712,10 +737,10 @@ if (CartessianXAxis==true)
             if(Axis1==false)
             {
 
-                STp(1,0,0,1, &serialPort,(unsigned int)Sto);
+                STp(1,1,0,1, &serial,(unsigned int)Sto);
                 sleep(1);
                 IncAxis1_Steps=(int)((IncAxis1)*(3200/(12*PI)));
-                STp(1,(30.*IniAxis1)/PI,0,0, &serialPort,(unsigned int)Sto);
+                STp(1,(30.*IniAxis1)/PI,0,0, &serial,(unsigned int)Sto);
                 sleep(1);
                 Axis1=true;
                 PosAxis1=IniAxis1;
@@ -723,7 +748,7 @@ if (CartessianXAxis==true)
             }
              if(PosAxis1>=FiAxis1)
             {
-                STp(1,1,0,1, &serialPort,(unsigned int)Sto);
+                STp(1,1,0,1, &serial,(unsigned int)Sto);
 
                 Axis1=false;
                 Scan=false;

@@ -76,5 +76,6 @@ class ofApp : public ofBaseApp{
 
         bool mp,Pview;
         int X,Y,zoom;
-
+ofSerial	serial;
+int baud;
 };

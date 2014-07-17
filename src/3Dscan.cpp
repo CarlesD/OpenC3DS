@@ -56,7 +56,7 @@ calibracio_cam(cam);
 }
 
 
-void scan(Cam *cam,int *serialPort, ofImage *grislaser,ofImage *TaL,ofImage *TsL)
+void scan(Cam *cam, ofImage *grislaser,ofImage *TaL,ofImage *TsL)
 {
 int amp;
 
