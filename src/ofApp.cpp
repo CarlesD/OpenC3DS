@@ -738,10 +738,10 @@ if (CartessianXAxis==true)
             {
 
                 STp(1,1,0,1, &serial,(unsigned int)Sto);
-                sleep(1);
+                ofSleepMillis(1);
                 IncAxis1_Steps=(int)((IncAxis1)*(3200/(12*PI)));
                 STp(1,(30.*IniAxis1)/PI,0,0, &serial,(unsigned int)Sto);
-                sleep(1);
+                ofSleepMillis(1);
                 Axis1=true;
                 PosAxis1=IniAxis1;
 
