@@ -11,10 +11,10 @@ float finc;
 long npt=0;
 
 
-
 void camera(Cam *cam,const char *CamFile)
 {
     int i,j;
+
 
 cam->fcl1=(char *)malloc(sizeof(char)*50);
 cam->fcl2=(char *)malloc(sizeof(char)*50);
@@ -153,23 +153,35 @@ int Component_3D_LinScan(Cam cam, int Laser,ofImage Tot, Punts p[], float incx)
 
 			delta_alfa=(PI/180)*cam.alfa*(1-((float)i/(float)(cam.resy/2)));
 			cam_dis(cam,1,cam.p[i].x,cam.p[i].y,&Xp,&Yp);
+            dist_alfa=sqrt(Xp*Xp+Yp*Yp)/cos(delta_alfa);
 
-            Vec3b pixel = Tot_Cv.at<Vec3b>( cam.p[i].y, cam.p[i].x );  // row,col index (NOT x,y)
+            if (dist_alfa<1000)
+            {
+             Vec3b pixel = Tot_Cv.at<Vec3b>( cam.p[i].y, cam.p[i].x );  // row,col index (NOT x,y)
 
             p[i].r=pixel[0];
             p[i].g=pixel[1];
             p[i].b=pixel[2];
             p[i].q=cam.p[i].q;
 
-            dist_alfa=sqrt(Xp*Xp+Yp*Yp)/cos(delta_alfa);
+
 
             p[i].x=incx-Xp;
-            p[i].y=Lc-Yp;
+            p[i].y=-Yp;
             p[i].z=dist_alfa*sin(delta_alfa);
-            }
-            else{    p[i].x=-10000;
+            }else{p[i].x=-10000;
             p[i].y=-10000;
-            p[i].z=-10000;}
+            p[i].z=-10000; p[i].r=255;
+            p[i].g=0;
+            p[i].b=0;}
+
+            }
+            else{
+            p[i].x=-10000;
+            p[i].y=-10000;
+            p[i].z=-10000;  p[i].r=255;
+            p[i].g=0;
+            p[i].b=0;}
 		}
 
 return(1);
@@ -507,15 +519,9 @@ imax1=0;
                             x[k]=(double)j;
                             y[k]=(double)sub1.at<uchar>(i,j);
                             cont=1;
-
-                           // fprintf(pFile1,"\n%f;%f",x[k],y[k]);
                             k=k+1;
 
                             }
-
-
-
-
 
                     }
                     if (k>=cam->PMP){
@@ -538,9 +544,8 @@ imax1=0;
 							{
 							    //for (jj = 0; jj <k; jj++)x1=x1+xcan[jj];
 							cont=0;
-							if(x1>0 && x1<1024){cam->p[i].x=x1;cam->p[i].y=i;cam->p[i].a=k;cam->p[i].q=k;
-//							if(i==400)cout<<x1<<endl;
-							}
+							if(x1>0 && x1<1024 && k>=cam->PMP){cam->p[i].x=x1;cam->p[i].y=i;cam->p[i].a=k;cam->p[i].q=k;}
+
 
 							}
 							x1=0;imax1=0;jmax=-1;jmin=-1;k=0;

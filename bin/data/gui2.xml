@@ -9,7 +9,7 @@
     <Kind>6</Kind>
     <Name>R</Name>
     <HighValue>253.743850708</HighValue>
-    <LowValue>52.758621216</LowValue>
+    <LowValue>64.064041138</LowValue>
 </Widget>
 <Widget>
     <Kind>6</Kind>
@@ -26,7 +26,7 @@
 <Widget>
     <Kind>4</Kind>
     <Name>Gray PLL</Name>
-    <Value>0.000000000</Value>
+    <Value>26.379310608</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
@@ -36,7 +36,7 @@
 <Widget>
     <Kind>4</Kind>
     <Name>Peak MP</Name>
-    <Value>3.000000000</Value>
+    <Value>3.650246382</Value>
 </Widget>
 <Widget>
     <Kind>12</Kind>
@@ -66,25 +66,25 @@
 <Widget>
     <Kind>12</Kind>
     <Name>Camera Focus</Name>
-    <Value>75</Value>
+    <Value>80</Value>
 </Widget>
 <Widget>
     <Kind>12</Kind>
     <Name>WBT value</Name>
-    <Value>4444</Value>
+    <Value>3333</Value>
 </Widget>
 <Widget>
     <Kind>12</Kind>
     <Name>Camera Exposition</Name>
-    <Value>333</Value>
+    <Value>444</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
     <Name>Laser (ms)</Name>
-    <Value>79.704437256</Value>
+    <Value>116.157638550</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
     <Name>Stepper (ms)</Name>
-    <Value>28.078819275</Value>
+    <Value>35.467979431</Value>
 </Widget>

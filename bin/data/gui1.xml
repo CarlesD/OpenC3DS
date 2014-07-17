@@ -17,17 +17,17 @@
 </Widget>
 <Widget>
     <Kind>2</Kind>
-    <Name>LINEAL 1-AXIS</Name>
+    <Name>Cartesian X Axis</Name>
     <Value>1</Value>
 </Widget>
 <Widget>
     <Kind>2</Kind>
-    <Name>ANGULAR 1-AXIS</Name>
+    <Name>Cylindrical Phi Axis</Name>
     <Value>0</Value>
 </Widget>
 <Widget>
     <Kind>2</Kind>
-    <Name>ANGULAR 2-AXIS</Name>
+    <Name>Spherical Phi Zheta Axis</Name>
     <Value>0</Value>
 </Widget>
 <Widget>
@@ -38,7 +38,7 @@
 <Widget>
     <Kind>6</Kind>
     <Name>RAXIS1</Name>
-    <HighValue>130.541870117</HighValue>
+    <HighValue>133.004913330</HighValue>
     <LowValue>0.000000000</LowValue>
 </Widget>
 <Widget>
