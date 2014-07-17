@@ -81,7 +81,7 @@ Mat tt1,tt2,tt3,colo;
 
 Mat matImg;
 
-Point punt;
+cv::Point punt;
 
 tt1 = toCv(*TaL).clone();
 Laser1=tt1.clone();
@@ -99,8 +99,8 @@ cvtColor(image1,HSV,CV_BGR2HSV);
 inRange(HSV,Scalar(cam->Bi,cam->Gi,cam->Ri),Scalar(cam->Bs,cam->Gs,cam->Rs),threshold1);
 th1=threshold1.clone();
 image2=image1.clone();
-GaussianBlur(threshold1,th1,Size(1,1),0,0);
-GaussianBlur(image2,image1,Size(cam->blur_ksizew,cam->blur_ksizeh),cam->blur_sigmax,cam->blur_sigmay);
+GaussianBlur(threshold1,th1,cv::Size(1,1),0,0);
+GaussianBlur(image2,image1,cv::Size(cam->blur_ksizew,cam->blur_ksizeh),cam->blur_sigmax,cam->blur_sigmay);
 cam_cap_subpixel(cam,image1,threshold1);
 
 cvtColor(image1,gris,CV_BGR2GRAY);
@@ -109,7 +109,7 @@ cvtColor(gris,grisc,CV_GRAY2BGR);
 for(i=0;i<2*amp;i++)
 {
 
- Point paux1;
+ cv::Point paux1;
  paux1.x=(int)cam->p[i].x;
  paux1.y=(int)cam->p[i].y;
 
@@ -193,7 +193,7 @@ float minx=1024;
 int ixmin=0;
 int deltak=10;
 float xco,yco;
-Point punt;
+cv::Point punt;
 float recta_sx[cam.resy-1],recta_ix[cam.resy-1],recta_sy[cam.resy-1],recta_iy[cam.resy-1];
 double scx,scxx,scy,scxy,meanc_x,meanc_y, varcx,covc,paramcs0,paramcs1,paramci0,paramci1;
 float Xco,Yco,Xc1,Yc1,Zco,Zc1;
