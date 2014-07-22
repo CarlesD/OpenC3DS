@@ -853,6 +853,7 @@ void ofApp::check_scan(Punts p[],Punts pok[], int *n)
 {
     int i;
     *n=0;
+
 ofVec3f v(1, 0, 0);
     for(i=0;i<=cam3d.resy-1;i++)
     {
