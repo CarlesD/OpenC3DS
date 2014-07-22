@@ -12,7 +12,6 @@
 
 #include <sstream>
 #include "SC.h"
-#include "ofMain.h"
 using namespace std;
 
 
@@ -23,23 +22,32 @@ char bu[20];
 unsigned char *HOME;
 unsigned char *STEPS;
 unsigned char *ANGLE;
-unsigned int tus;
 int resp=0;
 int iter=0;
-tus=tms*1000;
+
 
 if (Home==true){
     HOME = (unsigned char *)malloc(20 * sizeof(unsigned char));
     sprintf(bu,"%d 1 9 1\n",Stepper_num);
     memcpy(HOME,bu, 20);
-    serial->writeBytes(&HOME[0], 20);}
+    serial->writeBytes(&HOME[0], 20);
 
+    while (resp!=69 && iter<100)
+           {
+            resp=serial->readByte();
+            iter=iter+1;
+            ofSleepMillis(tms);
+            cout <<resp<< endl;
+             }
+    if(iter<20){cout <<"Stepper:"<<iter << endl;return(1);}
+    else {cout << "Serial port error" << endl;return(0);}
+}
  else{
 
         if(Steps==0)
             {
                 ANGLE = (unsigned char *)malloc(20 * sizeof(unsigned char));
-                sprintf(bu,"%d 1 1 %f\n",Stepper_num,Angle);
+                sprintf(bu,"1 1 1 %f\n",Stepper_num,Angle);
                 memcpy(ANGLE,bu, 20);
                 serial->writeBytes(&ANGLE[0], 20);
 
@@ -47,7 +55,7 @@ if (Home==true){
                     {
                         resp=serial->readByte();
                         iter=iter+1;
-                        usleep(tus);
+                        ofSleepMillis(tms);
                         cout <<resp<< endl;
                     }
                 if(iter<20){cout <<"Stepper:"<<iter << endl;return(1);}
@@ -65,7 +73,7 @@ if (Home==true){
                     {
                         resp=serial->readByte();
                         iter=iter+1;
-                        usleep(tus);
+                        ofSleepMillis(tms);
                         cout <<resp<< endl;
                     }
                 if(iter<20){cout <<"Stepper:"<<iter << endl;return(1);}
@@ -88,14 +96,13 @@ unsigned char LASER2_ON[]={'6',' ','1',' ','0',' ','0','\n'};
 unsigned char LASER2_OFF[]={'6',' ','0',' ','0',' ','0','\n'};
 int resp=0;
 int iter=0;
-unsigned int tus;
-tus=tms*1000;
 
 
-if(Laser_num==1 && estat ==1){serial->writeBytes(&LASER1_ON[0], 8); while (resp!=70 &&iter<100){usleep(tus);iter=iter+1;resp=serial->readByte(); }}
-if(Laser_num==1 && estat ==0){serial->writeBytes(&LASER1_OFF[0], 8); while (resp!=71 &&iter<100){usleep(tus);iter=iter+1;resp=serial->readByte(); }}
-if(Laser_num==2 && estat ==1){serial->writeBytes(&LASER2_ON[0], 8); while (resp!=69 &&iter<100){iter=iter+1;resp=serial->readByte();usleep(tus);}}
-if(Laser_num==2 && estat ==0){serial->writeBytes(&LASER2_OFF[0], 8); while (resp!=69 &&iter<100){iter=iter+1;resp=serial->readByte(); usleep(tus);}}
+
+if(Laser_num==1 && estat ==1){serial->writeBytes(&LASER1_ON[0], 8); while (resp!=70 &&iter<100){ofSleepMillis(tms);iter=iter+1;resp=serial->readByte(); }}
+if(Laser_num==1 && estat ==0){serial->writeBytes(&LASER1_OFF[0], 8); while (resp!=71 &&iter<100){ofSleepMillis(tms);;iter=iter+1;resp=serial->readByte(); }}
+if(Laser_num==2 && estat ==1){serial->writeBytes(&LASER2_ON[0], 8); while (resp!=69 &&iter<100){ofSleepMillis(tms);iter=iter+1;resp=serial->readByte();}}
+if(Laser_num==2 && estat ==0){serial->writeBytes(&LASER2_OFF[0], 8); while (resp!=69 &&iter<100){ofSleepMillis(tms);iter=iter+1;resp=serial->readByte();}}
 
 
 if(iter<20){cout <<"Laser:"<<iter << endl; return(1);return(1);}

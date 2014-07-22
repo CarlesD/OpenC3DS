@@ -2,13 +2,13 @@
     <Kind>40</Kind>
     <Name>OFX_UI_WIDGET_CANVAS</Name>
     <IsMinified>0</IsMinified>
-    <XPosition>882.000000000</XPosition>
-    <YPosition>287.000000000</YPosition>
+    <XPosition>869.000000000</XPosition>
+    <YPosition>303.000000000</YPosition>
 </Canvas>
 <Widget>
     <Kind>2</Kind>
     <Name>Zoom mouse click</Name>
-    <Value>1</Value>
+    <Value>0</Value>
 </Widget>
 <Widget>
     <Kind>12</Kind>

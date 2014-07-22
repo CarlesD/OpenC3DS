@@ -12,6 +12,15 @@ const char* portName="/dev/ttyACM3";
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+
+
+
+//	font.loadFont("DIN.otf", 64);
+
+	serial.listDevices();
+	vector <ofSerialDeviceInfo> deviceList = serial.getDeviceList();
+
+unsigned char HOME[8]={'1',' ','1',' ','9',' ','0','\n'};
 red = 100; blue = 200; green = 27;
 
     hideGUI      = false;
@@ -23,12 +32,15 @@ red = 100; blue = 200; green = 27;
     setGUI1();
     setGUI2();
     setGUI3();
-
+    setGUI4();
 //    	serial.listDevices();
 //	vector <ofSerialDeviceInfo> deviceList = serial.getDeviceList();
 	baud = 115200;
+//	openPort("/dev/ttyACM3",baud);
 serial.setup("/dev/ttyACM3", baud);
-//serial.writeByte('2');
+
+//while(serial.available()<0){serial.writeByte('7');usleep(10000);}
+
 //serial.writeByte('5');
 //serial.writeByte(' ');
 //serial.writeByte('1');
@@ -48,18 +60,20 @@ serial.setup("/dev/ttyACM3", baud);
     gui1->loadSettings("gui1.xml");
     gui2->loadSettings("gui2.xml");
     gui3->loadSettings("gui3.xml");
+    gui4->loadSettings("gui4.xml");
 
     camera(&cam3d,CamFile->getTextString().c_str());
-
+   serial.setup(SerialPort->getTextString().c_str(), baud);
+   serial.flush(true,true);
 //    Serial_setup(&serialPort,SerialPort->getTextString().c_str());
 //    serialPort=openPort(SerialPort->getTextString().c_str(), 115200);
 //    cam_laser(1,0,&serialPort,Lto);
-    cam_laser(1,0,&serial,Lto);
+
 
     PosAxis1=-1;
 CartessianXAxis=true;
     Scan=false;
-    Laser=true;
+
     Axis1_Left_Button=false;
     Axis1_Right_Button=false;
 
@@ -87,7 +101,7 @@ CartessianXAxis=true;
     reset_scan(punts);
     zoom=1;
     Pview=false;
-
+Laser(1,0,&serial,Lto);
 }
 void ofApp::exit()
 {
@@ -96,11 +110,13 @@ void ofApp::exit()
     gui1->saveSettings("gui1.xml");
     gui2->saveSettings("gui2.xml");
     gui3->saveSettings("gui3.xml");
+    gui4->saveSettings("gui4.xml");
     delete gui1;
 	delete gui2;
 	delete gui3;
-    cam_laser(1,0,&serial,Sto);
-    close(serialPort);
+	delete gui4;
+    Laser(1,0,&serial,Lto);
+
 
 
 //save_cam_data(cam3d,"HD525.cam");
@@ -125,6 +141,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
             CartessianXAxis=true;
             CylindricalPhiAxis=false;
             SphericalPhiZhetaAxis=false;
+            Laser(1,0,&serial,Lto);
         }
     else if(name == "Cylindrical Phi Axis")
         {
@@ -171,6 +188,8 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
         string com6="uvcdynctrl -d /dev/video"+VideoNum->getTextString()+" -s 'White Balance Temperature, Auto' 0";
         system(com6.c_str());
 
+        string com7="uvcdynctrl -d /dev/video"+VideoNum->getTextString()+" -s 'Gain' 0"+GAIN->getTextString();
+        system(com7.c_str());
         ofSetVerticalSync(true);
         cam.setDesiredFrameRate(30);
         cam.setDeviceID(cam3d.DeviceId);
@@ -197,17 +216,22 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
 		if(toggle->getValue()==true){ Manual=true;}
 		else{Manual=false;}
         }
+    else if(name == "Zoom mouse click")
+        {
+		ofxUIToggle *toggle = (ofxUIToggle *) e.getToggle();
+		if(toggle->getValue()==true){ Zoom=true;}
+		else{Zoom=false;}
+        }
 	else if(name == "<--Left"&&mp==true)
         {
 		Axis1_Left_Button=true;
         Axis1_Right_Button=false;
-        serial.writeByte('1');
         }
 	else if(name == "Right-->"&&mp==true)
         {
 		Axis1_Left_Button=false;
         Axis1_Right_Button=true;
-        serial.writeByte('2');
+
         }
     else if(mp==false)
         {
@@ -220,7 +244,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
         Axis1_Right_Button=false;
         PosAxis1=0;
         Scan=false;
-        STp(1,1,0,1, &serial,(unsigned int)Sto);
+        Stepper(1,1,0,1, &serial,(unsigned int)Sto);
         }
     else if(name == "Load Camera"&&mp==true)
         {
@@ -256,7 +280,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
             {
 //            Serial_setup(&serialPort,SerialPort->getTextString().c_str());
 //              serialPort=openPort(SerialPort->getTextString().c_str(), 115200);
-
+SerialPort->update();
 serial.setup(SerialPort->getTextString().c_str(), baud);
             cout << "ON ENTER: ";
             }
@@ -271,6 +295,7 @@ serial.setup(SerialPort->getTextString().c_str(), baud);
         string output = SerialPort->getTextString();
         cout << output << endl;
 //         serialPort=openPort(SerialPort->getTextString().c_str(), 115200);
+SerialPort->update();
 serial.setup(SerialPort->getTextString().c_str(), baud);
 
         }
@@ -332,14 +357,14 @@ void ofApp::update(){
                 if(s==1)
                 {
                      copy(cam, TaL);
-                     cam_laser(1,0,&serial,(int)Lto);
+                     Laser(1,0,&serial,(int)Lto);
                      s=-1;
                 }
                 else
                 {
                     s=1;
                     copy(cam, TsL);
-                    cam_laser(1,1,&serial,(int)Lto);
+                    Laser(1,1,&serial,(int)Lto);
                     TsL.update();
                     TaL.update();
                     Run_Scan();
@@ -353,8 +378,8 @@ void ofApp::update(){
     if(Scan==false && Manual ==true)
         {
         int sense=0;
-        if(Axis1_Left_Button==true){sense=-1; STp(1,(180/PI)*(sense*IncAxis1/6),0,0, &serial,(int)Sto);}
-        if(Axis1_Right_Button==true){sense=1;STp(1,(180/PI)*(sense*IncAxis1/6),0,0, &serial,(int)Sto);}
+        if(Axis1_Left_Button==true){sense=-1; Stepper(1,(180/PI)*(sense*IncAxis1/6),0,0, &serial,(int)Sto);}
+        if(Axis1_Right_Button==true){sense=1;Stepper(1,(180/PI)*(sense*IncAxis1/6),0,0, &serial,(int)Sto);}
         PosAxis1=PosAxis1+sense*IncAxis1;
         }
 
@@ -402,6 +427,7 @@ void ofApp::keyPressed(int key){
             gui1->toggleVisible();
             gui2->toggleVisible();
             gui3->toggleVisible();
+            gui4->toggleVisible();
 			break;
 
 		case 'p':
@@ -433,6 +459,9 @@ void ofApp::keyPressed(int key){
         case OF_KEY_F3:
             gui3->toggleVisible();
             break;
+        case OF_KEY_F4:
+            gui4->toggleVisible();
+            break;
 		default:
 			break;
 	}
@@ -463,8 +492,8 @@ void ofApp::mousePressed(int x, int y, int button){
 //    findHue = hue.getPixels()[my*w+mx];
 mp=true;
 //grisl.draw(210-890*(zoom*0.5),500*(zoom*0.5),890*zoom,500*zoom);
-if(x>210&& y>0 &&x<(210+890)&&y<500&button==0) {zoom=zoom+1;X=x-210-(445/zoom);Y=y-0-(250/zoom);}
-if(x>210&& y>0 &&x<(210+890)&&y<500&button==2) {zoom=zoom-1;if(zoom<1){zoom=1;X=0;Y=0;}else{X=x-210-(445/zoom);Y=y-0-(250/zoom);}}
+if(x>210&& y>0 &&x<(210+890)&&y<500&button==0&&Zoom==true) {zoom=zoom+1;X=x-210-(445/zoom);Y=y-0-(250/zoom);}
+if(x>210&& y>0 &&x<(210+890)&&y<500&button==2&&Zoom==true) {zoom=zoom-1;if(zoom<1){zoom=1;X=0;Y=0;}else{X=x-210-(445/zoom);Y=y-0-(250/zoom);}}
 if(x>210&& y>500 &&x<(210+295)&&y<(500+166)&button==0) {if(Pview==true){Pview=false;}else{Pview=true;}}
 cam.draw(210,500,295,166);
 
@@ -612,32 +641,39 @@ void ofApp::setGUI2()
 
 
 
-    gui2->addSpacer();
-
-    gui2->addLabel("Video cam number:", OFX_UI_FONT_SMALL);
-   	gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
-    VideoNum = gui2->addTextInput("Videonum", "2");
-    VideoNum->setAutoUnfocus(false);
-    VideoNum->setAutoClear(false);
-
-    gui2->addLabel("Focus:", OFX_UI_FONT_SMALL);
-   	gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
-    CamFocus = gui2->addTextInput("Camera Focus", "80");
-    CamFocus->setAutoUnfocus(false);
-    CamFocus->setAutoClear(false);
-
-    gui2->addLabel("White Balance Temperature:", OFX_UI_FONT_SMALL);
-    gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
-    WBT = gui2->addTextInput("WBT value", "2800");
-    WBT->setAutoUnfocus(false);
-    WBT->setAutoClear(false);;
-
-    gui2->addLabel("Exposition:", OFX_UI_FONT_SMALL);
-   	gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
-    CamExp = gui2->addTextInput("Camera Exposition", "600");
-    CamExp->setAutoUnfocus(false);
-    CamExp->setAutoClear(false);
-    gui2->addButton( "Apply", false);
+//    gui2->addSpacer();
+//
+//    gui2->addLabel("Video cam number:", OFX_UI_FONT_SMALL);
+//   	gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
+//    VideoNum = gui2->addTextInput("Videonum", "2");
+//    VideoNum->setAutoUnfocus(false);
+//    VideoNum->setAutoClear(false);
+//
+//    gui2->addLabel("Focus:", OFX_UI_FONT_SMALL);
+//   	gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
+//    CamFocus = gui2->addTextInput("Camera Focus", "80");
+//    CamFocus->setAutoUnfocus(false);
+//    CamFocus->setAutoClear(false);
+//
+//    gui2->addLabel("White Balance Temperature:", OFX_UI_FONT_SMALL);
+//    gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
+//    WBT = gui2->addTextInput("WBT value", "2800");
+//    WBT->setAutoUnfocus(false);
+//    WBT->setAutoClear(false);;
+//
+//    gui2->addLabel("Exposition:", OFX_UI_FONT_SMALL);
+//   	gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
+//    CamExp = gui2->addTextInput("Camera Exposition", "600");
+//    CamExp->setAutoUnfocus(false);
+//    CamExp->setAutoClear(false);
+//
+//    gui2->addLabel("Gain:", OFX_UI_FONT_SMALL);
+//   	gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
+//    GAIN = gui2->addTextInput("Camera Gain", "128");
+//    GAIN->setAutoUnfocus(false);
+//    GAIN->setAutoClear(false);
+//
+//    gui2->addButton( "Apply", false);
 
     gui2->addSpacer();
     gui2->addLabel("Timeout:", OFX_UI_FONT_SMALL);
@@ -682,6 +718,53 @@ void ofApp::setGUI3()
     gui3->autoSizeToFitWidgets();
 	ofAddListener(gui3->newGUIEvent,this,&ofApp::guiEvent);
 }
+void ofApp::setGUI4()
+{
+    gui4 = new ofxUISuperCanvas("CAMERA SETTINGS");
+    gui4->addSpacer();
+	gui4->addToggle( "Zoom mouse click", false);
+
+    gui4->addSpacer();
+
+    gui4->addLabel("Video cam number:", OFX_UI_FONT_SMALL);
+   	gui4->setWidgetFontSize(OFX_UI_FONT_SMALL);
+    VideoNum = gui4->addTextInput("Videonum", "2");
+    VideoNum->setAutoUnfocus(false);
+    VideoNum->setAutoClear(false);
+
+    gui4->addLabel("Focus:", OFX_UI_FONT_SMALL);
+   	gui4->setWidgetFontSize(OFX_UI_FONT_SMALL);
+    CamFocus = gui4->addTextInput("Camera Focus", "80");
+    CamFocus->setAutoUnfocus(false);
+    CamFocus->setAutoClear(false);
+
+    gui4->addLabel("White Balance Temperature:", OFX_UI_FONT_SMALL);
+    gui4->setWidgetFontSize(OFX_UI_FONT_SMALL);
+    WBT = gui4->addTextInput("WBT value", "2800");
+    WBT->setAutoUnfocus(false);
+    WBT->setAutoClear(false);;
+
+    gui4->addLabel("Exposition:", OFX_UI_FONT_SMALL);
+   	gui4->setWidgetFontSize(OFX_UI_FONT_SMALL);
+    CamExp = gui4->addTextInput("Camera Exposition", "600");
+    CamExp->setAutoUnfocus(false);
+    CamExp->setAutoClear(false);
+
+    gui4->addLabel("Gain:", OFX_UI_FONT_SMALL);
+   	gui4->setWidgetFontSize(OFX_UI_FONT_SMALL);
+    GAIN = gui4->addTextInput("Camera Gain", "128");
+    GAIN->setAutoUnfocus(false);
+    GAIN->setAutoClear(false);
+
+    gui4->addButton( "Apply", false);
+
+
+//    gui2->setPosition(212, 0);
+    gui4->autoSizeToFitWidgets();
+
+	ofAddListener(gui4->newGUIEvent,this,&ofApp::guiEvent);
+}
+
 void ofApp::drawGrid(float x, float y)
 {
     float w = ofGetWidth();
@@ -710,7 +793,7 @@ if (CartessianXAxis==true)
             if(PosAxis1<FiAxis1&& Axis1==true)
             {
 
-                STp(1,0,IncAxis1_Steps,0, &serial,(unsigned int)Sto);
+                Stepper(1,0,IncAxis1_Steps,0, &serial,(unsigned int)Sto);
                 PosAxis1=PosAxis1+IncAxis1;
 
                 scan(&cam3d,&grisl,&TaL,&TsL);
@@ -737,18 +820,18 @@ if (CartessianXAxis==true)
             if(Axis1==false)
             {
 
-                STp(1,1,0,1, &serial,(unsigned int)Sto);
-                ofSleepMillis(1);
+                Stepper(1,1,0,1, &serial,(unsigned int)Sto);
+                sleep(1);
                 IncAxis1_Steps=(int)((IncAxis1)*(3200/(12*PI)));
-                STp(1,(30.*IniAxis1)/PI,0,0, &serial,(unsigned int)Sto);
-                ofSleepMillis(1);
+                Stepper(1,(30.*IniAxis1)/PI,0,0, &serial,(unsigned int)Sto);
+                sleep(1);
                 Axis1=true;
                 PosAxis1=IniAxis1;
 
             }
              if(PosAxis1>=FiAxis1)
             {
-                STp(1,1,0,1, &serial,(unsigned int)Sto);
+                Stepper(1,1,0,1, &serial,(unsigned int)Sto);
 
                 Axis1=false;
                 Scan=false;
@@ -784,8 +867,7 @@ ofVec3f v(1, 0, 0);
                         pok[*n].nx=0;
                         pok[*n].ny=-1;
                         pok[*n].nz=0;}
-
-                    *n=*n+1;
+                        *n=*n+1;
                     }
             }
 
