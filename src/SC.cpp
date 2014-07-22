@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-//#include <termios.h>
 #include <unistd.h>
 #include <math.h>
 #include <fcntl.h>
@@ -15,115 +14,95 @@
 #include "SC.h"
 #include "ofMain.h"
 using namespace std;
-//
-//int openPort(const char* sPort, int nBaud) {
-//struct termios toptions;
-//int fd;
-//fd = open(sPort, O_RDWR | O_NOCTTY | O_NDELAY | O_NONBLOCK);
-//if (fd == -1) {
-//perror("init_serialport: Unable to open port ");
-//return -1;
-//}
-//
-//if (tcgetattr(fd, &toptions) < 0) {
-//perror("init_serialport: Couldn't get term attributes");
-//return -1;
-//}
-//speed_t brate = nBaud; // let you override switch below if needed
-//switch(nBaud) {
-//case 4800: brate=B4800; break;
-//case 9600: brate=B9600; break;
-//#ifdef B14400
-//case 14400: brate=B14400; break;
-//#endif
-//case 19200: brate=B19200; break;
-//#ifdef B28800
-//case 28800: brate=B28800; break;
-//#endif
-//case 38400: brate=B38400; break;
-//case 57600: brate=B57600; break;
-//case 115200: brate=B115200; break;
-//}
-//cfsetispeed(&toptions, brate);
-//cfsetospeed(&toptions, brate);
-//
-//// 8N1
-//toptions.c_cflag &= ~PARENB;
-//toptions.c_cflag &= ~CSTOPB;
-//toptions.c_cflag &= ~CSIZE;
-//toptions.c_cflag |= CS8;
-//// no flow control
-//toptions.c_cflag &= ~CRTSCTS;
-//
-//toptions.c_cflag |= CREAD | CLOCAL; // turn on READ & ignore ctrl lines
-//toptions.c_iflag &= ~(IXON | IXOFF | IXANY); // turn off s/w flow ctrl
-//
-//toptions.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG); // make raw
-//toptions.c_oflag &= ~OPOST; // make raw
-//
-//// see: http://unixwiz.net/techtips/termios-vmin-vtime.html
-//toptions.c_cc[VMIN] = 0;
-//toptions.c_cc[VTIME] = 20;
-//
-//if( tcsetattr(fd, TCSANOW, &toptions) < 0) {
-//perror("init_serialport: Couldn't set term attributes");
-//return -1;
-//}
-//return fd;
-//}
-//
-//void Serial_setup(int *serialPort,const char* portName )
-//{
-//
-//char path[256];
-//int i;
-//
-//
-//  // File descriptor for serial port
-//  struct termios portOptions; // struct to hold the port settings
-//  // Open the serial port as read/write, not as controlling terminal, and
-//  //   don't block the CPU if it takes too long to open the port.
-//  *serialPort = open(portName, O_RDWR | O_NOCTTY | O_NDELAY );
-//
-//
-//  // Fetch the current port settings
-//  tcgetattr(*serialPort, &portOptions);
-//
-//  // Flush the port's buffers (in and out) before we start using it
-//  tcflush(*serialPort, TCIOFLUSH);
-//
-//  // Set the input and output baud rates
-//  cfsetispeed(&portOptions, B115200);
-//  cfsetospeed(&portOptions, B115200);
-//
-//  // c_cflag contains a few important things- CLOCAL and CREAD, to prevent
-//  //   this program from "owning" the port and to enable receipt of data.
-//  //   Also, it holds the settings for number of data bits, parity, stop bits,
-//  //   and hardware flow control.
-//  portOptions.c_cflag |= CLOCAL;
-//  portOptions.c_cflag |= CREAD;
-//  // Set up the frame information.
-//  portOptions.c_cflag &= ~CSIZE; // clear frame size info
-//  portOptions.c_cflag |= CS8;    // 8 bit frames
-//  portOptions.c_cflag &= ~PARENB;// no parity
-//  portOptions.c_cflag &= ~CSTOPB;// one stop bit
-//
-//  // Now that we've populated our options structure, let's push it back to the
-//  //   system.
-//  tcsetattr(*serialPort, TCSANOW, &portOptions);
-//
-//  // Flush the buffer one more time.
-//  tcflush(*serialPort, TCIOFLUSH);
-//
-//}
-//
-//
-////int servoini(int servo, int *serialPort)
-////{
-////servop(servo,0,&serialPort);
-////sleep(2);
-////return(0);
-////}
+
+
+int Stepper(int Stepper_num,float Angle,int Steps, bool Home, ofSerial *serial, int tms)
+{
+
+char bu[20];
+unsigned char *HOME;
+unsigned char *STEPS;
+unsigned char *ANGLE;
+unsigned int tus;
+int resp=0;
+int iter=0;
+tus=tms*1000;
+
+if (Home==true){
+    HOME = (unsigned char *)malloc(20 * sizeof(unsigned char));
+    sprintf(bu,"%d 1 9 1\n",Stepper_num);
+    memcpy(HOME,bu, 20);
+    serial->writeBytes(&HOME[0], 20);}
+
+ else{
+
+        if(Steps==0)
+            {
+                ANGLE = (unsigned char *)malloc(20 * sizeof(unsigned char));
+                sprintf(bu,"%d 1 1 %f\n",Stepper_num,Angle);
+                memcpy(ANGLE,bu, 20);
+                serial->writeBytes(&ANGLE[0], 20);
+
+                while (resp!=69 && iter<100)
+                    {
+                        resp=serial->readByte();
+                        iter=iter+1;
+                        usleep(tus);
+                        cout <<resp<< endl;
+                    }
+                if(iter<20){cout <<"Stepper:"<<iter << endl;return(1);}
+                else {cout << "Serial port error" << endl;return(0);}
+            }
+
+        if(Angle==0)
+            {
+                STEPS = (unsigned char *)malloc(20 * sizeof(unsigned char));
+                sprintf(bu,"%d 1 2 %d\n",Stepper_num,Steps);
+                memcpy(STEPS,bu, 20);
+                serial->writeBytes(&STEPS[0], 20);
+
+                while (resp!=69 && iter<100)
+                    {
+                        resp=serial->readByte();
+                        iter=iter+1;
+                        usleep(tus);
+                        cout <<resp<< endl;
+                    }
+                if(iter<20){cout <<"Stepper:"<<iter << endl;return(1);}
+                else {cout << "Serial port error" << endl;return(0);}
+            }
+
+ }
+
+}
+
+
+
+
+int Laser(int Laser_num,int estat,ofSerial *serial,int tms)
+{
+char bu[16];
+unsigned char LASER1_ON[]={'5',' ','1',' ','0',' ','0','\n'};
+unsigned char LASER1_OFF[]={'5',' ','0',' ','0',' ','0','\n'};
+unsigned char LASER2_ON[]={'6',' ','1',' ','0',' ','0','\n'};
+unsigned char LASER2_OFF[]={'6',' ','0',' ','0',' ','0','\n'};
+int resp=0;
+int iter=0;
+unsigned int tus;
+tus=tms*1000;
+
+
+if(Laser_num==1 && estat ==1){serial->writeBytes(&LASER1_ON[0], 8); while (resp!=70 &&iter<100){usleep(tus);iter=iter+1;resp=serial->readByte(); }}
+if(Laser_num==1 && estat ==0){serial->writeBytes(&LASER1_OFF[0], 8); while (resp!=71 &&iter<100){usleep(tus);iter=iter+1;resp=serial->readByte(); }}
+if(Laser_num==2 && estat ==1){serial->writeBytes(&LASER2_ON[0], 8); while (resp!=69 &&iter<100){iter=iter+1;resp=serial->readByte();usleep(tus);}}
+if(Laser_num==2 && estat ==0){serial->writeBytes(&LASER2_OFF[0], 8); while (resp!=69 &&iter<100){iter=iter+1;resp=serial->readByte(); usleep(tus);}}
+
+
+if(iter<20){cout <<"Laser:"<<iter << endl; return(1);return(1);}
+else {cout << "Serial port error" << endl;return(0);}
+
+
+}
 
 int servop(int servo,float angle, int *serialPort)
 {
@@ -154,8 +133,6 @@ bu[1]=servo;
 		posi=posaux;
 		}
 	    }
-
-
 
 write(*serialPort, bu, 9);
 
@@ -215,82 +192,6 @@ while (resp!='E'){
         usleep(80000);}
 resp=0;
 return(0);
-
-}
-
-int STp(int servo,float angle,int steps, int home, ofSerial *serial, int tms)
-{
-
-char bu[20];
-unsigned char HOME[]={'1',' ','1',' ','9',' ','0','\n'};
-unsigned char STEPS[]={'1',' ','1',' ','2',' ','11','\n'};
-unsigned char ANGLE[]={'1',' ','1',' ','1',' ','1','\n'};
-unsigned char bu_uc[40];
-unsigned char resp=0;
-unsigned int tus;
-int iter=0;
-tus=tms*1000;
-
-serial->writeBytes(&STEPS[0], 8);
-if(steps==0)
-{
-    if (home==1){serial->writeBytes(&HOME[0], 8);}
-    else{serial->writeBytes(&ANGLE[0], 8);}
-
-//   write(*serialPort, bu, 20);
-
-    while (resp!='E'&&iter<100){
-
-        serial->readBytes( &resp,1);
-        iter=iter+1;
-        usleep(tus);}
-
-    if(iter<20){return(1);}
-    else {cout << "Serial port error" << endl;return(0);}
-}
-else{
-    if (home==1){serial->writeBytes(&HOME[0], 8);}
-    else{serial->writeBytes(&STEPS[0], 8); }
-
-//   write(*serialPort, bu, 20);
-
-    while (resp!='E'&&iter<100){
-
-    serial->readBytes( &resp,1);
-            iter=iter+1;
-            usleep(tus);}
-
-    if(iter<20){return(1);}
-    else {cout << "Serial port error" << endl;return(0);}
-    }
-
-
-
-}
-
-int cam_laser(int las,int estat,ofSerial *serial, int tms)
-{
-char bu[16];
-unsigned char LASER1_ON[]={'5',' ','1',' ','0',' ','0','\n'};
-unsigned char LASER1_OFF[]={'5',' ','0',' ','0',' ','0','\n'};
-unsigned char LASER2_ON[]={'6',' ','1',' ','0',' ','0','\n'};
-unsigned char LASER2_OFF[]={'6',' ','0',' ','0',' ','0','\n'};
-unsigned char resp=0;
-int iter=0;
-unsigned int tus;
-tus=tms*1000;
-
-
-if(las==1 && estat ==1){ while (resp!='F'&&iter<100){iter=iter+1;serial->writeBytes(&LASER1_ON[0], 8);serial->readBytes( &resp,1); usleep(tus);}}
-if(las==1 && estat ==0){ while (resp!='G'&&iter<100){iter=iter+1;serial->writeBytes(&LASER1_OFF[0], 8);serial->readBytes( &resp,1); usleep(tus);}}
-if(las==2 && estat ==1){ while (resp!='E'&&iter<100){iter=iter+1;serial->writeBytes(&LASER2_ON[0], 8);serial->readBytes( &resp,1); usleep(tus);}}
-if(las==2 && estat ==0){ while (resp!='E'&&iter<100){iter=iter+1;serial->writeBytes(&LASER2_OFF[0], 8);serial->readBytes( &resp,1); usleep(tus);}}
-
-
-
-if(iter<20){return(1);}
-else {cout << "Serial port error" << endl;return(0);}
-
 
 }
 

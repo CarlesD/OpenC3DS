@@ -43,7 +43,7 @@ class ofApp : public ofBaseApp{
         float IncAxis1;
         float PosAxis1,PosAxis1_ant;
 
-        bool Scan,Laser,Manual,Axis1_Left_Button,Axis1_Right_Button,Axis1;
+        bool Scan,Manual,Axis1_Left_Button,Axis1_Right_Button,Axis1;
         bool CartessianXAxis,CylindricalPhiAxis,SphericalPhiZhetaAxis;
 
         Cam cam3d;
@@ -53,16 +53,19 @@ class ofApp : public ofBaseApp{
 
         pcl::PointCloud<pcl::PointXYZRGBNormal> cloud, cloudaux,clouderr;
 
-        ofxUITextInput *CamFile, *SerialPort,*textInput,*PCDFile,*CamExp,*CamFocus,*VideoNum,*KSW,*KSH,*SX,*SY,*WBT;
+        ofxUITextInput *CamFile, *SerialPort,*textInput,*PCDFile,*CamExp,*CamFocus,*VideoNum,*KSW,*KSH,*SX,*SY,*WBT,*GAIN;
         ofImage grisl,TaL,TsL,pview;
 
         void setGUI1();
         void setGUI2();
         void setGUI3();
+        void setGUI4();
 
         ofxUISuperCanvas *gui1;
         ofxUISuperCanvas *gui2;
         ofxUISuperCanvas *gui3;
+        ofxUISuperCanvas *gui4;
+
         ofVideoGrabber cam;
 
         void Run_Scan();
@@ -74,8 +77,8 @@ class ofApp : public ofBaseApp{
         void SavePointCloud();
         void ResetPointCloud();
 
-        bool mp,Pview;
+        bool mp,Pview,Zoom;
         int X,Y,zoom;
-ofSerial	serial;
-int baud;
+        ofSerial	serial;
+        int baud;
 };

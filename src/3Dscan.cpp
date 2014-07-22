@@ -58,7 +58,6 @@ calibracio_cam(cam);
 
 void scan(Cam *cam, ofImage *grislaser,ofImage *TaL,ofImage *TsL)
 {
-int amp;
 
 Mat image1;
 Mat Laser1;
@@ -75,7 +74,6 @@ int valueRL=60,valueGL=0,valueBL=0;
 int i;
 
 
-amp=288;
 
 Mat tt1,tt2,tt3,colo;
 
@@ -106,7 +104,7 @@ cam_cap_subpixel(cam,image1,threshold1);
 cvtColor(image1,gris,CV_BGR2GRAY);
 cvtColor(gris,grisc,CV_GRAY2BGR);
 
-for(i=0;i<2*amp;i++)
+for(i=0;i<cam->resy;i++)
 {
 
  Point paux1;

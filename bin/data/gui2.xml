@@ -26,7 +26,7 @@
 <Widget>
     <Kind>4</Kind>
     <Name>Gray PLL</Name>
-    <Value>16.330049515</Value>
+    <Value>5.024630547</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
@@ -59,32 +59,12 @@
     <Value>7</Value>
 </Widget>
 <Widget>
-    <Kind>12</Kind>
-    <Name>Videonum</Name>
-    <Value>3</Value>
-</Widget>
-<Widget>
-    <Kind>12</Kind>
-    <Name>Camera Focus</Name>
-    <Value>80</Value>
-</Widget>
-<Widget>
-    <Kind>12</Kind>
-    <Name>WBT value</Name>
-    <Value>3333</Value>
-</Widget>
-<Widget>
-    <Kind>12</Kind>
-    <Name>Camera Exposition</Name>
-    <Value>444</Value>
-</Widget>
-<Widget>
     <Kind>4</Kind>
     <Name>Laser (ms)</Name>
-    <Value>74.236450195</Value>
+    <Value>29.581279755</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
     <Name>Stepper (ms)</Name>
-    <Value>18.226600647</Value>
+    <Value>8.866994858</Value>
 </Widget>

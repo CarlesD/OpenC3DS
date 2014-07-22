@@ -3,7 +3,7 @@
     <Name>OFX_UI_WIDGET_CANVAS</Name>
     <IsMinified>0</IsMinified>
     <XPosition>-1.000000000</XPosition>
-    <YPosition>0.000000000</YPosition>
+    <YPosition>1.000000000</YPosition>
 </Canvas>
 <Widget>
     <Kind>12</Kind>
@@ -38,13 +38,13 @@
 <Widget>
     <Kind>6</Kind>
     <Name>RAXIS1</Name>
-    <HighValue>133.004913330</HighValue>
+    <HighValue>71.428573608</HighValue>
     <LowValue>0.000000000</LowValue>
 </Widget>
 <Widget>
     <Kind>6</Kind>
     <Name>RAXIS2</Name>
-    <HighValue>100.492607117</HighValue>
+    <HighValue>91.699508667</HighValue>
     <LowValue>50.000000000</LowValue>
 </Widget>
 <Widget>
@@ -56,7 +56,7 @@
 <Widget>
     <Kind>4</Kind>
     <Name>IAXIS1</Name>
-    <Value>3.399014711</Value>
+    <Value>0.123152703</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
