@@ -1,3 +1,8 @@
+# External libraries and includes
+src/gsl-1.14/
+src/opencv/
+src/PCL 1.6.0/
+
 # Compiled Object files
 *.slo
 *.lo
