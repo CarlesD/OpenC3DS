@@ -593,10 +593,15 @@ void ofApp::setGUI2()
 
 
     gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
-
 	gui2->addRangeSlider("R", 0, 255, &Ri, &Rs);
 	gui2->addRangeSlider("G", 0.0, 255, &Gi, &Gs);
 	gui2->addRangeSlider("B", 0.0, 255, &Bi,&Bs);
+    gui2->addSpacer();
+
+    gui2->addLabel("Scan distance", OFX_UI_FONT_SMALL);
+
+    gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
+	gui2->addRangeSlider("Min Max", 0.0, 1000, &dist_scan_min, &dist_scan_max);
 
     gui2->addSpacer();
     gui2->addLabel("PEAK CONTROL", OFX_UI_FONT_SMALL);
@@ -821,10 +826,10 @@ if (CartessianXAxis==true)
             {
 
                 Stepper(1,1,0,1, &serial,(unsigned int)Sto);
-                sleep(1);
+                ofSleepMillis(1);
                 IncAxis1_Steps=(int)((IncAxis1)*(3200/(12*PI)));
                 Stepper(1,(30.*IniAxis1)/PI,0,0, &serial,(unsigned int)Sto);
-                sleep(1);
+                ofSleepMillis(1);
                 Axis1=true;
                 PosAxis1=IniAxis1;
 
@@ -853,7 +858,13 @@ ofVec3f v(1, 0, 0);
     {
         if (CartessianXAxis==true)
             {
-                 if(p[i].x!=-10000 && p[i].y!=-10000 && p[i].z!=-10000)
+                ofVec3f P(p[i].x,p[i].y,p[i].z);
+                ofVec3f O(0,0,0);
+                float d=fabs(O.distance(P));
+//                 cout << d << endl;
+                if(d>dist_scan_min && d<dist_scan_max )
+                {
+                if(p[i].x!=-10000 && p[i].y!=-10000 && p[i].z!=-10000)
                     {
                         pok[*n]=p[i];
                         if(*n>0){
@@ -869,6 +880,9 @@ ofVec3f v(1, 0, 0);
                         pok[*n].nz=0;}
                         *n=*n+1;
                     }
+                }
+
+
             }
 
     }

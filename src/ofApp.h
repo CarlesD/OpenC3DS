@@ -41,7 +41,7 @@ class ofApp : public ofBaseApp{
         int IncAxis1_Steps;
         float IniAxis1,FiAxis1;
         float IncAxis1;
-        float PosAxis1,PosAxis1_ant;
+        float PosAxis1,PosAxis1_ant, dist_scan_max, dist_scan_min;
 
         bool Scan,Manual,Axis1_Left_Button,Axis1_Right_Button,Axis1;
         bool CartessianXAxis,CylindricalPhiAxis,SphericalPhiZhetaAxis;
