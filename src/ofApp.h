@@ -11,6 +11,11 @@
 #include "ofxOpenCv.h"
 #include "Cam3D.h"
 
+#include "SC.h" //COMENTARI Anna: venen del ofApp.cpp per endreçar
+#include "3Dscan.h"
+#include <iostream>
+#include <string>
+
 class ofApp : public ofBaseApp{
 
 	public:

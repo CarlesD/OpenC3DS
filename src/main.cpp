@@ -1,8 +1,6 @@
-
-
 #include "ofApp.h"
 #include "ofMain.h"
-#include "3Dscan.h"
+//#include "3Dscan.h" //COMENTARI Anna: no hauria d'estar aquí. Aquí només els de OF
 
 //=======================================================================
 int main( ){
