@@ -378,7 +378,7 @@ void ofApp::update(){
     if(Scan==false && Manual ==true)
         {
         int sense=0;
-        if(Axis1_Left_Button==true){sense=-1; Stepper(1,(180/PI)*(sense*IncAxis1/6),0,0, &serial,(int)Sto);}
+        if(Axis1_Left_Button==true && PosAxis1>0){sense=-1; Stepper(1,(180/PI)*(sense*IncAxis1/6),0,0, &serial,(int)Sto);}
         if(Axis1_Right_Button==true){sense=1;Stepper(1,(180/PI)*(sense*IncAxis1/6),0,0, &serial,(int)Sto);}
         PosAxis1=PosAxis1+sense*IncAxis1;
         }

@@ -8,8 +8,8 @@
 <Widget>
     <Kind>6</Kind>
     <Name>R</Name>
-    <HighValue>253.743850708</HighValue>
-    <LowValue>64.064041138</LowValue>
+    <HighValue>239.926177979</HighValue>
+    <LowValue>15.073893547</LowValue>
 </Widget>
 <Widget>
     <Kind>6</Kind>
@@ -26,13 +26,13 @@
 <Widget>
     <Kind>6</Kind>
     <Name>Min Max</Name>
-    <HighValue>443.349761963</HighValue>
-    <LowValue>113.300491333</LowValue>
+    <HighValue>719.211791992</HighValue>
+    <LowValue>0.000000000</LowValue>
 </Widget>
 <Widget>
     <Kind>4</Kind>
     <Name>Gray PLL</Name>
-    <Value>5.024630547</Value>
+    <Value>41.453201294</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
@@ -67,10 +67,10 @@
 <Widget>
     <Kind>4</Kind>
     <Name>Laser (ms)</Name>
-    <Value>37.783252716</Value>
+    <Value>42.339900970</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
     <Name>Stepper (ms)</Name>
-    <Value>8.866994858</Value>
+    <Value>2.463054180</Value>
 </Widget>
