@@ -25,9 +25,5 @@ src/PCL-1.5.1/
 *.out
 *.app
 
-# CodeBlocks files
-*.layout
-*_windows.*
-
 # Captured images
 *.png
