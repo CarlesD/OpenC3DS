@@ -22,6 +22,7 @@
 				<Linker>
 					<Add option="-s" />
 					<Add option="../../../libs/openFrameworksCompiled/lib/win_cb/openFrameworks.lib" />
+					<Add library=".\src\PCL-1.5.1\lib\pcl_io_release.lib" />
 				</Linker>
 			</Target>
 			<Target title="debug">
@@ -37,6 +38,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="../../../libs/openFrameworksCompiled/lib/win_cb/openFrameworksDebug.lib" />
+					<Add library=".\src\PCL-1.5.1\lib\pcl_io_debug.lib" />
 				</Linker>
 			</Target>
 		</Build>
@@ -103,11 +105,11 @@
 			<Add directory="../../../addons/ofxOpenCV/libs/opencv/lib/win_cb" />
 			<Add directory="../../../addons/ofxUI/libs" />
 			<Add directory="../../../addons/ofxUI/src" />
-			<Add directory="./src/gsl-1.14/include" />
-			<Add directory="./src/PCL 1.6.0/include/pcl-1.6" />
+			<Add directory="./src/GSL-1.15/include" />
 			<Add directory="./src/opencv/build/include" />
-			<Add directory="./src/PCL 1.6.0/3rdParty/Eigen/include" />
-			<Add directory="./src/PCL 1.6.0/3rdParty/Boost/include" />
+			<Add directory="./src/PCL-1.5.1/include/pcl-1.5" />
+			<Add directory="./src/PCL-1.5.1/3rdParty/Eigen/include" />
+			<Add directory="./src/PCL-1.5.1/3rdParty/Boost/include" />
 		</Compiler>
 		<Linker>
 			<Add library="..\..\..\libs\FreeImage\lib\win_cb\FreeImage.lib" />
@@ -164,6 +166,8 @@
 			<Add library="..\..\..\addons\ofxOpenCV\libs\opencv\lib\win_cb\libopencv_gpu231.a" />
 			<Add library="..\..\..\addons\ofxOpenCV\libs\opencv\lib\win_cb\libopencv_ts231.a" />
 			<Add library="..\..\..\addons\ofxOpenCV\libs\opencv\lib\win_cb\libzlib.a" />
+			<Add library=".\src\GSL-1.15\lib\libgsl.a" />
+			<Add library=".\src\GSL-1.15\lib\libgslcblas.a" />
 		</Linker>
 		<ExtraCommands>
 			<Add after='xcopy /e /i /y &quot;$(PROJECT_DIR)..\..\..\export\win_cb\*.dll&quot;  &quot;$(PROJECT_DIR)bin&quot;' />
