@@ -2,13 +2,13 @@
     <Kind>40</Kind>
     <Name>OFX_UI_WIDGET_CANVAS</Name>
     <IsMinified>0</IsMinified>
-    <XPosition>869.000000000</XPosition>
-    <YPosition>303.000000000</YPosition>
+    <XPosition>889.000000000</XPosition>
+    <YPosition>289.000000000</YPosition>
 </Canvas>
 <Widget>
     <Kind>2</Kind>
     <Name>Zoom mouse click</Name>
-    <Value>0</Value>
+    <Value>1</Value>
 </Widget>
 <Widget>
     <Kind>12</Kind>
@@ -18,20 +18,20 @@
 <Widget>
     <Kind>12</Kind>
     <Name>Camera Focus</Name>
-    <Value>80</Value>
+    <Value>75</Value>
 </Widget>
 <Widget>
     <Kind>12</Kind>
     <Name>WBT value</Name>
-    <Value>2800</Value>
+    <Value>3333</Value>
 </Widget>
 <Widget>
     <Kind>12</Kind>
     <Name>Camera Exposition</Name>
-    <Value>400</Value>
+    <Value>555</Value>
 </Widget>
 <Widget>
     <Kind>12</Kind>
     <Name>Camera Gain</Name>
-    <Value>250</Value>
+    <Value>128</Value>
 </Widget>
