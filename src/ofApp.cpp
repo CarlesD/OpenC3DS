@@ -9,18 +9,17 @@ int serialPort;
 const char* portName="/dev/ttyACM3";
 
 //--------------------------------------------------------------
-void ofApp::setup()
-{
-    //font.loadFont("DIN.otf", 64);
+void ofApp::setup(){
 
+//    font.loadFont("DIN.otf", 64);
 	serial.listDevices();
 	vector <ofSerialDeviceInfo> deviceList = serial.getDeviceList();
 
     unsigned char HOME[8]={'1',' ','1',' ','9',' ','0','\n'};
     red = 100; blue = 200; green = 27;
 
-    hideGUI      = false;
-    bdrawGrid    = false;
+    hideGUI = false;
+    bdrawGrid = false;
     bdrawPadding = false;
     CamFile = NULL;
     SerialPort = NULL;
@@ -29,29 +28,30 @@ void ofApp::setup()
     setGUI2();
     setGUI3();
     setGUI4();
-    //serial.listDevices();
-    //vector <ofSerialDeviceInfo> deviceList = serial.getDeviceList();
+
 	baud = 115200;
-    //openPort("/dev/ttyACM3",baud);
+//    openPort("/dev/ttyACM3",baud);
     serial.setup("/dev/ttyACM3", baud);
+//    while(serial.available()<0){
+//        serial.writeByte('7');
+//        usleep(10000);
+//    }
 
-    //while(serial.available()<0){serial.writeByte('7');usleep(10000);}
+//    serial.writeByte('5');
+//    serial.writeByte(' ');
+//    serial.writeByte('1');
+//    serial.writeByte(' ');
+//    serial.writeByte('1');
+//    serial.writeByte(' ');
+//    serial.writeByte('1');
+//    serial.writeByte('\n');
 
-    //serial.writeByte('5');
-    //serial.writeByte(' ');
-    //serial.writeByte('1');
-    //serial.writeByte(' ');
-    //serial.writeByte('1');
-    //serial.writeByte(' ');
-    //serial.writeByte('1');
-    //serial.writeByte('\n');
-
-    //unsigned char buf[4]={'5','1','1','1'};
-    //serial.writeBytes(&buf[0], 3);
-
-    //serial.writeByte('8');
-    //sleep(1);
-    //serial.writeByte('9');
+//    unsigned char buf[4]={'5','1','1','1'};
+//    serial.writeBytes(&buf[0], 3);
+//
+//    serial.writeByte('8');
+//    sleep(1);
+//    serial.writeByte('9');
 
     gui1->loadSettings("gui1.xml");
     gui2->loadSettings("gui2.xml");
@@ -61,18 +61,16 @@ void ofApp::setup()
     camera(&cam3d,CamFile->getTextString().c_str());
     serial.setup(SerialPort->getTextString().c_str(), baud);
     serial.flush(true,true);
-    //Serial_setup(&serialPort,SerialPort->getTextString().c_str());
-    //serialPort=openPort(SerialPort->getTextString().c_str(), 115200);
-    //cam_laser(1,0,&serialPort,Lto);
+//    Serial_setup(&serialPort,SerialPort->getTextString().c_str());
+//    serialPort=openPort(SerialPort->getTextString().c_str(), 115200);
+//    cam_laser(1,0,&serialPort,Lto);
 
+    PosAxis1 = -1;
+    CartessianXAxis = true;
+    Scan = false;
 
-    PosAxis1=-1;
-    CartessianXAxis=true;
-    Scan=false;
-
-    Axis1_Left_Button=false;
-    Axis1_Right_Button=false;
-
+    Axis1_Left_Button = false;
+    Axis1_Right_Button = false;
 
     string imagePath = "mars.jpg";
     ofLoadImage(grisl, imagePath);
@@ -95,15 +93,13 @@ void ofApp::setup()
     cam3d.blur_sigmay = atoi( SY->getTextString().c_str());
 
     reset_scan(punts);
-    zoom=1;
-    Pview=false;
+    zoom = 1;
+    Pview = false;
     Laser(1,0,&serial,Lto);
 }
 
 //--------------------------------------------------------------
-void ofApp::exit()
-{
-
+void ofApp::exit(){
 
     gui1->saveSettings("gui1.xml");
     gui2->saveSettings("gui2.xml");
@@ -115,60 +111,48 @@ void ofApp::exit()
 	delete gui4;
     Laser(1,0,&serial,Lto);
 
-
-
-    //save_cam_data(cam3d,"HD525.cam");
-
+//    save_cam_data(cam3d,"HD525.cam");
 }
 
 //--------------------------------------------------------------
-void ofApp::guiEvent(ofxUIEventArgs &e)
-{
+void ofApp::guiEvent(ofxUIEventArgs &e){
+
 	string name = e.getName();
 	int kind = e.getKind();
 
-	cout << "got event from: " << name << endl;
+    // http://openframeworks.cc/documentation/utils/ofLog.html#!show_ofLog
+	ofLogNotice() << "ofApp::guiEvent: got event from: " << name << endl;
 
-
-
-	if(name == "SCAN")
-        {
-		Scan=true;
-        }
-
-    else if(name == "Cartesian X Axis")
-        {
-            CartessianXAxis=true;
-            CylindricalPhiAxis=false;
-            SphericalPhiZhetaAxis=false;
-            Laser(1,0,&serial,Lto);
-        }
-    else if(name == "Cylindrical Phi Axis")
-        {
-            CartessianXAxis=false;
-            CylindricalPhiAxis=true;
-            SphericalPhiZhetaAxis=false;
-        }
-    else if(name == "Spherical Phi Zheta Axis")
-        {
-            CartessianXAxis=false;
-            CylindricalPhiAxis=false;
-            SphericalPhiZhetaAxis=true;
-        }
-    else if(name == "Apply Blur")
-        {
-
+	if(name == "SCAN"){
+        Scan = true;
+    }
+    else if(name == "Cartesian X Axis"){
+        CartessianXAxis = true;
+        CylindricalPhiAxis = false;
+        SphericalPhiZhetaAxis = false;
+        Laser(1,0,&serial,Lto);
+    }
+    else if(name == "Cylindrical Phi Axis"){
+        CartessianXAxis = false;
+        CylindricalPhiAxis = true;
+        SphericalPhiZhetaAxis = false;
+    }
+    else if(name == "Spherical Phi Zheta Axis"){
+        CartessianXAxis = false;
+        CylindricalPhiAxis = false;
+        SphericalPhiZhetaAxis = true;
+    }
+    else if(name == "Apply Blur"){
         cam3d.blur_ksizew=atoi( KSW->getTextString().c_str());
         cam3d.blur_ksizeh=atoi( KSH->getTextString().c_str());
         cam3d.blur_sigmax=atoi( SX->getTextString().c_str());
         cam3d.blur_sigmay=atoi( SY->getTextString().c_str());
-        cout << cam3d.blur_ksizew << endl;
-        cout << cam3d.blur_ksizeh << endl;
-        cout << cam3d.blur_sigmax << endl;
-        cout << cam3d.blur_sigmay << endl;
-        }
-    else if(name == "Apply")
-        {
+        ofLogNotice() << "ofApp::guiEvent: Apply Blur: " << cam3d.blur_ksizew << endl;
+        ofLogNotice() << "ofApp::guiEvent: Apply Blur: " << cam3d.blur_ksizeh << endl;
+        ofLogNotice() << "ofApp::guiEvent: Apply Blur: " << cam3d.blur_sigmax << endl;
+        ofLogNotice() << "ofApp::guiEvent: Apply Blur: " << cam3d.blur_sigmay << endl;
+    }
+    else if(name == "Apply"){
         cam.close();
         string com1="uvcdynctrl -v -d video"+VideoNum->getTextString()+" --set='Focus, Auto' 0";
         system(com1.c_str());
@@ -195,142 +179,122 @@ void ofApp::guiEvent(ofxUIEventArgs &e)
         cam.initGrabber(cam3d.resx,cam3d.resy);
 
         cam.listDevices();
-        }
-    else if(name == "SCAN STOP")
-        {
-        Axis1=false;
-		Scan=false;
-        }
-	else if(name == "Save Point Cloud"&&mp==true)
-        {
+    }
+    else if(name == "SCAN STOP"){
+        Axis1 = false;
+		Scan = false;
+    }
+	else if( (name == "Save Point Cloud")&&(mp == true) ){
         SavePointCloud();
-        }
-    else if(name == "Reset Point Cloud"&&mp==true)
-        {
+    }
+    else if( (name == "Reset Point Cloud")&&(mp == true) ){
         ResetPointCloud();
-        }
-	else if(name == "Manual mode")
-        {
+    }
+	else if(name == "Manual mode"){
 		ofxUIToggle *toggle = (ofxUIToggle *) e.getToggle();
-		if(toggle->getValue()==true){ Manual=true;}
-		else{Manual=false;}
+		if(toggle->getValue() == true){
+            Manual = true;
         }
-    else if(name == "Zoom mouse click")
-        {
+		else{
+            Manual = false;
+        }
+    }
+    else if(name == "Zoom mouse click"){
 		ofxUIToggle *toggle = (ofxUIToggle *) e.getToggle();
-		if(toggle->getValue()==true){ Zoom=true;}
-		else{Zoom=false;}
+		if(toggle->getValue() == true){
+            Zoom = true;
         }
-	else if(name == "<--Left"&&mp==true)
-        {
-		Axis1_Left_Button=true;
-        Axis1_Right_Button=false;
+		else{
+            Zoom = false;
         }
-	else if(name == "Right-->"&&mp==true)
-        {
-		Axis1_Left_Button=false;
-        Axis1_Right_Button=true;
-
-        }
-    else if(mp==false)
-        {
-		Axis1_Left_Button=false;
-        Axis1_Right_Button=false;
-        }
-    else if(name == "Home"&&mp==true)
-        {
-		Axis1_Left_Button=false;
-        Axis1_Right_Button=false;
-        PosAxis1=0;
-        Scan=false;
+    }
+	else if( (name == "<--Left")&&(mp == true) ){
+		Axis1_Left_Button = true;
+        Axis1_Right_Button = false;
+    }
+	else if( (name == "Right-->")&&(mp == true) ){
+		Axis1_Left_Button = false;
+        Axis1_Right_Button = true;
+    }
+    else if(mp == false){
+		Axis1_Left_Button = false;
+        Axis1_Right_Button = false;
+    }
+    else if( (name == "Home")&&(mp == true) ){
+		Axis1_Left_Button = false;
+        Axis1_Right_Button = false;
+        PosAxis1 = 0;
+        Scan = false;
         Stepper(1,1,0,1, &serial,(unsigned int)Sto);
-        }
-    else if(name == "Load Camera"&&mp==true)
-        {
+    }
+    else if( (name == "Load Camera")&&(mp == true) ){
         camera(&cam3d,CamFile->getTextString().c_str());
-        }
-	else if(name == "CAM FILE")
-        {
+    }
+	else if(name == "CAM FILE"){
         ofxUITextInput *ti = (ofxUITextInput *) e.widget;
 
-
-
-        if(ti->getInputTriggerType() == OFX_UI_TEXTINPUT_ON_ENTER)
-            {
-
-            cout << "ON ENTER: ";
-            }
-        else if(ti->getInputTriggerType() == OFX_UI_TEXTINPUT_ON_FOCUS)
-            {
-            cout << "ON FOCUS: ";
-            }
-        else if(ti->getInputTriggerType() == OFX_UI_TEXTINPUT_ON_UNFOCUS)
-            {
-            cout << "ON BLUR: ";
-            }
+        if(ti->getInputTriggerType() == OFX_UI_TEXTINPUT_ON_ENTER){
+            ofLogNotice() << "ofApp::guiEvent: Cam File: ON ENTER: ";
+        }
+        else if(ti->getInputTriggerType() == OFX_UI_TEXTINPUT_ON_FOCUS){
+            ofLogNotice() << "ofApp::guiEvent: Cam File: ON FOCUS: ";
+        }
+        else if(ti->getInputTriggerType() == OFX_UI_TEXTINPUT_ON_UNFOCUS){
+            ofLogNotice() << "ofApp::guiEvent: Cam File: ON BLUR: ";
+        }
         string output = ti->getTextString();
         cout << output << endl;
-        }
-
-    else if(name == "SERIAL PORT")
-        {
+    }
+    else if(name == "SERIAL PORT"){
         ofxUITextInput *SerialPort = (ofxUITextInput *) e.widget;
-        if(SerialPort->getTriggerType() == OFX_UI_TEXTINPUT_ON_ENTER)
-            {
-            //Serial_setup(&serialPort,SerialPort->getTextString().c_str());
-            //serialPort=openPort(SerialPort->getTextString().c_str(), 115200);
+        if(SerialPort->getTriggerType() == OFX_UI_TEXTINPUT_ON_ENTER){
+//            Serial_setup(&serialPort,SerialPort->getTextString().c_str());
+//            serialPort=openPort(SerialPort->getTextString().c_str(), 115200);
             SerialPort->update();
             serial.setup(SerialPort->getTextString().c_str(), baud);
-            cout << "ON ENTER: ";
-            }
-        else if(SerialPort->getTriggerType() == OFX_UI_TEXTINPUT_ON_FOCUS)
-            {
-            cout << "ON FOCUS: ";
-            }
-        else if(SerialPort->getTriggerType() == OFX_UI_TEXTINPUT_ON_UNFOCUS)
-            {
-            cout << "ON BLUR: ";
-            }
+            ofLogNotice() << "ofApp::guiEvent: Serial Port: ON ENTER: ";
+        }
+        else if(SerialPort->getTriggerType() == OFX_UI_TEXTINPUT_ON_FOCUS){
+            ofLogNotice() << "ofApp::guiEvent: Serial Port: ON FOCUS: ";
+        }
+        else if(SerialPort->getTriggerType() == OFX_UI_TEXTINPUT_ON_UNFOCUS){
+            ofLogNotice() << "ofApp::guiEvent: Serial Port: ON BLUR: ";
+        }
         string output = SerialPort->getTextString();
         cout << output << endl;
+
         //serialPort=openPort(SerialPort->getTextString().c_str(), 115200);
         SerialPort->update();
         serial.setup(SerialPort->getTextString().c_str(), baud);
-        }
-    else if(name == "POINT CLOUD FILE")
-        {
+    }
+    else if(name == "POINT CLOUD FILE"){
         ofxUITextInput *PCDFile = (ofxUITextInput *) e.widget;
-        if(PCDFile->getTriggerType() == OFX_UI_TEXTINPUT_ON_ENTER)
-            {
-            cout << "ON ENTER: ";
-            }
-        else if(PCDFile->getTriggerType() == OFX_UI_TEXTINPUT_ON_FOCUS)
-            {
-            cout << "ON FOCUS: ";
-            }
-        else if(PCDFile->getTriggerType() == OFX_UI_TEXTINPUT_ON_UNFOCUS)
-            {
-            cout << "ON BLUR: ";
-            }
+        if(PCDFile->getTriggerType() == OFX_UI_TEXTINPUT_ON_ENTER){
+            ofLogNotice() << "ofApp::guiEvent: Point Cloud File: ON ENTER: ";
+        }
+        else if(PCDFile->getTriggerType() == OFX_UI_TEXTINPUT_ON_FOCUS){
+            ofLogNotice() << "ofApp::guiEvent: Point Cloud File: ON FOCUS: ";
+        }
+        else if(PCDFile->getTriggerType() == OFX_UI_TEXTINPUT_ON_UNFOCUS){
+            ofLogNotice() << "ofApp::guiEvent: Point Cloud File: ON BLUR: ";
+        }
         string output = PCDFile->getTextString();
         cout << output << endl;
     }
 }
 
 //--------------------------------------------------------------
-void ofApp::SavePointCloud()
-{
-    pcl::io::savePCDFileASCII (PCDFile->getTextString()+".pcd", cloud);
-    std::cerr << "Saved " << cloud.points.size () << " data points to "+PCDFile->getTextString()+".pcd"  << std::endl;
-    pcl::io::savePCDFileASCII (PCDFile->getTextString()+"err.pcd", clouderr);
-    std::cerr << "Saved " << cloud.points.size () << " data points to "+ PCDFile->getTextString()+"err.pcd"<< std::endl;
+void ofApp::SavePointCloud(){
 
+    pcl::io::savePCDFileASCII (PCDFile->getTextString()+".pcd", cloud);
+    std::cerr << "Saved " << cloud.points.size () << " data points to " + PCDFile->getTextString() + ".pcd"  << std::endl;
+    pcl::io::savePCDFileASCII (PCDFile->getTextString()+"err.pcd", clouderr);
+    std::cerr << "Saved " << cloud.points.size () << " data points to " + PCDFile->getTextString() + "err.pcd" << std::endl;
 }
 
 //--------------------------------------------------------------
-void ofApp::ResetPointCloud()
-{
-    nt=0;
+void ofApp::ResetPointCloud(){
+    nt = 0;
     cloud.points.resize (0);
     clouderr.points.resize (0);
 }
@@ -339,51 +303,49 @@ void ofApp::ResetPointCloud()
 void ofApp::update(){
     cam.update();
 
-    cam3d.Ri=(int)Ri;
-    cam3d.Gi=(int)Gi;
-    cam3d.Bi=(int)Bi;
-    cam3d.Rs=(int)Rs;
-    cam3d.Gs=(int)Gs;
-    cam3d.Bs=(int)Bs;
-    cam3d.GPLL=(int)GPLL;
-    cam3d.PAP=(int)PAP;
-    cam3d.PMP=(int)PMP;
+    cam3d.Ri = (int)Ri;
+    cam3d.Gi = (int)Gi;
+    cam3d.Bi = (int)Bi;
+    cam3d.Rs = (int)Rs;
+    cam3d.Gs = (int)Gs;
+    cam3d.Bs = (int)Bs;
+    cam3d.GPLL = (int)GPLL;
+    cam3d.PAP = (int)PAP;
+    cam3d.PMP = (int)PMP;
     pview.update();
 
-	if(cam.isFrameNew()&&Scan==true)
-        {
-            if (CartessianXAxis==true)
-            {
-                if(s==1)
-                {
-                     copy(cam, TaL);
-                     Laser(1,0,&serial,(int)Lto);
-                     s=-1;
-                }
-                else
-                {
-                    s=1;
-                    copy(cam, TsL);
-                    Laser(1,1,&serial,(int)Lto);
-                    TsL.update();
-                    TaL.update();
-                    Run_Scan();
-                    //contenidor(cam3d, &grisl);
-                    grisl.update();
-                }
+	if( (cam.isFrameNew())&&(Scan == true) ){
+        if(CartessianXAxis == true){
+            if(s == 1){
+                copy(cam, TaL);
+                Laser(1,0,&serial,(int)Lto);
+                s = -1;
             }
+            else{
+                s = 1;
+                copy(cam, TsL);
+                Laser(1,1,&serial,(int)Lto);
+                TsL.update();
+                TaL.update();
+                Run_Scan();
+//                contenidor(cam3d, &grisl);
+                grisl.update();
+            }
+        } // end if(CartessianXAxis == true)
+    } // end if( (cam.isFrameNew())&&(Scan == true) )
 
+    if( (Scan == false)&&(Manual == true) ){
+        int sense = 0;
+        if( (Axis1_Left_Button == true)&&(PosAxis1 > 0) ){
+            sense = -1;
+            Stepper(1, (180.0f/PI) * (sense*IncAxis1/6.0f), 0,0, &serial, (int)Sto);
         }
-
-    if(Scan==false && Manual ==true)
-        {
-        int sense=0;
-        if(Axis1_Left_Button==true && PosAxis1>0){sense=-1; Stepper(1,(180/PI)*(sense*IncAxis1/6),0,0, &serial,(int)Sto);}
-        if(Axis1_Right_Button==true){sense=1;Stepper(1,(180/PI)*(sense*IncAxis1/6),0,0, &serial,(int)Sto);}
-        PosAxis1=PosAxis1+sense*IncAxis1;
+        if(Axis1_Right_Button == true){
+            sense = 1;
+            Stepper(1, (180.0f/PI) * (sense*IncAxis1/6.0f), 0,0, &serial, (int)Sto);
         }
-
-
+        PosAxis1 = PosAxis1 + sense * IncAxis1;
+    }
 }
 
 //--------------------------------------------------------------
@@ -391,37 +353,33 @@ void ofApp::draw(){
     ofBackground(red, green, blue, 255);
     ofPushStyle();
     ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-    if(bdrawGrid)
-        {
+
+    if(bdrawGrid){
         ofSetColor(255, 255, 255, 25);
         drawGrid(8,8);
-        }
-    //ofScale(0.5,1,1);
-    if(Pview==false)
-        {
+    }
+
+//    ofScale(0.5,1,1);
+    if(Pview == false){
         cam.draw(210,500,295,166);
         //grisl.draw(210,0,890,500);
-        grisl.drawSubsection(210,0,890,500,X,Y,1024/zoom,576/zoom);
+        grisl.drawSubsection(210,0, 890,500, X,Y, 1024/zoom,576/zoom);
     }
-    else
-        {
+    else{
         grisl.draw(210,500,295,166);
-        //grisl.draw(210,0,890,500);
-
+//        grisl.draw(210,0,890,500);
         copy(cam,pview);
-        pview.drawSubsection(210,0,890,500,0,0,1024,576);
-        }
+        pview.drawSubsection(210,0, 890,500, 0,0, 1024,576);
+    }
 
     TaL.draw(508,500,295,166);
     TsL.draw(805,500,295,166);
-
 
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-    switch (key)
-	{
+    switch (key){
 		case 'f':
 			ofToggleFullscreen();
 			break;
@@ -488,24 +446,44 @@ void ofApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-    //  int mx = x % w;
-    //    int my = y % h;
-    //
-    //    //get hue value on mouse position
-    //    findHue = hue.getPixels()[my*w+mx];
-    mp=true;
-    //grisl.draw(210-890*(zoom*0.5),500*(zoom*0.5),890*zoom,500*zoom);
-    if(x>210&& y>0 &&x<(210+890)&&y<500&button==0&&Zoom==true) {zoom=zoom+1;X=x-210-(445/zoom);Y=y-0-(250/zoom);}
-    if(x>210&& y>0 &&x<(210+890)&&y<500&button==2&&Zoom==true) {zoom=zoom-1;if(zoom<1){zoom=1;X=0;Y=0;}else{X=x-210-(445/zoom);Y=y-0-(250/zoom);}}
-    if(x>210&& y>500 &&x<(210+295)&&y<(500+166)&button==0) {if(Pview==true){Pview=false;}else{Pview=true;}}
-    cam.draw(210,500,295,166);
 
-    //cout<<button<<endl;
+//    int mx = x % w;
+//    int my = y % h;
+//
+//    //get hue value on mouse position
+//    findHue = hue.getPixels()[my * w + mx];
+
+    mp = true;
+    //grisl.draw(210-890*(zoom*0.5),500*(zoom*0.5),890*zoom,500*zoom);
+    if(x > 210 && y > 0 && x < (210+890) && y < 500 && button == 0 && Zoom == true){
+        zoom = zoom + 1;
+        X = x - 210 - (445/zoom);
+        Y = y - 0 - (250/zoom);
+    }
+    if(x > 210 && y > 0 && x < (210+890) && y < 500 && button == 2 && Zoom == true){
+        zoom = zoom - 1;
+        if(zoom < 1){
+            zoom = 1;
+            X = 0;
+            Y = 0;
+        }
+        else{
+            X = x - 210 - (445/zoom);
+            Y = y - 0 - (250/zoom);
+        }
+    }
+    if(x > 210 && y > 500 && x < (210+295) && y < (500+166) && button == 0){
+        Pview = !Pview;
+    }
+
+    cam.draw(210,500,295,166);
+//    cout << button << endl;
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-    mp=false;
+
+    mp = false;
 }
 
 //--------------------------------------------------------------
@@ -524,8 +502,7 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 }
 
 //--------------------------------------------------------------
-void ofApp::setGUI1()
-{
+void ofApp::setGUI1(){
 
 	gui1 = new ofxUISuperCanvas("SCAN CONFIG");
     gui1->addSpacer();
@@ -547,7 +524,6 @@ void ofApp::setGUI1()
     gui1->setWidgetFontSize(OFX_UI_FONT_SMALL);
     ofxUIRadio *radio = gui1->addRadio("SCANTYPE", vnames, OFX_UI_ORIENTATION_VERTICAL);
     radio->activateToggle("Cartesian X Axis");
-
 
     gui1->addLabel("", OFX_UI_FONT_LARGE);
     gui1->addSpacer();
@@ -582,20 +558,18 @@ void ofApp::setGUI1()
 	gui1->addSlider("IAXIS2", 0.0, 25, green);
 	gui1->addSlider("IAXIS3", 0.0, 25, blue);
 
-
     gui1->autoSizeToFitWidgets();
 	ofAddListener(gui1->newGUIEvent,this,&ofApp::guiEvent);
 }
 
 //--------------------------------------------------------------
-void ofApp::setGUI2()
-{
+void ofApp::setGUI2(){
+
     gui2 = new ofxUISuperCanvas("SCAN ADJUST");
 
     gui2->addSpacer();
     gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
     gui2->addLabel("RANGE R G B", OFX_UI_FONT_SMALL);
-
 
     gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
 	gui2->addRangeSlider("R", 0, 255, &Ri, &Rs);
@@ -613,11 +587,11 @@ void ofApp::setGUI2()
     gui2->addLabel("Gray peak lower limit", OFX_UI_FONT_SMALL);
     gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
     gui2->addSlider("Gray PLL", 0, 255, &GPLL);
-    //gui2->addSpacer();
+//    gui2->addSpacer();
     gui2->addLabel("Peak amplitude points:", OFX_UI_FONT_SMALL);
     gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
     gui2->addSlider("Peak AP", 0, 50, &PAP);
-    //gui2->addSpacer();
+//    gui2->addSpacer();
     gui2->addLabel("Peak minimun points:", OFX_UI_FONT_SMALL);
     gui2->addSlider("Peak MP", 3, 25, &PMP);
 
@@ -649,18 +623,16 @@ void ofApp::setGUI2()
     SY->setAutoClear(false);
     gui2->addButton( "Apply Blur", false);
 
-
-
 //    gui2->addSpacer();
 //
 //    gui2->addLabel("Video cam number:", OFX_UI_FONT_SMALL);
-//   	gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
+//    gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
 //    VideoNum = gui2->addTextInput("Videonum", "2");
 //    VideoNum->setAutoUnfocus(false);
 //    VideoNum->setAutoClear(false);
 //
 //    gui2->addLabel("Focus:", OFX_UI_FONT_SMALL);
-//   	gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
+//    gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
 //    CamFocus = gui2->addTextInput("Camera Focus", "80");
 //    CamFocus->setAutoUnfocus(false);
 //    CamFocus->setAutoClear(false);
@@ -672,13 +644,13 @@ void ofApp::setGUI2()
 //    WBT->setAutoClear(false);;
 //
 //    gui2->addLabel("Exposition:", OFX_UI_FONT_SMALL);
-//   	gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
+//    gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
 //    CamExp = gui2->addTextInput("Camera Exposition", "600");
 //    CamExp->setAutoUnfocus(false);
 //    CamExp->setAutoClear(false);
 //
 //    gui2->addLabel("Gain:", OFX_UI_FONT_SMALL);
-//   	gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
+//    gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
 //    GAIN = gui2->addTextInput("Camera Gain", "128");
 //    GAIN->setAutoUnfocus(false);
 //    GAIN->setAutoClear(false);
@@ -699,8 +671,7 @@ void ofApp::setGUI2()
 }
 
 //--------------------------------------------------------------
-void ofApp::setGUI3()
-{
+void ofApp::setGUI3(){
 
 	gui3 = new ofxUISuperCanvas("Manual Axis Position");
     gui3->addSpacer();
@@ -731,8 +702,7 @@ void ofApp::setGUI3()
 }
 
 //--------------------------------------------------------------
-void ofApp::setGUI4()
-{
+void ofApp::setGUI4(){
     gui4 = new ofxUISuperCanvas("CAMERA SETTINGS");
     gui4->addSpacer();
 	gui4->addToggle( "Zoom mouse click", false);
@@ -771,7 +741,6 @@ void ofApp::setGUI4()
 
     gui4->addButton( "Apply", false);
 
-
 //    gui2->setPosition(212, 0);
     gui4->autoSizeToFitWidgets();
 
@@ -779,175 +748,152 @@ void ofApp::setGUI4()
 }
 
 //--------------------------------------------------------------
-void ofApp::drawGrid(float x, float y)
-{
+void ofApp::drawGrid(float x, float y){
+
     float w = ofGetWidth();
     float h = ofGetHeight();
 
-    for(int i = 0; i < h; i+=y)
-    {
+    for(int i=0; i<h; i+=y){
         ofLine(0,i,w,i);
     }
 
-    for(int j = 0; j < w; j+=x)
-    {
+    for(int j=0; j<w; j+=x){
         ofLine(j,0,j,h);
     }
 }
 
 //--------------------------------------------------------------
-void ofApp::Run_Scan()
-{
+void ofApp::Run_Scan(){
+
     Punts Punts_Ok[cam3d.resy];
-    int n=0;
+    int n = 0;
 
-    if(Scan==true)
-        {
-        if (CartessianXAxis==true)
-                {
-                if(PosAxis1<FiAxis1&& Axis1==true)
-                    {
-                    Stepper(1,0,IncAxis1_Steps,0, &serial,(unsigned int)Sto);
-                    PosAxis1=PosAxis1+IncAxis1;
+    if(Scan == true){
+        if(CartessianXAxis == true){
+            if( (PosAxis1 < FiAxis1)&&(Axis1 == true) ){
+                Stepper(1,0,IncAxis1_Steps,0, &serial,(unsigned int)Sto);
+                PosAxis1 = PosAxis1 + IncAxis1;
 
-                    scan(&cam3d,&grisl,&TaL,&TsL);
-                    TsL.update();TaL.update();
-                    Component_3D_LinScan(cam3d,1,TsL, punts, PosAxis1);
-                    check_scan(punts, Punts_Ok, &n);
+                scan(&cam3d,&grisl,&TaL,&TsL);
+                TsL.update();
+                TaL.update();
+                Component_3D_LinScan(cam3d,1,TsL, punts, PosAxis1);
+                check_scan(punts, Punts_Ok, &n);
 
-                    if(n!=0)
-                        {
-                        cloudaux.width    = n;
-                        cloudaux.height   = 1;
-                        cloudaux.is_dense = false;
+                if(n != 0){
+                    cloudaux.width = n;
+                    cloudaux.height = 1;
+                    cloudaux.is_dense = false;
 
-                        cloudaux.points.resize (cloudaux.width * cloudaux.height);
+                    cloudaux.points.resize (cloudaux.width * cloudaux.height);
 
-                        cloud=cloud+cloudaux;
-                        clouderr=clouderr+cloudaux;
-                        fill_cloud(Punts_Ok,n,nt);
-                        reset_scan(punts);
-                        nt=nt+n;
-                        }
-                    }
-                    if(Axis1==false)
-                        {
-                        Stepper(1,1,0,1, &serial,(unsigned int)Sto);
-                        ofSleepMillis(1);
-                        IncAxis1_Steps=(int)((IncAxis1)*(3200/(12*PI)));
-                        Stepper(1,(30.*IniAxis1)/PI,0,0, &serial,(unsigned int)Sto);
-                        ofSleepMillis(1);
-                        Axis1=true;
-                        PosAxis1=IniAxis1;
-                        }
-                        if(PosAxis1>=FiAxis1)
-                            {
-                            Stepper(1,1,0,1, &serial,(unsigned int)Sto);
-
-                            Axis1=false;
-                            Scan=false;
-                            }
+                    cloud = cloud + cloudaux;
+                    clouderr = clouderr + cloudaux;
+                    fill_cloud(Punts_Ok,n,nt);
+                    reset_scan(punts);
+                    nt = nt + n;
                 }
-        }
+            } // end if( (PosAxis1 < FiAxis1)&&(Axis1 == true) )
+            if(Axis1 == false){
+                Stepper(1,1,0,1, &serial,(unsigned int)Sto);
+                ofSleepMillis(1);
+                IncAxis1_Steps = (int)((IncAxis1)*(3200.0f/(12.0f*PI)));
+                Stepper(1,(30.0f*IniAxis1)/PI,0,0, &serial,(unsigned int)Sto);
+                ofSleepMillis(1);
+                Axis1 = true;
+                PosAxis1 = IniAxis1;
+            }
+            if(PosAxis1 >= FiAxis1){
+                Stepper(1,1,0,1, &serial,(unsigned int)Sto);
+                Axis1 = false;
+                Scan = false;
+            }
+        } // end if(CartessianXAxis == true)
+    } // end if(Scan == true)
 }
 
 //--------------------------------------------------------------
-void ofApp::check_scan(Punts p[],Punts pok[], int *n)
-{
-    int i;
-    *n=0;
+void ofApp::check_scan(Punts p[],Punts pok[], int *n){
 
+    int i;
+    *n = 0;
     ofVec3f v(1, 0, 0);
-    for(i=0;i<=cam3d.resy-1;i++)
-        {
-        if (CartessianXAxis==true)
-            {
+    for(i=0; i<=cam3d.resy-1; i++){
+        if(CartessianXAxis == true){
             ofVec3f P(p[i].x,p[i].y,p[i].z);
             ofVec3f O(0,0,0);
-            float d=fabs(O.distance(P));
-//                 cout << d << endl;
-            if(d>dist_scan_min && d<dist_scan_max )
-                {
-                if(p[i].x!=-10000 && p[i].y!=-10000 && p[i].z!=-10000)
-                    {
-                    pok[*n]=p[i];
-                    if(*n>0)
-                        {
-                        ofVec3f s(0,pok[*n-1].y- pok[*n].y, pok[*n-1].z- pok[*n].z);
-                        ofVec3f u=v.getCrossed(s);
-                        ofVec3f un=u.getNormalized();
-                        pok[*n].nx=un.x;
-                        pok[*n].ny=un.y;
-                        pok[*n].nz=un.z;
-                        }
-                    else
-                        {
-                        pok[*n].nx=0;
-                        pok[*n].ny=-1;
-                        pok[*n].nz=0;
-                        }
-                    *n=*n+1;
+            float d = fabs(O.distance(P));
+//            cout << d << endl;
+            if( (d > dist_scan_min)&&(d < dist_scan_max) ){
+                if( (p[i].x != -10000)&&(p[i].y != -10000)&&(p[i].z != -10000) ){
+                    pok[*n] = p[i];
+                    if(*n > 0){
+                        ofVec3f s(0, pok[*n-1].y - pok[*n].y, pok[*n-1].z - pok[*n].z);
+                        ofVec3f u = v.getCrossed(s);
+                        ofVec3f un = u.getNormalized();
+                        pok[*n].nx = un.x;
+                        pok[*n].ny = un.y;
+                        pok[*n].nz = un.z;
                     }
+                    else{
+                        pok[*n].nx = 0;
+                        pok[*n].ny = -1;
+                        pok[*n].nz = 0;
+                    }
+
+                    *n = *n + 1;
                 }
-            }
-        }
+            } // end if( (d > dist_scan_min)&&(d < dist_scan_max) )
+        } // end if(CartessianXAxis == true){
+    } // end for
 
 }
 
 //--------------------------------------------------------------
-void ofApp::reset_scan(Punts p[])
-{
-    int i;
+void ofApp::reset_scan(Punts p[]){
 
-
-    for(i=0;i<=cam3d.resy-1;i++)
-    {
-        p[i].x=-10000;
-        p[i].y=-10000;
-        p[i].z=-10000;
+    for(int i=0; i<=cam3d.resy-1; i++){
+        p[i].x = -10000;
+        p[i].y = -10000;
+        p[i].z = -10000;
     }
-
 }
 
 //--------------------------------------------------------------
-void ofApp::fill_cloud(Punts pok[], int n,int nt)
-{
-    int i;
-    for(i=0;i<=n-1;i++)
-        {
-         cloud.points[nt+i].x = pok[i].x;
-         cloud.points[nt+i].y = pok[i].y;
-         cloud.points[nt+i].z = pok[i].z;
+void ofApp::fill_cloud(Punts pok[], int n,int nt){
 
-         cloud.points[nt+i].normal_x = pok[i].nx;
-         cloud.points[nt+i].normal_y = pok[i].ny;
-         cloud.points[nt+i].normal_z = pok[i].nz;
+    for(int i=0; i<=n-1; i++){
+        cloud.points[nt+i].x = pok[i].x;
+        cloud.points[nt+i].y = pok[i].y;
+        cloud.points[nt+i].z = pok[i].z;
 
-         cloud.points[nt+i].r = pok[i].r;
-         cloud.points[nt+i].g = pok[i].g;
-         cloud.points[nt+i].b = pok[i].b;
+        cloud.points[nt+i].normal_x = pok[i].nx;
+        cloud.points[nt+i].normal_y = pok[i].ny;
+        cloud.points[nt+i].normal_z = pok[i].nz;
 
-         clouderr.points[nt+i].x = pok[i].x;
-         clouderr.points[nt+i].y = pok[i].y;
-         clouderr.points[nt+i].z = pok[i].z;
+        cloud.points[nt+i].r = pok[i].r;
+        cloud.points[nt+i].g = pok[i].g;
+        cloud.points[nt+i].b = pok[i].b;
 
-         clouderr.points[nt+i].normal_x = pok[i].nx;
-         clouderr.points[nt+i].normal_y = pok[i].ny;
-         clouderr.points[nt+i].normal_z = pok[i].nz;
+        clouderr.points[nt+i].x = pok[i].x;
+        clouderr.points[nt+i].y = pok[i].y;
+        clouderr.points[nt+i].z = pok[i].z;
 
-         clouderr.points[nt+i].r =(25*pok[i].q);
-         clouderr.points[nt+i].g = 50;
-         clouderr.points[nt+i].b = 0;
-        }
+        clouderr.points[nt+i].normal_x = pok[i].nx;
+        clouderr.points[nt+i].normal_y = pok[i].ny;
+        clouderr.points[nt+i].normal_z = pok[i].nz;
+
+        clouderr.points[nt+i].r =(25.0f * pok[i].q);
+        clouderr.points[nt+i].g = 50.0f;
+        clouderr.points[nt+i].b = 0.0f;
+    }
 }
 
 //--------------------------------------------------------------
-void ofApp::capture_image(ofImage *image)
-{
+void ofApp::capture_image(ofImage *image){
+
     ofImage aux;
-
     aux.setFromPixels(cam.getPixels(), 1024, 576, OF_IMAGE_COLOR);
-    *image=aux;
-
+    *image = aux;
 }
 
