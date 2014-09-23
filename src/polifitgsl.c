@@ -5,15 +5,16 @@ bool polynomialfit(int obs, int degree, double *dx, double *dy, double *store){ 
     gsl_matrix *cov, *X;
     gsl_vector *y, *c;
     double chisq;
+    int i,j;
 
     X = gsl_matrix_alloc(obs, degree);
     y = gsl_vector_alloc(obs);
     c = gsl_vector_alloc(degree);
     cov = gsl_matrix_alloc(degree, degree);
 
-    for(int i=0; i<obs; i++){
+    for(i=0; i<obs; i++){
         gsl_matrix_set(X, i, 0, 1.0);
-        for(int j=0; j<degree; j++){
+        for(j=0; j<degree; j++){
             gsl_matrix_set(X, i, j, pow(dx[i], j));
         }
         gsl_vector_set(y, i, dy[i]);
@@ -23,7 +24,7 @@ bool polynomialfit(int obs, int degree, double *dx, double *dy, double *store){ 
     gsl_multifit_linear(X, y, c, cov, &chisq, ws);
 
     /* store result ... */
-    for(int i=0; i<degree; i++){
+    for(i=0; i<degree; i++){
         store[i] = gsl_vector_get(c, i);
     }
 

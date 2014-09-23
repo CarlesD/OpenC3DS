@@ -121,6 +121,7 @@ int Laser(int Laser_num, int estat, ofSerial *serial, int tms){
             iter = iter + 1;
             resp = serial->readByte();
         }
+    }
     if(Laser_num == 2 && estat == 1){
         serial->writeBytes(&LASER2_ON[0], 8);
         while(resp != 69 && iter < 100){
@@ -128,6 +129,7 @@ int Laser(int Laser_num, int estat, ofSerial *serial, int tms){
             iter = iter + 1;
             resp = serial->readByte();
         }
+    }
     if(Laser_num == 2 && estat == 0){
         serial->writeBytes(&LASER2_OFF[0], 8);
         while(resp != 69 && iter < 100){
