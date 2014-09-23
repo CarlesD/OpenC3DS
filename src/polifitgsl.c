@@ -24,6 +24,7 @@ bool polynomialfit(int obs, int degree, double *dx, double *dy, double *store){ 
     gsl_multifit_linear(X, y, c, cov, &chisq, ws);
 
     /* store result ... */
+
     for(i=0; i<degree; i++){
         store[i] = gsl_vector_get(c, i);
     }

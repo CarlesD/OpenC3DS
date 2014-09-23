@@ -162,6 +162,7 @@ int servop(int servo, float angle, int *serialPort){
     pos = (angle/180)*720;
     posi = (int)pos;
 
+
     bu[0] = 6;
     bu[1] = servo;
 
