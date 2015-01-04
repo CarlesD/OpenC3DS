@@ -2,8 +2,8 @@
     <Kind>40</Kind>
     <Name>OFX_UI_WIDGET_CANVAS</Name>
     <IsMinified>0</IsMinified>
-    <XPosition>889.000000000</XPosition>
-    <YPosition>289.000000000</YPosition>
+    <XPosition>893.000000000</XPosition>
+    <YPosition>285.000000000</YPosition>
 </Canvas>
 <Widget>
     <Kind>2</Kind>
@@ -13,7 +13,7 @@
 <Widget>
     <Kind>12</Kind>
     <Name>Videonum</Name>
-    <Value>1</Value>
+    <Value>0</Value>
 </Widget>
 <Widget>
     <Kind>12</Kind>
@@ -23,12 +23,12 @@
 <Widget>
     <Kind>12</Kind>
     <Name>WBT value</Name>
-    <Value>3333</Value>
+    <Value>5000</Value>
 </Widget>
 <Widget>
     <Kind>12</Kind>
     <Name>Camera Exposition</Name>
-    <Value>555</Value>
+    <Value>350</Value>
 </Widget>
 <Widget>
     <Kind>12</Kind>

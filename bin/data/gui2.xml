@@ -2,42 +2,42 @@
     <Kind>40</Kind>
     <Name>OFX_UI_WIDGET_CANVAS</Name>
     <IsMinified>0</IsMinified>
-    <XPosition>1098.000000000</XPosition>
+    <XPosition>1099.000000000</XPosition>
     <YPosition>0.000000000</YPosition>
 </Canvas>
 <Widget>
     <Kind>6</Kind>
     <Name>R</Name>
-    <HighValue>239.926177979</HighValue>
-    <LowValue>15.073893547</LowValue>
+    <HighValue>114.310394287</HighValue>
+    <LowValue>0.000000000</LowValue>
 </Widget>
 <Widget>
     <Kind>6</Kind>
     <Name>G</Name>
-    <HighValue>255.000000000</HighValue>
+    <HighValue>252.487686157</HighValue>
     <LowValue>0.000000000</LowValue>
 </Widget>
 <Widget>
     <Kind>6</Kind>
     <Name>B</Name>
-    <HighValue>255.000000000</HighValue>
+    <HighValue>252.487686157</HighValue>
     <LowValue>0.000000000</LowValue>
 </Widget>
 <Widget>
     <Kind>6</Kind>
     <Name>Min Max</Name>
-    <HighValue>719.211791992</HighValue>
+    <HighValue>995.073913574</HighValue>
     <LowValue>0.000000000</LowValue>
 </Widget>
 <Widget>
     <Kind>4</Kind>
     <Name>Gray PLL</Name>
-    <Value>41.453201294</Value>
+    <Value>27.635469437</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
     <Name>Peak AP</Name>
-    <Value>11.822660446</Value>
+    <Value>15.024630547</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
@@ -52,25 +52,25 @@
 <Widget>
     <Kind>12</Kind>
     <Name>ksh</Name>
-    <Value>5</Value>
+    <Value>3</Value>
 </Widget>
 <Widget>
     <Kind>12</Kind>
     <Name>sigmax</Name>
-    <Value>7</Value>
+    <Value>3</Value>
 </Widget>
 <Widget>
     <Kind>12</Kind>
     <Name>sigmay</Name>
-    <Value>7</Value>
+    <Value>3</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
     <Name>Laser (ms)</Name>
-    <Value>42.339900970</Value>
+    <Value>83.349754333</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
     <Name>Stepper (ms)</Name>
-    <Value>2.463054180</Value>
+    <Value>1.477832556</Value>
 </Widget>

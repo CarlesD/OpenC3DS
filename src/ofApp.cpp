@@ -6,12 +6,11 @@
 using namespace cv;
 using namespace ofxCv;
 int serialPort;
-const char* portName="/dev/ttyACM3";
+
 
 //--------------------------------------------------------------
 void ofApp::setup(){
 
-//    font.loadFont("DIN.otf", 64);
 	serial.listDevices();
 	vector <ofSerialDeviceInfo> deviceList = serial.getDeviceList();
 
@@ -28,74 +27,56 @@ void ofApp::setup(){
     setGUI2();
     setGUI3();
     setGUI4();
+    setGUI5();
 
 	baud = 115200;
-//    openPort("/dev/ttyACM3",baud);
+
     serial.setup("/dev/ttyACM3", baud);
-//    while(serial.available()<0){
-//        serial.writeByte('7');
-//        usleep(10000);
-//    }
-
-//    serial.writeByte('5');
-//    serial.writeByte(' ');
-//    serial.writeByte('1');
-//    serial.writeByte(' ');
-//    serial.writeByte('1');
-//    serial.writeByte(' ');
-//    serial.writeByte('1');
-//    serial.writeByte('\n');
-
-//    unsigned char buf[4]={'5','1','1','1'};
-//    serial.writeBytes(&buf[0], 3);
-//
-//    serial.writeByte('8');
-//    sleep(1);
-//    serial.writeByte('9');
+    serial.flush(true,true);
 
     gui1->loadSettings("gui1.xml");
     gui2->loadSettings("gui2.xml");
     gui3->loadSettings("gui3.xml");
     gui4->loadSettings("gui4.xml");
+    gui5->loadSettings("gui5.xml");
 
-    camera(&cam3d,CamFile->getTextString().c_str());
     serial.setup(SerialPort->getTextString().c_str(), baud);
     serial.flush(true,true);
-//    Serial_setup(&serialPort,SerialPort->getTextString().c_str());
-//    serialPort=openPort(SerialPort->getTextString().c_str(), 115200);
-//    cam_laser(1,0,&serialPort,Lto);
+
+    camera(&cam3d,CamFile->getTextString().c_str());
+
+    Fast_Calibration_Constant=cam3d.FCC;
+    Yfocus=cam3d.yc;
+
 
     PosAxis1 = -1;
-    CartessianXAxis = true;
+    //CartessianXAxis = true;
     Scan = false;
 
     Axis1_Left_Button = false;
     Axis1_Right_Button = false;
 
-    string imagePath = "mars.jpg";
+    string imagePath = "mars-rocks.jpg";
+
+
     ofLoadImage(grisl, imagePath);
     ofLoadImage(TsL, imagePath);
     ofLoadImage(TaL, imagePath);
     grisl.loadImage(imagePath);
     TaL.loadImage(imagePath);
     TsL.loadImage(imagePath);
-
     ofSetVerticalSync(true);
     cam.setDesiredFrameRate(30);
     cam.setDeviceID(cam3d.DeviceId);
     cam.initGrabber(cam3d.resx,cam3d.resy);
-
     cam.listDevices();
-
     cam3d.blur_ksizew = atoi( KSW->getTextString().c_str());
     cam3d.blur_ksizeh = atoi( KSH->getTextString().c_str());
     cam3d.blur_sigmax = atoi( SX->getTextString().c_str());
     cam3d.blur_sigmay = atoi( SY->getTextString().c_str());
-
     reset_scan(punts);
     zoom = 1;
     Pview = false;
-    Laser(1,0,&serial,Lto);
 }
 
 //--------------------------------------------------------------
@@ -105,13 +86,16 @@ void ofApp::exit(){
     gui2->saveSettings("gui2.xml");
     gui3->saveSettings("gui3.xml");
     gui4->saveSettings("gui4.xml");
+    gui5->saveSettings("gui5.xml");
     delete gui1;
 	delete gui2;
 	delete gui3;
 	delete gui4;
+	delete gui5;
     Laser(1,0,&serial,Lto);
+    Laser(2,0,&serial,Lto);
 
-//    save_cam_data(cam3d,"HD525.cam");
+
 }
 
 //--------------------------------------------------------------
@@ -131,16 +115,21 @@ void ofApp::guiEvent(ofxUIEventArgs &e){
         CylindricalPhiAxis = false;
         SphericalPhiZhetaAxis = false;
         Laser(1,0,&serial,Lto);
+        Laser(2,0,&serial,Lto);
     }
     else if(name == "Cylindrical Phi Axis"){
         CartessianXAxis = false;
         CylindricalPhiAxis = true;
         SphericalPhiZhetaAxis = false;
+        Laser(1,0,&serial,Lto);
+        Laser(2,0,&serial,Lto);
     }
     else if(name == "Spherical Phi Zheta Axis"){
         CartessianXAxis = false;
         CylindricalPhiAxis = false;
         SphericalPhiZhetaAxis = true;
+        Laser(1,0,&serial,Lto);
+        Laser(2,0,&serial,Lto);
     }
     else if(name == "Apply Blur"){
         cam3d.blur_ksizew=atoi( KSW->getTextString().c_str());
@@ -208,6 +197,20 @@ void ofApp::guiEvent(ofxUIEventArgs &e){
             Zoom = false;
         }
     }
+    else if(name == "Fast calibration"){
+		ofxUIToggle *toggle = (ofxUIToggle *) e.getToggle();
+		if(toggle->getValue() == true){
+            Fast_Calibration = true;
+        }
+		else{
+            Fast_Calibration = false;
+        }
+
+    }
+    else if( (name == "SAVE Calibtation")){
+        save_cam_data(cam3d,CamFile->getTextString().c_str());
+    }
+
 	else if( (name == "<--Left")&&(mp == true) ){
 		Axis1_Left_Button = true;
         Axis1_Right_Button = false;
@@ -228,6 +231,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e){
         Stepper(1,1,0,1, &serial,(unsigned int)Sto);
     }
     else if( (name == "Load Camera")&&(mp == true) ){
+        free_camera(&cam3d);
         camera(&cam3d,CamFile->getTextString().c_str());
     }
 	else if(name == "CAM FILE"){
@@ -248,8 +252,6 @@ void ofApp::guiEvent(ofxUIEventArgs &e){
     else if(name == "SERIAL PORT"){
         ofxUITextInput *SerialPort = (ofxUITextInput *) e.widget;
         if(SerialPort->getTriggerType() == OFX_UI_TEXTINPUT_ON_ENTER){
-//            Serial_setup(&serialPort,SerialPort->getTextString().c_str());
-//            serialPort=openPort(SerialPort->getTextString().c_str(), 115200);
             SerialPort->update();
             serial.setup(SerialPort->getTextString().c_str(), baud);
             ofLogNotice() << "ofApp::guiEvent: Serial Port: ON ENTER: ";
@@ -263,7 +265,6 @@ void ofApp::guiEvent(ofxUIEventArgs &e){
         string output = SerialPort->getTextString();
         cout << output << endl;
 
-        //serialPort=openPort(SerialPort->getTextString().c_str(), 115200);
         SerialPort->update();
         serial.setup(SerialPort->getTextString().c_str(), baud);
     }
@@ -281,6 +282,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e){
         string output = PCDFile->getTextString();
         cout << output << endl;
     }
+
 }
 
 //--------------------------------------------------------------
@@ -312,6 +314,10 @@ void ofApp::update(){
     cam3d.GPLL = (int)GPLL;
     cam3d.PAP = (int)PAP;
     cam3d.PMP = (int)PMP;
+    cam3d.FCC=Fast_Calibration_Constant;
+    cam3d.yc=Yfocus;
+    cam3d.xc=Xfocus;
+
     pview.update();
 
 	if( (cam.isFrameNew())&&(Scan == true) ){
@@ -332,7 +338,28 @@ void ofApp::update(){
                 grisl.update();
             }
         } // end if(CartessianXAxis == true)
+
+
+        if(CylindricalPhiAxis == true){
+            if(s == 1){
+                copy(cam, TaL);
+                Laser(1,0,&serial,(int)Lto);
+                s = -1;
+            }
+            else{
+                s = 1;
+                copy(cam, TsL);
+                Laser(1,1,&serial,(int)Lto);
+                TsL.update();
+                TaL.update();
+                Run_Scan();
+//                contenidor(cam3d, &grisl);
+                grisl.update();
+            }
+        }
     } // end if( (cam.isFrameNew())&&(Scan == true) )
+
+
 
     if( (Scan == false)&&(Manual == true) ){
         int sense = 0;
@@ -363,13 +390,13 @@ void ofApp::draw(){
     if(Pview == false){
         cam.draw(210,500,295,166);
         //grisl.draw(210,0,890,500);
-        grisl.drawSubsection(210,0, 890,500, X,Y, 1024/zoom,576/zoom);
+        grisl.drawSubsection(210,0, 890,500, X,Y, cam3d.resx/zoom,cam3d.resy/zoom);
     }
     else{
         grisl.draw(210,500,295,166);
 //        grisl.draw(210,0,890,500);
         copy(cam,pview);
-        pview.drawSubsection(210,0, 890,500, 0,0, 1024,576);
+        pview.drawSubsection(210,0, 890,500, 0,0, cam3d.resx/zoom,cam3d.resy/zoom);
     }
 
     TaL.draw(508,500,295,166);
@@ -389,6 +416,7 @@ void ofApp::keyPressed(int key){
             gui2->toggleVisible();
             gui3->toggleVisible();
             gui4->toggleVisible();
+            gui5->toggleVisible();
 			break;
 
 		case 'p':
@@ -422,6 +450,9 @@ void ofApp::keyPressed(int key){
             break;
         case OF_KEY_F4:
             gui4->toggleVisible();
+            break;
+        case OF_KEY_F5:
+            gui5->toggleVisible();
             break;
 		default:
 			break;
@@ -747,6 +778,58 @@ void ofApp::setGUI4(){
 	ofAddListener(gui4->newGUIEvent,this,&ofApp::guiEvent);
 }
 
+void ofApp::setGUI5(){
+    gui5 = new ofxUISuperCanvas("CALIBRATION");
+    gui5->addSpacer();
+	gui5->addToggle( "Fast calibration", false);
+
+    gui5->addSpacer();
+    gui5->addSlider("FC Constant", -50, 50, &Fast_Calibration_Constant);
+    gui5->addSpacer();
+    gui5->addSlider("Y Focus", 0, 20, &Yfocus);
+    gui5->addSpacer();
+    gui5->addSlider("X Focus", -10, 10, &Xfocus);
+    gui5->addSpacer();
+    gui5->addButton( "SAVE Calibtation", false);
+
+//
+//    gui4->addLabel("Video cam number:", OFX_UI_FONT_SMALL);
+//   	gui4->setWidgetFontSize(OFX_UI_FONT_SMALL);
+//    VideoNum = gui4->addTextInput("Videonum", "2");
+//    VideoNum->setAutoUnfocus(false);
+//    VideoNum->setAutoClear(false);
+//
+//    gui4->addLabel("Focus:", OFX_UI_FONT_SMALL);
+//   	gui4->setWidgetFontSize(OFX_UI_FONT_SMALL);
+//    CamFocus = gui4->addTextInput("Camera Focus", "80");
+//    CamFocus->setAutoUnfocus(false);
+//    CamFocus->setAutoClear(false);
+//
+//    gui4->addLabel("White Balance Temperature:", OFX_UI_FONT_SMALL);
+//    gui4->setWidgetFontSize(OFX_UI_FONT_SMALL);
+//    WBT = gui4->addTextInput("WBT value", "2800");
+//    WBT->setAutoUnfocus(false);
+//    WBT->setAutoClear(false);;
+//
+//    gui4->addLabel("Exposition:", OFX_UI_FONT_SMALL);
+//   	gui4->setWidgetFontSize(OFX_UI_FONT_SMALL);
+//    CamExp = gui4->addTextInput("Camera Exposition", "600");
+//    CamExp->setAutoUnfocus(false);
+//    CamExp->setAutoClear(false);
+//
+//    gui4->addLabel("Gain:", OFX_UI_FONT_SMALL);
+//   	gui4->setWidgetFontSize(OFX_UI_FONT_SMALL);
+//    GAIN = gui4->addTextInput("Camera Gain", "128");
+//    GAIN->setAutoUnfocus(false);
+//    GAIN->setAutoClear(false);
+//
+//    gui4->addButton( "Apply", false);
+
+//    gui2->setPosition(212, 0);
+    gui5->autoSizeToFitWidgets();
+
+	ofAddListener(gui5->newGUIEvent,this,&ofApp::guiEvent);
+}
 //--------------------------------------------------------------
 void ofApp::drawGrid(float x, float y){
 
@@ -767,6 +850,13 @@ void ofApp::Run_Scan(){
 
     Punts Punts_Ok[cam3d.resy];
     int n = 0;
+    int i,np;
+    double scx,scxx,scy,scxy,mean_cx,mean_cy, varcx,covc;
+    np=0;
+    scx=0;
+    scy=0;
+    scxx=0;
+    scxy=0;
 
     if(Scan == true){
         if(CartessianXAxis == true){
@@ -809,6 +899,73 @@ void ofApp::Run_Scan(){
                 Scan = false;
             }
         } // end if(CartessianXAxis == true)
+
+
+            if(CylindricalPhiAxis == true){
+
+
+            if( (PosAxis1 < FiAxis1)&&(Axis1 == true) ){
+                Stepper(1,0,IncAxis1_Steps,0, &serial,(unsigned int)Sto);
+                PosAxis1 = PosAxis1 + IncAxis1;
+
+                scan(&cam3d,&grisl,&TaL,&TsL);
+
+                if (Fast_Calibration==true){
+
+                    for(i=0;i<=cam3d.resy-1;i++){
+                      if(cam3d.p[i].x!=cam3d.resx){
+                         scx+=(double)cam3d.p[i].x;
+                         scy+=(double)cam3d.p[i].y;
+                         scxy+=(double)cam3d.p[i].x*(double)cam3d.p[i].y;
+                         scxx+=(double)cam3d.p[i].x*(double)cam3d.p[i].x;
+                         np=np+1; //nombre total de punts bons de la regressió
+                      }
+                    }
+
+                    mean_cx = scx / (double)np;
+                    mean_cy = scy / (double)np;
+
+                    varcx = scxx - scx * mean_cx;
+                    covc = scxy - scx * mean_cy;
+
+                    // check for zero varx
+                    cam3d.m = covc / varcx; //càlcul pendent recta
+                    cam3d.FCC=Fast_Calibration_Constant;
+                    cam3d.yc=Yfocus;
+                    cout << "Pendent:" << cam3d.m<< endl;
+                    cout << "Np:" << np<< endl;
+                }
+
+                TsL.update();
+                TaL.update();
+                Component_3D_Angular_1_axis_Scan(cam3d,1,TsL, punts, PosAxis1*PI/180);
+                check_scan(punts, Punts_Ok, &n);
+
+                if(n != 0){
+                    cloudaux.width = n;
+                    cloudaux.height = 1;
+                    cloudaux.is_dense = false;
+
+                    cloudaux.points.resize (cloudaux.width * cloudaux.height);
+
+                    cloud = cloud + cloudaux;
+                    clouderr = clouderr + cloudaux;
+                    fill_cloud(Punts_Ok,n,nt);
+                    reset_scan(punts);
+                    nt = nt + n;
+                }
+            } // end if( (PosAxis1 < FiAxis1)&&(Axis1 == true) )
+            if(Axis1 == false){
+
+                IncAxis1_Steps = (int)((IncAxis1)*((float)Steps_div_degree_on_output_angular_1_axis));
+                Axis1 = true;
+                PosAxis1 = IniAxis1;
+            }
+            if(PosAxis1 >= FiAxis1){
+                Axis1 = false;
+                Scan = false;
+            }
+        } // end if(CylindricalPhiAxis == true)
     } // end if(Scan == true)
 }
 
@@ -845,11 +1002,38 @@ void ofApp::check_scan(Punts p[],Punts pok[], int *n){
                 }
             } // end if( (d > dist_scan_min)&&(d < dist_scan_max) )
         } // end if(CartessianXAxis == true){
+
+          if(CylindricalPhiAxis == true){
+            ofVec3f P(p[i].x,p[i].y,p[i].z);
+            ofVec3f O(0,0,0);
+            float d = fabs(O.distance(P));
+//            cout << d << endl;
+            if( (d > dist_scan_min)&&(d < dist_scan_max) ){
+                if( (p[i].x != -10000)&&(p[i].y != -10000)&&(p[i].z != -10000) ){
+                    pok[*n] = p[i];
+                    if(*n > 0){
+                        ofVec3f s(0, pok[*n-1].y - pok[*n].y, pok[*n-1].z - pok[*n].z);
+                        ofVec3f u = v.getCrossed(s);
+                        ofVec3f un = u.getNormalized();
+                        pok[*n].nx = un.x;
+                        pok[*n].ny = un.y;
+                        pok[*n].nz = un.z;
+                    }
+                    else{
+                        pok[*n].nx = 0;
+                        pok[*n].ny = -1;
+                        pok[*n].nz = 0;
+                    }
+
+                    *n = *n + 1;
+                }
+            } // end if( (d > dist_scan_min)&&(d < dist_scan_max) )
+        } // end if(CartessianXAxis == true){
     } // end for
 
 }
 
-//--------------------------------------------------------------
+//-----------------------------------
 void ofApp::reset_scan(Punts p[]){
 
     for(int i=0; i<=cam3d.resy-1; i++){
@@ -890,10 +1074,10 @@ void ofApp::fill_cloud(Punts pok[], int n,int nt){
 }
 
 //--------------------------------------------------------------
-void ofApp::capture_image(ofImage *image){
-
-    ofImage aux;
-    aux.setFromPixels(cam.getPixels(), 1024, 576, OF_IMAGE_COLOR);
-    *image = aux;
-}
+//void ofApp::capture_image(ofImage *image){
+//
+//    ofImage aux;
+//    aux.setFromPixels(cam.getPixels(), cam3d.resx, cam3d.resy, OF_IMAGE_COLOR);
+//    *image = aux;
+//}
 

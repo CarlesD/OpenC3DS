@@ -2,13 +2,13 @@
     <Kind>40</Kind>
     <Name>OFX_UI_WIDGET_CANVAS</Name>
     <IsMinified>0</IsMinified>
-    <XPosition>-1.000000000</XPosition>
-    <YPosition>-1.000000000</YPosition>
+    <XPosition>-3.000000000</XPosition>
+    <YPosition>-2.000000000</YPosition>
 </Canvas>
 <Widget>
     <Kind>12</Kind>
     <Name>CAM FILE</Name>
-    <Value>HD525.cam</Value>
+    <Value>HD525P1-1280.cam</Value>
 </Widget>
 <Widget>
     <Kind>12</Kind>
@@ -18,12 +18,12 @@
 <Widget>
     <Kind>2</Kind>
     <Name>Cartesian X Axis</Name>
-    <Value>1</Value>
+    <Value>0</Value>
 </Widget>
 <Widget>
     <Kind>2</Kind>
     <Name>Cylindrical Phi Axis</Name>
-    <Value>0</Value>
+    <Value>1</Value>
 </Widget>
 <Widget>
     <Kind>2</Kind>
@@ -38,13 +38,13 @@
 <Widget>
     <Kind>6</Kind>
     <Name>RAXIS1</Name>
-    <HighValue>51.724140167</HighValue>
+    <HighValue>369.458129883</HighValue>
     <LowValue>0.000000000</LowValue>
 </Widget>
 <Widget>
     <Kind>6</Kind>
     <Name>RAXIS2</Name>
-    <HighValue>91.699508667</HighValue>
+    <HighValue>100.000000000</HighValue>
     <LowValue>50.000000000</LowValue>
 </Widget>
 <Widget>
@@ -56,7 +56,7 @@
 <Widget>
     <Kind>4</Kind>
     <Name>IAXIS1</Name>
-    <Value>0.000000000</Value>
+    <Value>0.517241418</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>

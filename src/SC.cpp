@@ -79,11 +79,11 @@ int Stepper(int Stepper_num, float Angle, int Steps, bool Home, ofSerial *serial
                 resp = serial->readByte();
                 iter = iter + 1;
                 ofSleepMillis(tms);
-                ofLogNotice() << "SC:: Stepper: " << endl;
-                cout << resp << endl;
+
+               // cout << resp << endl;
             }
             if(iter < 20){
-                ofLogNotice() << "SC:: Stepper: " << endl;
+                ofLogNotice() << "SC:: Stepper: OK" << endl;
                 cout << iter << endl;
                 return(1);
             }
@@ -99,10 +99,10 @@ int Stepper(int Stepper_num, float Angle, int Steps, bool Home, ofSerial *serial
 int Laser(int Laser_num, int estat, ofSerial *serial, int tms){
 
     char bu[16];
-    unsigned char LASER1_ON[] = {'5',' ','1',' ','0',' ','0','\n'};
-    unsigned char LASER1_OFF[] = {'5',' ','0',' ','0',' ','0','\n'};
-    unsigned char LASER2_ON[] = {'6',' ','1',' ','0',' ','0','\n'};
-    unsigned char LASER2_OFF[] = {'6',' ','0',' ','0',' ','0','\n'};
+    unsigned char LASER1_ON[] = {'2',' ','1',' ','0',' ','0','\n'};
+    unsigned char LASER1_OFF[] = {'2',' ','0',' ','0',' ','0','\n'};
+    unsigned char LASER2_ON[] = {'3',' ','1',' ','0',' ','0','\n'};
+    unsigned char LASER2_OFF[] = {'3',' ','0',' ','0',' ','0','\n'};
     int resp = 0;
     int iter = 0;
 
@@ -124,7 +124,7 @@ int Laser(int Laser_num, int estat, ofSerial *serial, int tms){
     }
     if(Laser_num == 2 && estat == 1){
         serial->writeBytes(&LASER2_ON[0], 8);
-        while(resp != 69 && iter < 100){
+        while(resp != 72 && iter < 100){
             ofSleepMillis(tms);
             iter = iter + 1;
             resp = serial->readByte();
@@ -132,7 +132,7 @@ int Laser(int Laser_num, int estat, ofSerial *serial, int tms){
     }
     if(Laser_num == 2 && estat == 0){
         serial->writeBytes(&LASER2_OFF[0], 8);
-        while(resp != 69 && iter < 100){
+        while(resp != 73 && iter < 100){
             ofSleepMillis(tms);
             iter = iter + 1;
             resp = serial->readByte();
@@ -140,13 +140,13 @@ int Laser(int Laser_num, int estat, ofSerial *serial, int tms){
     }
 
     if(iter < 20){
-        ofLogNotice() << "SC:: Stepper: " << endl;
+        ofLogNotice() << "SC::Laser::OK " << endl;
         cout << iter << endl;
         return(1);
         return(1);
     }
     else{
-        ofLogError() << "SC:: Stepper: Serial port error" << endl;
+        ofLogError() << "SC::Laser:: Serial port error" << endl;
         return(0);
     }
 }

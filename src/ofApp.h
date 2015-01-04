@@ -16,6 +16,10 @@
 #include <iostream>
 #include <string>
 
+#define i_angular_1_axis  26.851239669 //relació transmissió un eix angular
+#define Stepsxrevolution_angular_1_axis  6400 // Passos per volta transmissió un eix angular
+#define Steps_div_degree_on_output_angular_1_axis i_angular_1_axis*Stepsxrevolution_angular_1_axis/360.0f  //passos/graus
+
 class ofApp : public ofBaseApp{
 
 	public:
@@ -52,7 +56,7 @@ class ofApp : public ofBaseApp{
         bool CartessianXAxis,CylindricalPhiAxis,SphericalPhiZhetaAxis;
 
         Cam cam3d;
-        Punts punts[1300];
+        Punts punts[2000];
         int s=-1;
         int nt=0;
 
@@ -65,16 +69,17 @@ class ofApp : public ofBaseApp{
         void setGUI2();
         void setGUI3();
         void setGUI4();
+        void setGUI5();
 
         ofxUISuperCanvas *gui1;
         ofxUISuperCanvas *gui2;
         ofxUISuperCanvas *gui3;
         ofxUISuperCanvas *gui4;
+        ofxUISuperCanvas *gui5;
 
         ofVideoGrabber cam;
 
         void Run_Scan();
-        void capture_image(ofImage *image);
 
         void reset_scan(Punts p[]);
         void check_scan(Punts p[],Punts pok[], int *n);
@@ -82,7 +87,8 @@ class ofApp : public ofBaseApp{
         void SavePointCloud();
         void ResetPointCloud();
 
-        bool mp,Pview,Zoom;
+        bool mp,Pview,Zoom,Fast_Calibration;
+        float Fast_Calibration_Constant, Yfocus, Xfocus;
         int X,Y,zoom;
         ofSerial	serial;
         int baud;
