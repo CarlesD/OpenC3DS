@@ -1,8 +1,5 @@
 #include "ofApp.h"
-//#include "SC.h" //COMENTARI Anna: cap al .h per endreçar
-//#include "3Dscan.h"
-//#include <iostream>
-//#include <string>
+
 using namespace cv;
 using namespace ofxCv;
 int serialPort;
@@ -14,7 +11,6 @@ void ofApp::setup(){
 	serial.listDevices();
 	vector <ofSerialDeviceInfo> deviceList = serial.getDeviceList();
 
-    unsigned char HOME[8]={'1',' ','1',' ','9',' ','0','\n'};
     red = 100; blue = 200; green = 27;
 
     hideGUI = false;
@@ -104,7 +100,7 @@ void ofApp::guiEvent(ofxUIEventArgs &e){
 	string name = e.getName();
 	int kind = e.getKind();
 
-    // http://openframeworks.cc/documentation/utils/ofLog.html#!show_ofLog
+
 	ofLogNotice() << "ofApp::guiEvent: got event from: " << name << endl;
 
 	if(name == "SCAN"){
@@ -478,14 +474,8 @@ void ofApp::mouseDragged(int x, int y, int button){
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
 
-//    int mx = x % w;
-//    int my = y % h;
-//
-//    //get hue value on mouse position
-//    findHue = hue.getPixels()[my * w + mx];
-
     mp = true;
-    //grisl.draw(210-890*(zoom*0.5),500*(zoom*0.5),890*zoom,500*zoom);
+
     if(x > 210 && y > 0 && x < (210+890) && y < 500 && button == 0 && Zoom == true){
         zoom = zoom + 1;
         X = x - 210 - (445/zoom);
@@ -508,7 +498,7 @@ void ofApp::mousePressed(int x, int y, int button){
     }
 
     cam.draw(210,500,295,166);
-//    cout << button << endl;
+
 }
 
 //--------------------------------------------------------------
@@ -654,40 +644,6 @@ void ofApp::setGUI2(){
     SY->setAutoClear(false);
     gui2->addButton( "Apply Blur", false);
 
-//    gui2->addSpacer();
-//
-//    gui2->addLabel("Video cam number:", OFX_UI_FONT_SMALL);
-//    gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
-//    VideoNum = gui2->addTextInput("Videonum", "2");
-//    VideoNum->setAutoUnfocus(false);
-//    VideoNum->setAutoClear(false);
-//
-//    gui2->addLabel("Focus:", OFX_UI_FONT_SMALL);
-//    gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
-//    CamFocus = gui2->addTextInput("Camera Focus", "80");
-//    CamFocus->setAutoUnfocus(false);
-//    CamFocus->setAutoClear(false);
-//
-//    gui2->addLabel("White Balance Temperature:", OFX_UI_FONT_SMALL);
-//    gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
-//    WBT = gui2->addTextInput("WBT value", "2800");
-//    WBT->setAutoUnfocus(false);
-//    WBT->setAutoClear(false);;
-//
-//    gui2->addLabel("Exposition:", OFX_UI_FONT_SMALL);
-//    gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
-//    CamExp = gui2->addTextInput("Camera Exposition", "600");
-//    CamExp->setAutoUnfocus(false);
-//    CamExp->setAutoClear(false);
-//
-//    gui2->addLabel("Gain:", OFX_UI_FONT_SMALL);
-//    gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
-//    GAIN = gui2->addTextInput("Camera Gain", "128");
-//    GAIN->setAutoUnfocus(false);
-//    GAIN->setAutoClear(false);
-//
-//    gui2->addButton( "Apply", false);
-
     gui2->addSpacer();
     gui2->addLabel("Timeout:", OFX_UI_FONT_SMALL);
     gui2->setWidgetFontSize(OFX_UI_FONT_SMALL);
@@ -706,7 +662,6 @@ void ofApp::setGUI3(){
 
 	gui3 = new ofxUISuperCanvas("Manual Axis Position");
     gui3->addSpacer();
-//    gui3->addLabel("FPS");
     gui3->addFPS();
 
     gui3->addSpacer();
@@ -772,7 +727,6 @@ void ofApp::setGUI4(){
 
     gui4->addButton( "Apply", false);
 
-//    gui2->setPosition(212, 0);
     gui4->autoSizeToFitWidgets();
 
 	ofAddListener(gui4->newGUIEvent,this,&ofApp::guiEvent);
@@ -792,40 +746,6 @@ void ofApp::setGUI5(){
     gui5->addSpacer();
     gui5->addButton( "SAVE Calibtation", false);
 
-//
-//    gui4->addLabel("Video cam number:", OFX_UI_FONT_SMALL);
-//   	gui4->setWidgetFontSize(OFX_UI_FONT_SMALL);
-//    VideoNum = gui4->addTextInput("Videonum", "2");
-//    VideoNum->setAutoUnfocus(false);
-//    VideoNum->setAutoClear(false);
-//
-//    gui4->addLabel("Focus:", OFX_UI_FONT_SMALL);
-//   	gui4->setWidgetFontSize(OFX_UI_FONT_SMALL);
-//    CamFocus = gui4->addTextInput("Camera Focus", "80");
-//    CamFocus->setAutoUnfocus(false);
-//    CamFocus->setAutoClear(false);
-//
-//    gui4->addLabel("White Balance Temperature:", OFX_UI_FONT_SMALL);
-//    gui4->setWidgetFontSize(OFX_UI_FONT_SMALL);
-//    WBT = gui4->addTextInput("WBT value", "2800");
-//    WBT->setAutoUnfocus(false);
-//    WBT->setAutoClear(false);;
-//
-//    gui4->addLabel("Exposition:", OFX_UI_FONT_SMALL);
-//   	gui4->setWidgetFontSize(OFX_UI_FONT_SMALL);
-//    CamExp = gui4->addTextInput("Camera Exposition", "600");
-//    CamExp->setAutoUnfocus(false);
-//    CamExp->setAutoClear(false);
-//
-//    gui4->addLabel("Gain:", OFX_UI_FONT_SMALL);
-//   	gui4->setWidgetFontSize(OFX_UI_FONT_SMALL);
-//    GAIN = gui4->addTextInput("Camera Gain", "128");
-//    GAIN->setAutoUnfocus(false);
-//    GAIN->setAutoClear(false);
-//
-//    gui4->addButton( "Apply", false);
-
-//    gui2->setPosition(212, 0);
     gui5->autoSizeToFitWidgets();
 
 	ofAddListener(gui5->newGUIEvent,this,&ofApp::guiEvent);
@@ -1073,11 +993,4 @@ void ofApp::fill_cloud(Punts pok[], int n,int nt){
     }
 }
 
-//--------------------------------------------------------------
-//void ofApp::capture_image(ofImage *image){
-//
-//    ofImage aux;
-//    aux.setFromPixels(cam.getPixels(), cam3d.resx, cam3d.resy, OF_IMAGE_COLOR);
-//    *image = aux;
-//}
 

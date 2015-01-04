@@ -2,7 +2,7 @@
 
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
-//#include <pcl/filters/statistical_outlier_removal.h>
+
 
 #include "ofMain.h"
 #include "ofxUI.h"
@@ -11,7 +11,7 @@
 #include "ofxOpenCv.h"
 #include "Cam3D.h"
 
-#include "SC.h" //COMENTARI Anna: venen del ofApp.cpp per endreçar
+#include "SC.h"
 #include "3Dscan.h"
 #include <iostream>
 #include <string>
@@ -56,7 +56,7 @@ class ofApp : public ofBaseApp{
         bool CartessianXAxis,CylindricalPhiAxis,SphericalPhiZhetaAxis;
 
         Cam cam3d;
-        Punts punts[2000];
+        Punts punts[2500];
         int s=-1;
         int nt=0;
 

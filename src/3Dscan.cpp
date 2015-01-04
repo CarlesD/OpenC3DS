@@ -36,18 +36,21 @@ cam->p = (Punts2D_subpix *)malloc(sizeof(Punts2D_subpix)*(cam->resy));
         }
     }
 
-    calibracio_cam(cam); // ull si la reslució varia fa un pet pq els fitxers de calibració estan fets per 1024x576, es pot eliminar si estria l'opció d'utocalibració
+    calibracio_cam(cam);
  }
 }
 
 void free_camera(Cam *cam){
- if (cam->Calibration==0){
-    //free(cam->fcl1);
-    //free(cam->fcl2);
-    free(cam->c1);
-    free(cam->c2);
+
     free(cam->p);
- }
+
+     if (cam->Calibration==0){
+        free(cam->fcl1);
+        free(cam->fcl2);
+        free(cam->c1);
+        free(cam->c2);
+
+     }
 }
 
 
@@ -60,12 +63,6 @@ void scan(Cam *cam, ofImage *grislaser, ofImage *TaL, ofImage *TsL){
 
     Mat HSV;
     Mat threshold1;
-
-//    camera(cam);
-
-//    int valueRL = 60;
-//    int valueGL = 0;
-//    int valueBL = 0;
 
     Mat tt1, tt2, tt3, colo;
 
@@ -95,9 +92,8 @@ void scan(Cam *cam, ofImage *grislaser, ofImage *TaL, ofImage *TsL){
     cvtColor(gris, grisc, CV_GRAY2BGR);
 
     for(int i=0; i<cam->resy; i++){
-        cv::Point paux1;    int valueRL = 60;
-    int valueGL = 0;
-    int valueBL = 0;
+        cv::Point paux1;
+
         paux1.x = (int)cam->p[i].x;
         paux1.y = (int)cam->p[i].y;
 
@@ -128,7 +124,7 @@ int Component_3D_LinScan(Cam cam, int Laser, ofImage Tot, Punts p[], float incx)
     float delta_alfa, dist_alfa;
     float Xp, Yp;
     Mat Tot_Cv = toCv(Tot);
-    float Lc = 100;
+
 
     for(int i=0; i<=cam.resy-1; i++){
         if(cam.p[i].x != cam.resx){
@@ -424,11 +420,7 @@ int cam_cap_subpixel(Cam *cam, Mat ima1, Mat thr1){
         } // end for
         if(k >= cam->PMP){
             polynomialfit(k, DEGREE, x, y, coeff);
-//                    if (coeff[3]!=0)
-//                        {x1=fabs((-2*coeff[2]+sqrt(4*coeff[2]*coeff[2]-4*(3*coeff[3]*coeff[1])))/(2*3*coeff[3]));
-//                        if(abs(x1-jmax)>10)x1=jmax;
-//                    }}
-//                    else{x1=1024;}
+
 
             if(coeff[2] != 0){
                 x1 = fabs( (-1 * coeff[1]) / (2 * coeff[2]) );

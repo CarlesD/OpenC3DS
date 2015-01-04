@@ -32,17 +32,17 @@
 <Widget>
     <Kind>4</Kind>
     <Name>Gray PLL</Name>
-    <Value>27.635469437</Value>
+    <Value>25.123151779</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
     <Name>Peak AP</Name>
-    <Value>15.024630547</Value>
+    <Value>15.763546944</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
     <Name>Peak MP</Name>
-    <Value>3.000000000</Value>
+    <Value>6.576354980</Value>
 </Widget>
 <Widget>
     <Kind>12</Kind>
@@ -72,5 +72,5 @@
 <Widget>
     <Kind>4</Kind>
     <Name>Stepper (ms)</Name>
-    <Value>1.477832556</Value>
+    <Value>15.270936966</Value>
 </Widget>
