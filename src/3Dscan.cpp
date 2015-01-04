@@ -14,7 +14,7 @@ if(load_cam_data(cam,CamFile) != 1){
         ofLogError() << "3Dscan::camera: File error";
 }
 
-//cam->p = (Punts2D_subpix *)malloc(sizeof(Punts2D_subpix)*(cam->resy));
+cam->p = (Punts2D_subpix *)malloc(sizeof(Punts2D_subpix)*(cam->resy));
 
 
  if (cam->Calibration==0){

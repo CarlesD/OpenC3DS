@@ -30,7 +30,7 @@ typedef struct{
     char fcl1[50];
     char fcl2[50];
     int blur_ksizew, blur_ksizeh, blur_sigmax, blur_sigmay; // paràmetres del blur
-    Punts2D_subpix p[2500]; // punts de la càmera amb precisió subpixel en x
+    Punts2D_subpix *p; // punts de la càmera amb precisió subpixel en x
     Calibracio* c1;
     Calibracio* c2;
     int nc1, nc2, resyc1, resyc2; // Valors dels fitxers de configuració dels làsers
