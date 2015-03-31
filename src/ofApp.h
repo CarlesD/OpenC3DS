@@ -41,7 +41,6 @@ class ofApp : public ofBaseApp{
 		ofxUICanvas *guiOpenC3DSimages;
 		int totalGUIs;
         void guiEvent(ofxUIEventArgs &e);
-        void guiEventimages(ofxUIEventArgs &e);
 
         // SERIAL
 		openC3DSserial serialCommunication;
@@ -58,6 +57,7 @@ class ofApp : public ofBaseApp{
 		enum scanningSubStates{ SCANING_IDLE = 0, SCANING_PROCESS, SCANING_CHANGE_LASER, SCANING_MOVE, SCANING_LASER_ON, SCANING_LASER_OFF, SCANING_IMG_ON, SCANING_IMG_OFF };
         string getStringStates(int s);
         string getStringSubStates(int s);
+        string sStateAndInfo;
 
 		int scannerState;
 		int scanningSubState;

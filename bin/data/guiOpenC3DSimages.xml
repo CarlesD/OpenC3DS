@@ -2,6 +2,30 @@
     <Kind>40</Kind>
     <Name>OFX_UI_WIDGET_CANVAS</Name>
     <IsMinified>0</IsMinified>
-    <XPosition>6.000000000</XPosition>
-    <YPosition>5.000000000</YPosition>
+    <XPosition>13.000000000</XPosition>
+    <YPosition>11.000000000</YPosition>
 </Canvas>
+<Widget>
+    <Kind>15</Kind>
+    <Name>MAIN IMAGE</Name>
+</Widget>
+<Widget>
+    <Kind>15</Kind>
+    <Name>color</Name>
+</Widget>
+<Widget>
+    <Kind>15</Kind>
+    <Name>YESlaser</Name>
+</Widget>
+<Widget>
+    <Kind>15</Kind>
+    <Name>NOlaser</Name>
+</Widget>
+<Widget>
+    <Kind>15</Kind>
+    <Name>diff</Name>
+</Widget>
+<Widget>
+    <Kind>15</Kind>
+    <Name>threshold</Name>
+</Widget>

@@ -61,6 +61,10 @@ void ofApp::setup(){
     guiOpenC3DS->addButton("image_YES_laser", false);
     guiOpenC3DS->addButton("image_NO_laser", false);
 
+    guiOpenC3DS->addSpacer();
+    sStateAndInfo = "a\n b\n c\n d\n e\n f\n g\n h\n i\n j\n";
+    guiOpenC3DS->addTextArea("states_info", sStateAndInfo, OFX_UI_FONT_SMALL);
+
     guiOpenC3DS->setPosition(0,0);
     guiOpenC3DS->autoSizeToFitWidgets();
 	ofAddListener(guiOpenC3DS->newGUIEvent,this,&ofApp::guiEvent);
@@ -73,15 +77,15 @@ void ofApp::setup(){
     guiOpenC3DSimages->addImage("MAIN IMAGE", imgMain);
     guiOpenC3DSimages->addSpacer();
 
-    guiOpenC3DSimages->addWidgetDown(new ofxUIImage(webcamCapture.imgWidthPart, webcamCapture.imgHeightPart, imgSmall1, ""));
-    guiOpenC3DSimages->addWidgetRight(new ofxUIImage(webcamCapture.imgWidthPart, webcamCapture.imgHeightPart, imgSmall2, ""));
-    guiOpenC3DSimages->addWidgetRight(new ofxUIImage(webcamCapture.imgWidthPart, webcamCapture.imgHeightPart, imgSmall3, ""));
-    guiOpenC3DSimages->addWidgetDown(new ofxUIImage(webcamCapture.imgWidthPart, webcamCapture.imgHeightPart, imgSmall4, ""));
-    guiOpenC3DSimages->addWidgetRight(new ofxUIImage(webcamCapture.imgWidthPart, webcamCapture.imgHeightPart, imgSmall5, ""));
+    guiOpenC3DSimages->addWidgetDown(new ofxUIImage(webcamCapture.imgWidthPart, webcamCapture.imgHeightPart, imgSmall1, "color"));
+    guiOpenC3DSimages->addWidgetRight(new ofxUIImage(webcamCapture.imgWidthPart, webcamCapture.imgHeightPart, imgSmall2, "YESlaser"));
+    guiOpenC3DSimages->addWidgetRight(new ofxUIImage(webcamCapture.imgWidthPart, webcamCapture.imgHeightPart, imgSmall3, "NOlaser"));
+    guiOpenC3DSimages->addWidgetDown(new ofxUIImage(webcamCapture.imgWidthPart, webcamCapture.imgHeightPart, imgSmall4, "diff"));
+    guiOpenC3DSimages->addWidgetRight(new ofxUIImage(webcamCapture.imgWidthPart, webcamCapture.imgHeightPart, imgSmall5, "threshold"));
 
     guiOpenC3DSimages->setPosition(0,0);
     guiOpenC3DSimages->autoSizeToFitWidgets();
-	ofAddListener(guiOpenC3DSimages->newGUIEvent,this,&ofApp::guiEventimages);
+	ofAddListener(guiOpenC3DSimages->newGUIEvent,this,&ofApp::guiEvent);
 
     guiOpenC3DSimages->loadSettings("guiOpenC3DSimages.xml");
 
@@ -177,7 +181,7 @@ void ofApp::update(){
         webcamCapture.updateGrayDiff();
     }
 
-    // update images to show
+    // update images to showguiOpenC3DS->autoSizeToFitWidgets();
     imgSmall1->setFromPixels(webcamCapture.colorImage.getPixels(), webcamCapture.camWidth, webcamCapture.camHeight, OF_IMAGE_COLOR);
     imgSmall2->setFromPixels(webcamCapture.grayImageYESlaser.getPixels(), webcamCapture.camWidth, webcamCapture.camHeight, OF_IMAGE_GRAYSCALE);
     imgSmall3->setFromPixels(webcamCapture.grayImageNOlaser.getPixels(), webcamCapture.camWidth, webcamCapture.camHeight, OF_IMAGE_GRAYSCALE);
@@ -205,14 +209,13 @@ void ofApp::update(){
 void ofApp::draw(){
     ofSetWindowTitle("OpenColor3DScan at " + ofToString(ofGetFrameRate()) + "fps");
     ofBackground(blauFons);
-    ofSetColor(255);
-    ofDrawBitmapString("scannerState: " + ofToString(getStringStates(scannerState)), 800,620);
-    ofDrawBitmapString("  scanningSubState: " + ofToString(getStringSubStates(scanningSubState)), 800,640);
-    ofDrawBitmapString("posAxis1Steps: " + ofToString(posAxis1Steps), 800,660);
-    ofDrawBitmapString("currentLaser: " + ofToString(currentLaser), 800,680);
-
-    // SERIAL
-    serialCommunication.draw();
+    sStateAndInfo = "FPS: " + ofToString(ofGetFrameRate()) + "\n" + "\n";
+    sStateAndInfo += "scanner state: " + ofToString(getStringStates(scannerState)) + "\n" + "\n";
+    sStateAndInfo += "scanning substate: " + ofToString(getStringSubStates(scanningSubState)) + "\n" + "\n";
+    sStateAndInfo += "pos axis1 steps: " + ofToString(posAxis1Steps) + "\n" + "\n";
+    sStateAndInfo += "current laser: " + ofToString(currentLaser) + "\n";
+    ofxUITextArea *ta = (ofxUITextArea *) guiOpenC3DS->getWidget("states_info");
+    ta->setTextString(sStateAndInfo);
 }
 
 //--------------------------------------------------------------
@@ -290,19 +293,13 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 }
 
 //--------------------------------------------------------------
-void ofApp::guiEventimages(ofxUIEventArgs &e){
-	string name = e.getName();
+void ofApp::guiEvent(ofxUIEventArgs &e){
+    string name = e.getName();
 	int kind = e.getKind();
 
     cout << "guiEvent" << endl;
 	cout << "  name: " << name << endl;
 	cout << "  kind: " << kind << endl;
-}
-
-//--------------------------------------------------------------
-void ofApp::guiEvent(ofxUIEventArgs &e){
-	string name = e.getName();
-	int kind = e.getKind();
 
 	if(name == "start_scan"){
         bscan = true;

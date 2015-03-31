@@ -11,7 +11,6 @@
 
 #define ACK_BYTES   4
 
-
 class openC3DSserial{
 
 	public:
