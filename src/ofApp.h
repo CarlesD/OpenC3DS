@@ -1,24 +1,21 @@
 #pragma once
 
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
-
-
 #include "ofMain.h"
 #include "ofxUI.h"
-#include "ofxCv.h"
 
-#include "ofxOpenCv.h"
-#include "Cam3D.h"
+#include "openC3DSserial.h"
+#include "openC3DScam.h"
+#include "openC3DSprocess.h"
 
-#include "SC.h"
-#include "3Dscan.h"
-#include <iostream>
-#include <string>
+#define NUM_LASERS      2
 
-#define i_angular_1_axis  26.851239669 //relaci� transmissi� un eix angular
-#define Stepsxrevolution_angular_1_axis  6400 // Passos per volta transmissi� un eix angular
-#define Steps_div_degree_on_output_angular_1_axis i_angular_1_axis*Stepsxrevolution_angular_1_axis/360.0f  //passos/graus
+#define I_ANGULAR_AXIS1                                         26.851239669 // relació de transmissió del reductor del motor
+#define STEPS_X_MOTOR_REVOLUTION_AXIS1                          6400 // passos que estableix el driver del motor per cada volta
+                                                                     // el motor s de 200 steps per revolució
+                                                                     // el driver fa 32 substeps
+                                                                     // 200 * 32 = 6400
+#define STEPS_X_REVOLUTION_AXIS1                                I_ANGULAR_AXIS1 * STEPS_X_MOTOR_REVOLUTION_AXIS1
+#define STEPS_PER_DEGREE_AXIS1                                  STEPS_X_REVOLUTION_AXIS1 / 360.0f // passos/grau
 
 class ofApp : public ofBaseApp{
 
@@ -37,59 +34,58 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
-        void drawGrid(float x, float y);
 
-        bool hideGUI;
-        float red, green, blue;
-        bool bdrawGrid;
-        bool bdrawPadding;
+		// GUI
+		ofColor blauFons;
+		ofxUICanvas *guiOpenC3DS;
+		ofxUICanvas *guiOpenC3DSimages;
+		int totalGUIs;
         void guiEvent(ofxUIEventArgs &e);
+        void guiEventimages(ofxUIEventArgs &e);
 
-        float Ri,Gi,Bi,Rs,Gs,Bs,GPLL,PAP,PMP;
-        float Lto,Sto;
-        int IncAxis1_Steps;
-        float IniAxis1,FiAxis1;
-        float IncAxis1;
-        float PosAxis1,PosAxis1_ant, dist_scan_max, dist_scan_min;
+        // SERIAL
+		openC3DSserial serialCommunication;
 
-        bool Scan,Manual,Axis1_Left_Button,Axis1_Right_Button,Axis1;
-        bool CartessianXAxis,CylindricalPhiAxis,SphericalPhiZhetaAxis;
+		// CAM
+		openC3DScam webcamCapture;
 
-        Cam cam3d;
-        Punts punts[2500];
-        int s=-1;
-        int nt=0;
+		// CAM
+		openC3DSprocess scanerProcess;
 
-        pcl::PointCloud<pcl::PointXYZRGBNormal> cloud, cloudaux,clouderr;
+		// SCANNER
+		// states
+		enum scannerStates{ SCANNER_IDLE = 0, SCANNER_GOING_HOME, SCANNER_GOING_START, SCANNER_SCANING };
+		enum scanningSubStates{ SCANING_IDLE = 0, SCANING_PROCESS, SCANING_CHANGE_LASER, SCANING_MOVE, SCANING_LASER_ON, SCANING_LASER_OFF, SCANING_IMG_ON, SCANING_IMG_OFF };
+        string getStringStates(int s);
+        string getStringSubStates(int s);
 
-        ofxUITextInput *CamFile, *SerialPort,*textInput,*PCDFile,*CamExp,*CamFocus,*VideoNum,*KSW,*KSH,*SX,*SY,*WBT,*GAIN;
-        ofImage grisl,TaL,TsL,pview;
+		int scannerState;
+		int scanningSubState;
 
-        void setGUI1();
-        void setGUI2();
-        void setGUI3();
-        void setGUI4();
-        void setGUI5();
+        bool bscan;
 
-        ofxUISuperCanvas *gui1;
-        ofxUISuperCanvas *gui2;
-        ofxUISuperCanvas *gui3;
-        ofxUISuperCanvas *gui4;
-        ofxUISuperCanvas *gui5;
+		//positions
+		float iniAxis1degrees, fiAxis1degrees; // posició angular inicial d'scaneig i posició angular final
+		float incAxis1degrees; // increment de posició angular
+		float posAxis1Steps;
+		float recorregutToIniSteps;
 
-        ofVideoGrabber cam;
+        // laser control
+		int currentLaser;
 
-        void Run_Scan();
+		// delays
+		float delayLaserms;
+		float delayStepperms;
 
-        void reset_scan(Punts p[]);
-        void check_scan(Punts p[],Punts pok[], int *n);
-        void fill_cloud(Punts pok[], int n, int nt);
-        void SavePointCloud();
-        void ResetPointCloud();
-
-        bool mp,Pview,Zoom,Fast_Calibration;
-        float Fast_Calibration_Constant, Yfocus, Xfocus;
-        int X,Y,zoom;
-        ofSerial	serial;
-        int baud;
+		// images
+		enum images{ COLOR = 0, GRAY_YES_LASER, GRAY_NO_LASER, GRAY_DIFF, GRAY_DIFF_TH };
+		ofImage *imgMain;
+		int imageMain;
+		ofImage *imgSmall1;
+		ofImage *imgSmall2;
+		ofImage *imgSmall3;
+		ofImage *imgSmall4;
+		ofImage *imgSmall5;
+		int imgWidth, imgHeight;
+		float imgWidthHalf, imgHeightHalf;
 };
