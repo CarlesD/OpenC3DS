@@ -48,7 +48,7 @@ class ofApp : public ofBaseApp{
 		// CAM
 		openC3DScam webcamCapture;
 
-		// CAM
+		// PROECSS
 		openC3DSprocess scanerProcess;
 
 		// SCANNER

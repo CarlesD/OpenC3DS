@@ -12,6 +12,7 @@ void ofApp::setup(){
     // CAM
     webcamCapture.setup();
     // PROCESS
+    scanerProcess.setup();
     scanerProcess.setupCamResolution(webcamCapture.imgWidth, webcamCapture.imgHeight);
 
 	// SCANNER
@@ -60,6 +61,9 @@ void ofApp::setup(){
     guiOpenC3DS->addLabel("CAM");
     guiOpenC3DS->addButton("image_YES_laser", false);
     guiOpenC3DS->addButton("image_NO_laser", false);
+
+    guiOpenC3DS->addLabel("PROCESS");
+    guiOpenC3DS->addButton("process_img", false);
 
     guiOpenC3DS->addSpacer();
     sStateAndInfo = "a\n b\n c\n d\n e\n f\n g\n h\n i\n j\n";
@@ -112,7 +116,7 @@ void ofApp::update(){
         }
         else if(scannerState == SCANNER_SCANING){
             if( scanningSubState == SCANING_PROCESS){
-                //scanerProcess.cam_cap_subpixel(webcamCapture.grayDiff.getPixels());
+                scanerProcess.camCaptureSubpixelProcess(webcamCapture.grayDiff.getPixels());
                 scanningSubState = SCANING_IMG_OFF;
             }
             else if( scanningSubState == SCANING_IMG_OFF){
@@ -216,6 +220,8 @@ void ofApp::draw(){
     sStateAndInfo += "current laser: " + ofToString(currentLaser) + "\n";
     ofxUITextArea *ta = (ofxUITextArea *) guiOpenC3DS->getWidget("states_info");
     ta->setTextString(sStateAndInfo);
+
+    scanerProcess.draw();
 }
 
 //--------------------------------------------------------------
@@ -230,6 +236,8 @@ void ofApp::exit(){
     serialCommunication.exit();
     // CAM
     webcamCapture.exit();
+    // PROCESS
+    scanerProcess.exit();
 }
 
 //--------------------------------------------------------------
@@ -322,6 +330,9 @@ void ofApp::guiEvent(ofxUIEventArgs &e){
 	else if(name == "image_NO_laser"){
         webcamCapture.bimageYESlaser = false;
         webcamCapture.updateGrayImage();
+	}
+	else if(name == "process_img"){
+        scanerProcess.camCaptureSubpixelProcess(webcamCapture.grayDiff.getPixels());
 	}
 }
 
