@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "ofxUI.h"
 #include "ofxOpenCv.h"
+#include "ofxXmlSettings.h"
 
 class openC3DScam{
 
@@ -41,5 +42,8 @@ class openC3DScam{
 		ofxCvGrayscaleImage 	grayDiffTh;
 		float 				threshold;
 		float               blur;
+
+        // XML
+		ofxXmlSettings xmlSettings;
 };
 

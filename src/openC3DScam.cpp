@@ -3,6 +3,21 @@
 //--------------------------------------------------------------
 void openC3DScam::setup(){
 
+    // XML
+    xmlSettings.loadFile("settingsCam.xml");
+
+    camWidth = xmlSettings.getValue("OPENC3DS:CAM:camWidth", 1280);
+	camHeight = xmlSettings.getValue("OPENC3DS:CAM:camHeight", 720);
+	deviceID = xmlSettings.getValue("OPENC3DS:CAM:deviceID", 1);
+	threshold = xmlSettings.getValue("OPENC3DS:CAM:threshold", 128);
+	blur = xmlSettings.getValue("OPENC3DS:CAM:blur", 3);
+
+    cout << "OPENC3DS:CAM:L = " << camWidth << endl;
+    cout << "OPENC3DS:CAM:L = " << camHeight << endl;
+    cout << "OPENC3DS:CAM:deviceID = " << deviceID << endl;
+    cout << "OPENC3DS:CAM:threshold = " << threshold << endl;
+    cout << "OPENC3DS:CAM:blur = " << blur << endl;
+
 	// GUI
 	setGuiCam();
 	guiCam->loadSettings("guiCam.xml");
@@ -11,15 +26,11 @@ void openC3DScam::setup(){
 	bimageYESlaser = false;
 
 	// CAM
-	camWidth = 1280;
-	camHeight = 720;
-
 	imgWidth = 640;
 	imgHeight = 360;
 	imgWidthPart = imgWidth * 0.3f;
 	imgHeightPart = imgHeight * 0.3f;
 
-	deviceID = 1;
 	vidGrabber.setDeviceID(deviceID);
     vidGrabber.setVerbose(true);
     vidGrabber.initGrabber(camWidth, camHeight);
@@ -72,6 +83,15 @@ void openC3DScam::draw(){
 
 //--------------------------------------------------------------
 void openC3DScam::exit(){
+    xmlSettings.clear();
+    xmlSettings.setValue("OPENC3DS:CAM:camWidth", camWidth);
+	xmlSettings.setValue("OPENC3DS:CAM:camHeight", camHeight);
+	xmlSettings.setValue("OPENC3DS:CAM:deviceID", deviceID);
+	xmlSettings.setValue("OPENC3DS:CAM:threshold", threshold);
+	xmlSettings.setValue("OPENC3DS:CAM:blur", blur);
+
+    xmlSettings.saveFile("settingsCam.xml");
+
     guiCam->saveSettings("guiCam.xml");
 	delete guiCam;
 
