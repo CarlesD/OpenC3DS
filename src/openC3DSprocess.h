@@ -11,15 +11,13 @@
 #define DEGREE              3 // grau del polinomi
 
 #define MAX_NUM_LASERS      4
-#define MAX_NUM_PUNTS       2500
 
 typedef struct{
     float x;
     int y;
     int q; // qualitat mesura
     int a; // amplada linea laser
-
-}Punts2D_subpix;
+}points2DSubpixelPrecision;
 
 typedef struct{
     float x, y, z; //coordenades respecte la referència càmera
@@ -27,7 +25,7 @@ typedef struct{
     int q; //qualitat mesura
     int a; //amplada linea laser
     float nx, ny, nz;// normals
-}Punts; // mesura de cada punt escanejat
+}points3D; // mesura de cada punt escanejat
 
 class openC3DSprocess{
 
@@ -41,6 +39,8 @@ class openC3DSprocess{
 
         bool polynomialfit(int obs, int degree, double *dx, double *dy, double *store);
         bool camCaptureSubpixelProcess(unsigned char* pixelsRaw);
+        bool Component_3D_Angular_1_axis_Scan(int currentLaser, unsigned char* pixelsRaw, float phi);
+        void cam_dis(int currentLaser, float x, int yp, float *XXp, float *YYp);
 
         // GUI
 		ofxUISuperCanvas *guiProcess;
@@ -51,8 +51,12 @@ class openC3DSprocess{
 		ofxXmlSettings xmlSettings;
 
 		// SENSOR
-		Punts2D_subpix *p; // punts de la càmera amb precisió subpixel en x
-		Punts punts[MAX_NUM_PUNTS];
+		vector <points2DSubpixelPrecision> laserLineSubpixelPoints; // punts de la càmera amb precisió subpixel en x
+		ofImage imgLaserLineSubpixel;
+
+		vector <points3D> points3Dscanned;
+		ofMesh mesh;
+		ofEasyCam cam;
 
 		int _camWidth;
 		int _camHeight;
@@ -71,9 +75,9 @@ class openC3DSprocess{
         bool laserSide[MAX_NUM_LASERS]; //identificació posició làser esquerra(0) dreta (1)
 
         //Paràmetres del sensor
-        int GPLL; // llindar de nivell de gris que ja no es considera soroll
-        int PAP; // amplitud de punts que s'agafa per construir la corba
-        int PMP; // nombre mínim de punts per a generar la paràbola
+        float GPLL; // llindar de nivell de gris que ja no es considera soroll (int)
+        float PAP; // amplitud de punts que s'agafa per construir la corba (int)
+        float PMP; // nombre mínim de punts per a generar la paràbola (int)
 
         float L; //Distància fins el centre de rotació
 };

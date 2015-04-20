@@ -38,7 +38,7 @@ void openC3DSserial::update(){
     nRead = 0;
     nRead = serialPort.readBytes(bytesReturned, ACK_BYTES);
     if(nRead > 0){
-        cout << "readBytes " << nRead << " bytes: " << bytesReturned << endl;
+        //cout << "readBytes " << nRead << " bytes: " << bytesReturned << endl;
         bisDeviceReady = true;
     }
 
@@ -146,7 +146,7 @@ bool openC3DSserial::moveStepperBySteps(int steps){
 
         strSend += "\n";
         int res = serialPort.writeBytes(&convert(strSend)[0], strSend.length());
-        cout << "moveStepperBySteps: " << strSend;
+        //cout << "moveStepperBySteps: " << strSend;
         serialPort.drain();
         bisDeviceReady = false;
 
@@ -164,7 +164,7 @@ bool openC3DSserial::moveTestLeft(){
     if(bisDeviceReady){
         strSend = ofToString(MOTOR) + " 1 2 9999\n";
         int res = serialPort.writeBytes(&convert(strSend)[0], strSend.length());
-        cout << "moveTestLeft: " << strSend;
+        //cout << "moveTestLeft: " << strSend;
         serialPort.drain();
         bisDeviceReady = false;
 
@@ -182,7 +182,7 @@ bool openC3DSserial::moveTestRight(){
     if(bisDeviceReady){
         strSend = ofToString(MOTOR) + " 1 2 -9999\n";
         int res = serialPort.writeBytes(&convert(strSend)[0], strSend.length());
-        cout << "moveTestRight: " << strSend;
+        //cout << "moveTestRight: " << strSend;
         serialPort.drain();
         bisDeviceReady = false;
 
@@ -201,7 +201,7 @@ bool openC3DSserial::turnOnLaser(int laser){
         strSend = ofToString(laser);
         strSend += " 1 0 0\n";
         int res = serialPort.writeBytes(&convert(strSend)[0], strSend.length());
-        cout << "turnOnLaser: " << strSend;
+        //cout << "turnOnLaser: " << strSend;
         serialPort.drain();
         bisDeviceReady = false;
 
@@ -221,7 +221,7 @@ bool openC3DSserial::turnOffLaser(int laser){
         strSend += " 0 0 0\n";
 
         int res = serialPort.writeBytes(&convert(strSend)[0], strSend.length());
-        cout << "turnOffLaser: " << strSend;
+        //cout << "turnOffLaser: " << strSend;
         serialPort.drain();
         bisDeviceReady = false;
 
@@ -240,7 +240,7 @@ bool openC3DSserial::sendNoise(){
         strSend = "2 2 2 2\n";
 
         int res = serialPort.writeBytes(&convert(strSend)[0], strSend.length());
-        cout << "sendNoise: " << strSend;
+        //cout << "sendNoise: " << strSend;
         serialPort.drain();
         bisDeviceReady = false;
 

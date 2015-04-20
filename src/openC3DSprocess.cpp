@@ -42,94 +42,194 @@ void openC3DSprocess::setup(){
 	setGuiProcess();
 	guiProcess->loadSettings("guiProcess.xml");
 
+	// 3D MESH
+	mesh.setMode(OF_PRIMITIVE_POINTS);
+
 }
 
 //--------------------------------------------------------------
 void openC3DSprocess::setupCamResolution(int w, int h){
     _camWidth = w;
 	_camHeight = h;
+
+	imgLaserLineSubpixel.allocate(_camWidth, _camHeight, OF_IMAGE_COLOR);
+    imgLaserLineSubpixel.setColor(ofColor(0,0,0));
 }
 
 //--------------------------------------------------------------
 bool openC3DSprocess::camCaptureSubpixelProcess(unsigned char* pixelsRaw){
-    int cont, jmax, jmin;
-    float x1;
 
-    double x[200], y[200];
-    int k, imax1;
+    int horizPosMaxIntensityTemp1, horizPosMaxIntensityTemp2;
+    float horizPosMaxIntensity;
+
+    double x[2*(int)PAP];
+    double grisVal[2*(int)PAP];
+    int maxGrayLevelTemp;
+
+    int kIndexGreyFunction;
+    bool bcontrol;
 
     double coeff[DEGREE];
 
-    k = 0;
-    x1 = 0;
-    jmax = -1;
-    jmin = -1;
-
-    x1 = 0;
-    cont = 0;
-    imax1 = 0;
-
-    cout << "_camWidth: " << _camWidth << " _camHeight: " << _camHeight << endl;
-
     for(int i=0; i<_camHeight; ++i){
-        p[i].x = _camWidth;
-        p[i].y = 0;
+        // init laserLineSubpixelPoints
+        points2DSubpixelPrecision point2d;
+        point2d.x = _camWidth;
+        point2d.y = 0;
+        point2d.q = 0;
+        point2d.a = 0;
+        laserLineSubpixelPoints.push_back(point2d);
     }
-    cout << "exit 1 for"<< endl;
 
+    imgLaserLineSubpixel.setColor(ofColor(0,0,0));
+
+    // IMAGE PROCESSING TO FIND MAX
     for(int i=0; i<_camHeight; ++i){
-        cout << "inside 2on for with i (up to _camHeight): " << i << endl;
 
+        maxGrayLevelTemp = 0;
+        horizPosMaxIntensityTemp1 = -1;
+        horizPosMaxIntensityTemp2 = -1;
         for(int j=0; j<_camWidth; ++j){
-            if( (pixelsRaw[i*_camWidth+j] > GPLL) && (pixelsRaw[i*_camWidth+j] > imax1) ){
-                imax1 = pixelsRaw[i*_camWidth+j];
-                jmin = jmax;
-                jmax = j;
+            if( (pixelsRaw[i*_camWidth+j] > GPLL) && (pixelsRaw[i*_camWidth+j] > maxGrayLevelTemp) ){
+                maxGrayLevelTemp = pixelsRaw[i*_camWidth+j];
+                horizPosMaxIntensityTemp2 = horizPosMaxIntensityTemp1;
+                horizPosMaxIntensityTemp1 = j; // finding the max and the second max
             }
         }
-        if(jmin != -1){
-            jmax = ( (jmax - jmin) / 2 ) + jmin; //trobo dos max
+
+        if(horizPosMaxIntensityTemp2 != -1){
+            // chose the point in the middle of two temp maxs
+            horizPosMaxIntensityTemp1 = ( (horizPosMaxIntensityTemp1 - horizPosMaxIntensityTemp2) * 0.5 ) + horizPosMaxIntensityTemp2;
         }
-        for(int j=jmax-PAP; j<jmax+PAP; ++j){
-            if(j>0 && j<_camWidth &&pixelsRaw[i*_camWidth+j]>GPLL ){
-                x[k] = (double)j;
-                y[k] = (double)pixelsRaw[i*_camWidth+j];
-                cont = 1;
-                k = k + 1;
-            }
-        } // end for
-        if(k >= PMP){
-            polynomialfit(k, DEGREE, x, y, coeff);
 
-
-            if(coeff[2] != 0){
-                x1 = fabs( (-1 * coeff[1]) / (2 * coeff[2]) );
-                if(fabs(x1-jmax )> 10){
-                    x1 = _camWidth;
+        int limInf = horizPosMaxIntensityTemp1-PAP;
+        int limitSup = horizPosMaxIntensityTemp1+PAP;
+        kIndexGreyFunction = 0;
+        bcontrol = false;
+        for(int j=limInf; j<limitSup; j++){
+            if( (j > 0) && (j <_camWidth) ){ // check image bounds
+                if(pixelsRaw[i*_camWidth + j] > GPLL){ // filter low levels of grey (noise)
+                    x[kIndexGreyFunction] = (double)j; // j is the horizontal position of the pixel inside the image
+                    grisVal[kIndexGreyFunction] = (double)pixelsRaw[i*_camWidth+j];
+                    bcontrol = true;
+                    kIndexGreyFunction = kIndexGreyFunction + 1;
                 }
             }
-        } // end if(k >= cam->PMP)
-        else{
-            x1 = _camWidth;
         }
 
-        if(cont == 1){
-//            for (jj=0; jj<k; jj++){ x1 = x1 + xcan[jj] };
-            cont = 0;
-            if(x1>0 && x1<_camWidth && k>=PMP){
-                p[i].x = x1;
-                p[i].y = i;
-                p[i].a = k;
-                p[i].q = k;
+        horizPosMaxIntensity = 0;
+        if(kIndexGreyFunction >= PMP){
+            polynomialfit(kIndexGreyFunction, DEGREE, x, grisVal, coeff);
+
+            if(coeff[2] != 0){
+                horizPosMaxIntensity = fabs( (-1 * coeff[1]) / (2 * coeff[2]) );
+                if(fabs(horizPosMaxIntensity-horizPosMaxIntensityTemp1 )> 10){
+                    horizPosMaxIntensity = _camWidth;
+                }
+            }
+        }
+        else{
+            horizPosMaxIntensity = _camWidth;
+        }
+
+        if(bcontrol == true){
+            // fill the laserLineSubpixelPoints
+            if(horizPosMaxIntensity > 0 && horizPosMaxIntensity < _camWidth && kIndexGreyFunction >= PMP){
+                laserLineSubpixelPoints[i].x = horizPosMaxIntensity;
+                laserLineSubpixelPoints[i].y = i;
+                laserLineSubpixelPoints[i].a = kIndexGreyFunction;
+                laserLineSubpixelPoints[i].q = kIndexGreyFunction;
+                imgLaserLineSubpixel.setColor(horizPosMaxIntensity,i,ofColor(255,0,0));
             }
         }
 
-        x1 = 0;
-        imax1 = 0;
-        jmax = -1;
-        jmin = -1;
-        k = 0;
-    } // end for(int i=0; i<thr1.rows; ++i)
+    }
+    imgLaserLineSubpixel.update();
+    return true;
+}
+
+//--------------------------------------------------------------
+bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, unsigned char* pixelsRaw, float phi){
+
+    float delta_alfa, dist_alfa;
+    float Xp, Yp;
+
+    for(int i=0; i<_camHeight; i++){
+        points3D point3d;
+        if(laserLineSubpixelPoints[i].x != _camWidth){
+            delta_alfa = (PI/180.0f) * alfa[currentLaser] * (-1+((float)i/(float)(_camHeight/2.0f)));
+            cam_dis(currentLaser, laserLineSubpixelPoints[i].x, laserLineSubpixelPoints[i].y, &Xp,&Yp);
+            dist_alfa = sqrt(Xp*Xp+Yp*Yp)/cos(delta_alfa);
+
+            if (dist_alfa < 1000){
+                int index = laserLineSubpixelPoints[i].y*_camWidth+laserLineSubpixelPoints[i].x;
+                point3d.r = pixelsRaw[index];
+                point3d.g = pixelsRaw[index+1];
+                point3d.b = pixelsRaw[index+2];
+                point3d.q = laserLineSubpixelPoints[i].q;
+
+                point3d.x = -Xp * cos(phi) - (L + yc[currentLaser] - Yp) * sin(phi);
+                point3d.y = Xp * sin(phi) - (L + yc[currentLaser] - Yp) * cos(phi);
+                point3d.z = dist_alfa * sin(delta_alfa);
+            }
+            else{
+                point3d.x = -10000;
+                point3d.y = -10000;
+                point3d.z = -10000;
+                point3d.r = 255;
+                point3d.g = 0;
+                point3d.b = 0;
+            }
+        } // end if(laserLineSubpixelPoints[i].x != 1024)
+        else{
+            point3d.x = -10000;
+            point3d.y = -10000;
+            point3d.z = -10000;
+            point3d.r = 255;
+            point3d.g = 0;
+            point3d.b = 0;
+        }
+
+        // points 3d
+        points3Dscanned.push_back(point3d);
+        // mesh
+        ofColor cur = ofColor(point3d.r/255.0, point3d.g/255.0, point3d.b/255.0);
+		mesh.addColor(cur);
+		ofVec3f pos(point3d.x, point3d.y, point3d.z);
+        mesh.addVertex(pos);
+
+    } // end for
+    return true;
+}
+
+//--------------------------------------------------------------
+void openC3DSprocess::cam_dis(int currentLaser, float x, int yp, float *XXp, float *YYp){
+
+    float d;
+    int xp;
+
+    xp = (int)x;
+
+    if(laserSide[currentLaser] == 0){
+
+        float x_corregida=(FCC[currentLaser]-(float)yp/m[currentLaser]+x);
+
+        *YYp = (LB[currentLaser]*sin(beta[currentLaser])+yc[currentLaser]+tan(beta[currentLaser])*(LB[currentLaser]*cos(beta[currentLaser])+LA[currentLaser]+xc[currentLaser]))/(1-tan(beta[currentLaser])*tan( (-0.5*zita[currentLaser]) + x_corregida*zita[currentLaser]/(_camWidth-1) ));
+        *XXp = *YYp*tan( (-0.5*zita[currentLaser]) + x_corregida*zita[currentLaser]/(_camWidth-1) );
+
+        //cout << "coordenada X:" << *XXp << " coordenada Y:" << *YYp << " xp:" << x << " xp corregida:" << x_corregida << endl;
+    }
+
+    if(laserSide[currentLaser] == 1){
+
+        float x_corregida=(FCC[currentLaser]-(float)yp/m[currentLaser]+x);
+
+        *YYp = (LB[currentLaser]*sin(beta[currentLaser])+yc[currentLaser]+tan(beta[currentLaser])*(LB[currentLaser]*cos(beta[currentLaser])+LA[currentLaser]+xc[currentLaser]))/(1-tan(beta[currentLaser])*tan( (-0.5*zita[currentLaser]) + x_corregida*zita[currentLaser]/(_camWidth-1) ));
+        *XXp = *YYp*tan( (-0.5*zita[currentLaser]) + x_corregida*zita[currentLaser]/(_camWidth-1) );
+
+        //cout << "Coordenada X:" << *XXp<< "Coordenada Y:" << *YYp<< "xp:" <<x<< "xp corregida:" <<x_corregida<< endl;
+    }
+
 }
 
 //--------------------------------------------------------------
@@ -139,7 +239,11 @@ bool openC3DSprocess::update(){
 
 //--------------------------------------------------------------
 void openC3DSprocess::draw(){
-
+    ofSetColor(255);
+    cam.begin();
+	mesh.draw();
+	ofDrawBox(5);
+	cam.end();
 }
 
 //--------------------------------------------------------------
@@ -176,6 +280,10 @@ void openC3DSprocess::setGuiProcess(){
 
 	guiProcess = new ofxUISuperCanvas("PROCESSING");
     guiProcess->addSpacer();
+
+    guiProcess->addSlider("GPLL", 0, 255, &GPLL)->setIncrement(1);
+    guiProcess->addSlider("PAP", 3, 100, &PAP)->setIncrement(1);
+    guiProcess->addSlider("PMP", 3, 33, &PMP)->setIncrement(1);
 
     guiProcess->setPosition(0,0);
     guiProcess->autoSizeToFitWidgets();

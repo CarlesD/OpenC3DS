@@ -26,8 +26,8 @@ void openC3DScam::setup(){
 	bimageYESlaser = false;
 
 	// CAM
-	imgWidth = 640;
-	imgHeight = 360;
+	imgWidth = 1280;
+	imgHeight = 720;
 	imgWidthPart = imgWidth * 0.3f;
 	imgHeightPart = imgHeight * 0.3f;
 

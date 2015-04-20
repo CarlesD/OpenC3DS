@@ -78,7 +78,7 @@ class ofApp : public ofBaseApp{
 		float delayStepperms;
 
 		// images
-		enum images{ COLOR = 0, GRAY_YES_LASER, GRAY_NO_LASER, GRAY_DIFF, GRAY_DIFF_TH };
+		enum images{ COLOR = 0, GRAY_YES_LASER, GRAY_NO_LASER, GRAY_DIFF, GRAY_DIFF_TH, LASER_LINE};
 		ofImage *imgMain;
 		int imageMain;
 		ofImage *imgSmall1;
@@ -86,6 +86,7 @@ class ofApp : public ofBaseApp{
 		ofImage *imgSmall3;
 		ofImage *imgSmall4;
 		ofImage *imgSmall5;
+		ofImage *imgSmallLASER;
 		int imgWidth, imgHeight;
 		float imgWidthHalf, imgHeightHalf;
 };

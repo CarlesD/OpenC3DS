@@ -13,7 +13,7 @@ void ofApp::setup(){
     webcamCapture.setup();
     // PROCESS
     scanerProcess.setup();
-    scanerProcess.setupCamResolution(webcamCapture.imgWidth, webcamCapture.imgHeight);
+    scanerProcess.setupCamResolution(webcamCapture.camWidth, webcamCapture.camHeight);
 
 	// SCANNER
 	bscan = false;
@@ -35,6 +35,8 @@ void ofApp::setup(){
 	imgSmall4->allocate(webcamCapture.imgWidthPart, webcamCapture.imgHeightPart, OF_IMAGE_GRAYSCALE);
 	imgSmall5 = new ofImage();
 	imgSmall5->allocate(webcamCapture.imgWidthPart, webcamCapture.imgHeightPart, OF_IMAGE_GRAYSCALE);
+	imgSmallLASER = new ofImage();
+    imgSmallLASER->allocate(webcamCapture.imgWidthPart, webcamCapture.imgHeightPart, OF_IMAGE_COLOR);
 	imageMain = 0;
 
     // GUI scan
@@ -86,6 +88,7 @@ void ofApp::setup(){
     guiOpenC3DSimages->addWidgetRight(new ofxUIImage(webcamCapture.imgWidthPart, webcamCapture.imgHeightPart, imgSmall3, "NOlaser"));
     guiOpenC3DSimages->addWidgetDown(new ofxUIImage(webcamCapture.imgWidthPart, webcamCapture.imgHeightPart, imgSmall4, "diff"));
     guiOpenC3DSimages->addWidgetRight(new ofxUIImage(webcamCapture.imgWidthPart, webcamCapture.imgHeightPart, imgSmall5, "threshold"));
+    guiOpenC3DSimages->addWidgetRight(new ofxUIImage(webcamCapture.imgWidthPart, webcamCapture.imgHeightPart, imgSmallLASER, "laserLINE"));
 
     guiOpenC3DSimages->setPosition(0,0);
     guiOpenC3DSimages->autoSizeToFitWidgets();
@@ -117,6 +120,7 @@ void ofApp::update(){
         else if(scannerState == SCANNER_SCANING){
             if( scanningSubState == SCANING_PROCESS){
                 scanerProcess.camCaptureSubpixelProcess(webcamCapture.grayDiff.getPixels());
+                scanerProcess.Component_3D_Angular_1_axis_Scan(currentLaser, webcamCapture.colorImage.getPixels(), ofDegToRad(posAxis1Steps/STEPS_PER_DEGREE_AXIS1));
                 scanningSubState = SCANING_IMG_OFF;
             }
             else if( scanningSubState == SCANING_IMG_OFF){
@@ -161,7 +165,7 @@ void ofApp::update(){
                 if(currentLaser == 0){
                     currentLaser = NUM_LASERS;
                 }
-                scanningSubState = SCANING_IMG_OFF;
+                scanningSubState = SCANING_PROCESS;
             }
             else if(scanningSubState == SCANING_MOVE){
                 if(serialCommunication.bisDeviceReady){
@@ -191,6 +195,7 @@ void ofApp::update(){
     imgSmall3->setFromPixels(webcamCapture.grayImageNOlaser.getPixels(), webcamCapture.camWidth, webcamCapture.camHeight, OF_IMAGE_GRAYSCALE);
     imgSmall4->setFromPixels(webcamCapture.grayDiff.getPixels(), webcamCapture.camWidth, webcamCapture.camHeight, OF_IMAGE_GRAYSCALE);
     imgSmall5->setFromPixels(webcamCapture.grayDiffTh.getPixels(), webcamCapture.camWidth, webcamCapture.camHeight, OF_IMAGE_GRAYSCALE);
+    imgSmallLASER->setFromPixels(scanerProcess.imgLaserLineSubpixel.getPixels(), scanerProcess._camWidth, scanerProcess._camHeight, OF_IMAGE_COLOR);
     if(imageMain == COLOR){
         imgMain->setFromPixels(webcamCapture.colorImage.getPixels(), webcamCapture.camWidth, webcamCapture.camHeight, OF_IMAGE_COLOR);
     }
@@ -205,6 +210,9 @@ void ofApp::update(){
     }
     else if(imageMain == GRAY_DIFF_TH){
         imgMain->setFromPixels(webcamCapture.grayDiffTh.getPixels(), webcamCapture.camWidth, webcamCapture.camHeight, OF_IMAGE_GRAYSCALE);
+    }
+    else if(imageMain == LASER_LINE){
+        imgMain->setFromPixels(scanerProcess.imgLaserLineSubpixel.getPixels(), scanerProcess._camWidth, scanerProcess._camHeight, OF_IMAGE_COLOR);
     }
 
 }
@@ -258,6 +266,9 @@ void ofApp::keyPressed(int key){
     else if(key == 'g'){
         imageMain = GRAY_DIFF_TH;
     }
+    else if(key == 'h'){
+        imageMain = LASER_LINE;
+    }
 }
 
 //--------------------------------------------------------------
@@ -305,9 +316,9 @@ void ofApp::guiEvent(ofxUIEventArgs &e){
     string name = e.getName();
 	int kind = e.getKind();
 
-    cout << "guiEvent" << endl;
-	cout << "  name: " << name << endl;
-	cout << "  kind: " << kind << endl;
+    //cout << "guiEvent" << endl;
+	//cout << "  name: " << name << endl;
+	//cout << "  kind: " << kind << endl;
 
 	if(name == "start_scan"){
         bscan = true;
