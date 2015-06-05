@@ -7,6 +7,9 @@ void ofApp::setup(){
     ofSetVerticalSync(true);
 	ofEnableSmoothing();
 
+	// LOGs
+	ofSetLogLevel(OF_LOG_ERROR);
+
     // SERIAL
     serialCommunication.setup();
     // CAM
@@ -120,7 +123,9 @@ void ofApp::update(){
         else if(scannerState == SCANNER_SCANING){
             if( scanningSubState == SCANING_PROCESS){
                 scanerProcess.camCaptureSubpixelProcess(webcamCapture.grayDiff.getPixels());
-                scanerProcess.Component_3D_Angular_1_axis_Scan(currentLaser, webcamCapture.colorImage.getPixels(), ofDegToRad(posAxis1Steps/STEPS_PER_DEGREE_AXIS1));
+                float anglerad = ofDegToRad((float)posAxis1Steps / (float)STEPS_PER_DEGREE_AXIS1);
+                ofLog(OF_LOG_VERBOSE, "ofApp::update::scannerState == SCANNER_SCANING anglerad: " + ofToString(anglerad));
+                scanerProcess.Component_3D_Angular_1_axis_Scan(currentLaser, webcamCapture.colorImage.getPixels(), anglerad);
                 scanningSubState = SCANING_IMG_OFF;
             }
             else if( scanningSubState == SCANING_IMG_OFF){
@@ -172,7 +177,10 @@ void ofApp::update(){
                     if(posAxis1Steps < fiAxis1degrees*STEPS_PER_DEGREE_AXIS1){
                         serialCommunication.moveStepperBySteps(incAxis1degrees*STEPS_PER_DEGREE_AXIS1);
                         ofSleepMillis(delayStepperms);
-                        posAxis1Steps += incAxis1degrees*STEPS_PER_DEGREE_AXIS1;
+                        posAxis1Steps = posAxis1Steps + incAxis1degrees/STEPS_PER_DEGREE_AXIS1;
+                        ofLog(OF_LOG_VERBOSE, "ofApp::update::scannerState == SCANING_MOVE incAxis1degrees: " + ofToString(incAxis1degrees));
+                        ofLog(OF_LOG_VERBOSE, "ofApp::update::scannerState == SCANING_MOVE posAxis1Steps: " + ofToString(posAxis1Steps));
+
                         scanningSubState = SCANING_PROCESS;
                     }
                     else{

@@ -32,8 +32,8 @@ void openC3DSprocess::setup(){
         cout << "OPENC3DS:m = " << m[i] << endl;
         FCC[i] = xmlSettings.getValue("FCC", 5.665022);
         cout << "OPENC3DS:FCC = " << FCC[i] << endl;
-        laserSide[i] = xmlSettings.getValue("laserSide", 0); // 0 esquerra
-        cout << "OPENC3DS:laserSide = " << laserSide[i] << endl;
+        laserID[i] = xmlSettings.getValue("laserID", 0); // 0 esquerra
+        cout << "OPENC3DS:laserID = " << laserID[i] << endl;
 
         xmlSettings.popTag();
     }
@@ -43,7 +43,25 @@ void openC3DSprocess::setup(){
 	guiProcess->loadSettings("guiProcess.xml");
 
 	// 3D MESH
+	mesh.enableColors();
+	mesh.enableIndices();
 	mesh.setMode(OF_PRIMITIVE_POINTS);
+
+	ofIcoSpherePrimitive prmtv;
+    prmtv.setPosition(0, 0, 0);
+    prmtv.setResolution(2);
+    prmtv.setRadius(3);
+    prmtv.setMode( OF_PRIMITIVE_TRIANGLES );
+    vector <ofMeshFace> triangles = prmtv.getMesh().getUniqueFaces();
+    prmtv.getMesh().setFromTriangles(triangles, true);
+
+    origin = prmtv.getMesh();
+    origin.enableColors();
+    origin.enableIndices();
+
+	// LIGHT
+	light.setup();
+    light.setAmbientColor(ofColor(255));
 
 }
 
@@ -54,6 +72,17 @@ void openC3DSprocess::setupCamResolution(int w, int h){
 
 	imgLaserLineSubpixel.allocate(_camWidth, _camHeight, OF_IMAGE_COLOR);
     imgLaserLineSubpixel.setColor(ofColor(0,0,0));
+
+    // PIXELS RAW color
+//    for(int j=0; j<_camWidth; j+=3){
+//        for(int i=0; i<_camHeight; i+=3){
+//            int index = i*_camWidth + j;
+//            cout << index << endl;
+//            colorPixelsRaw[index] = 0;
+//            colorPixelsRaw[index+1] = 0;
+//            colorPixelsRaw[index+2] = 0;
+//        }
+//	}
 }
 
 //--------------------------------------------------------------
@@ -153,6 +182,7 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, unsigne
 
     float delta_alfa, dist_alfa;
     float Xp, Yp;
+    colorPixelsRaw = pixelsRaw;
 
     for(int i=0; i<_camHeight; i++){
         points3D point3d;
@@ -162,7 +192,7 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, unsigne
             dist_alfa = sqrt(Xp*Xp+Yp*Yp)/cos(delta_alfa);
 
             if (dist_alfa < 1000){
-                int index = laserLineSubpixelPoints[i].y*_camWidth+laserLineSubpixelPoints[i].x;
+                int index = laserLineSubpixelPoints[i].y *_camWidth + laserLineSubpixelPoints[i].x;
                 point3d.r = pixelsRaw[index];
                 point3d.g = pixelsRaw[index+1];
                 point3d.b = pixelsRaw[index+2];
@@ -180,6 +210,17 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, unsigne
                 point3d.g = 0;
                 point3d.b = 0;
             }
+
+            if(i == int(_camHeight*0.4)){
+                ofLog(OF_LOG_VERBOSE, "openC3DSprocess::Component_3D_Angular_1_axis_Scan");
+                ofLog(OF_LOG_VERBOSE, " currentLaser: " + ofToString(currentLaser));
+                ofLog(OF_LOG_VERBOSE, " Xp: " + ofToString(Xp) + " Yp: " + ofToString(Yp));
+                ofLog(OF_LOG_VERBOSE, " dist_alfa: " + ofToString(dist_alfa));
+                ofLog(OF_LOG_VERBOSE, " phi(º): " + ofToString(ofRadToDeg(phi)));
+                ofLog(OF_LOG_VERBOSE, " delta_alfa: " + ofToString(delta_alfa));
+                ofLog(OF_LOG_VERBOSE, " point3d.x: " + ofToString(point3d.x) + " point3d.y: " + ofToString(point3d.y) + " point3d.z: " + ofToString(point3d.z));
+            }
+
         } // end if(laserLineSubpixelPoints[i].x != 1024)
         else{
             point3d.x = -10000;
@@ -193,8 +234,11 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, unsigne
         // points 3d
         points3Dscanned.push_back(point3d);
         // mesh
-        ofColor cur = ofColor(point3d.r/255.0, point3d.g/255.0, point3d.b/255.0);
-		mesh.addColor(cur);
+        ofFloatColor c;
+        c.set(point3d.r/255.0, point3d.g/255.0, point3d.b/255.0);
+        //cout << "point3d color: " << point3d.r << ", " << point3d.g << ", " << point3d.b << endl;
+        //cout << "c " << c << endl;
+        mesh.addColor(c);
 		ofVec3f pos(point3d.x, point3d.y, point3d.z);
         mesh.addVertex(pos);
 
@@ -210,7 +254,7 @@ void openC3DSprocess::cam_dis(int currentLaser, float x, int yp, float *XXp, flo
 
     xp = (int)x;
 
-    if(laserSide[currentLaser] == 0){
+    if(laserID[currentLaser] == 1){
 
         float x_corregida=(FCC[currentLaser]-(float)yp/m[currentLaser]+x);
 
@@ -220,12 +264,12 @@ void openC3DSprocess::cam_dis(int currentLaser, float x, int yp, float *XXp, flo
         //cout << "coordenada X:" << *XXp << " coordenada Y:" << *YYp << " xp:" << x << " xp corregida:" << x_corregida << endl;
     }
 
-    if(laserSide[currentLaser] == 1){
+    else if(laserID[currentLaser] == 2){
 
         float x_corregida=(FCC[currentLaser]-(float)yp/m[currentLaser]+x);
 
-        *YYp = (LB[currentLaser]*sin(beta[currentLaser])+yc[currentLaser]+tan(beta[currentLaser])*(LB[currentLaser]*cos(beta[currentLaser])+LA[currentLaser]+xc[currentLaser]))/(1-tan(beta[currentLaser])*tan( (-0.5*zita[currentLaser]) + x_corregida*zita[currentLaser]/(_camWidth-1) ));
-        *XXp = *YYp*tan( (-0.5*zita[currentLaser]) + x_corregida*zita[currentLaser]/(_camWidth-1) );
+        *YYp = (LB[currentLaser]*sin(beta[currentLaser])+yc[currentLaser]+tan(beta[currentLaser])*(LB[currentLaser]*cos(beta[currentLaser])+LA[currentLaser]+xc[currentLaser]))/(1-tan(beta[currentLaser])*tan( (-0.5*zita[currentLaser]) + (x_corregida - (_camWidth-1))*zita[currentLaser]/(_camWidth-1) ));
+        *XXp = *YYp*(-1.0)*tan( (-0.5*zita[currentLaser]) + (x_corregida - (_camWidth-1))*zita[currentLaser]/(_camWidth-1) );
 
         //cout << "Coordenada X:" << *XXp<< "Coordenada Y:" << *YYp<< "xp:" <<x<< "xp corregida:" <<x_corregida<< endl;
     }
@@ -240,10 +284,18 @@ bool openC3DSprocess::update(){
 //--------------------------------------------------------------
 void openC3DSprocess::draw(){
     ofSetColor(255);
+
+    ofEnableLighting();
+    ofEnableDepthTest();
+    light.setPosition(0, 0, 0);
+    light.draw();
+    light.enable();
+
     cam.begin();
+    origin.drawWireframe();
 	mesh.draw();
-	ofDrawBox(5);
 	cam.end();
+
 }
 
 //--------------------------------------------------------------
@@ -265,7 +317,7 @@ void openC3DSprocess::exit(){
         xmlSettings.setValue("zita", zita[i]);
         xmlSettings.setValue("m", m[i]);
         xmlSettings.setValue("FCC", FCC[i]);
-        xmlSettings.setValue("laserSide", laserSide[i]);
+        xmlSettings.setValue("laserID", laserID[i]);
 
         xmlSettings.popTag();
     }

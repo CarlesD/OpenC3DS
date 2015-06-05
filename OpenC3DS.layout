@@ -1,109 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
-	<ActiveTarget name="Debug" />
-	<File name="src/openC3DScam.cpp" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="0" topLine="27" />
-		</Cursor>
-	</File>
-	<File name="../../../addons/ofxUI/src/ofxUIDefines.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="4997" topLine="118" />
-		</Cursor>
-	</File>
-	<File name="src/openC3DSserial.h" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="0" topLine="20" />
-		</Cursor>
-	</File>
-	<File name="../../../addons/ofxUI/src/ofxUICircleSlider.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1286" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="src/openC3DSprocess.cpp" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3891" topLine="145" />
-		</Cursor>
-	</File>
-	<File name="src/openC3DSserial.cpp" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="4298" topLine="69" />
-		</Cursor>
-	</File>
-	<File name="config.make" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3688" topLine="65" />
-		</Cursor>
-	</File>
-	<File name="src/openC3DSprocess.h" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="830" topLine="24" />
-		</Cursor>
-	</File>
-	<File name="../../../addons/ofxUI/src/ofxUI.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1173" topLine="1" />
-		</Cursor>
-	</File>
-	<File name="src/polifitgsl.h" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="54" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="src/openC3DScam.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="449" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="../../../addons/ofxUI/src/ofxUIWidgetWithLabel.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="0" topLine="30" />
-		</Cursor>
-	</File>
-	<File name="../../../addons/ofxOpenCv/libs/opencv/include/opencv2/calib3d/calib3d.hpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="13998" topLine="258" />
-		</Cursor>
-	</File>
+	<ActiveTarget name="Release" />
 	<File name="../../../addons/ofxUI/src/ofxUISlider.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="2704" topLine="50" />
 		</Cursor>
 	</File>
-	<File name="src/ofApp.h" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src/ofApp.cpp" open="1" top="1" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1727" topLine="33" />
+			<Cursor1 position="229" topLine="2" />
 		</Cursor>
 	</File>
-	<File name="../../../addons/ofxUI/src/ofxUIWidget.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src/polifitgsl.h" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2530" topLine="59" />
-		</Cursor>
-	</File>
-	<File name="../../../addons/ofxOpenCv/libs/opencv/include/opencv2/contrib/contrib.hpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="22145" topLine="548" />
-		</Cursor>
-	</File>
-	<File name="src/ofApp.cpp" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="4402" topLine="98" />
-		</Cursor>
-	</File>
-	<File name="../../../addons/ofxUI/src/ofxUIImage.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1354" topLine="29" />
-		</Cursor>
-	</File>
-	<File name="src/main.cpp" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="151" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="../../../addons/ofxUI/src/ofxUIOFWrapper.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="9192" topLine="338" />
+			<Cursor1 position="54" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="../../../addons/ofxUI/src/ofxUISuperCanvas.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -111,9 +21,99 @@
 			<Cursor1 position="1587" topLine="44" />
 		</Cursor>
 	</File>
+	<File name="../../../addons/ofxUI/src/ofxUIDefines.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4997" topLine="118" />
+		</Cursor>
+	</File>
+	<File name="src/openC3DSserial.h" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="0" topLine="20" />
+		</Cursor>
+	</File>
+	<File name="../../../addons/ofxUI/src/ofxUIOFWrapper.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="9192" topLine="338" />
+		</Cursor>
+	</File>
+	<File name="src/main.cpp" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="151" topLine="0" />
+		</Cursor>
+	</File>
 	<File name="../../../addons/ofxUI/src/ofxUISlider.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="3470" topLine="111" />
+		</Cursor>
+	</File>
+	<File name="config.make" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3688" topLine="65" />
+		</Cursor>
+	</File>
+	<File name="src/openC3DSprocess.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1662" topLine="36" />
+		</Cursor>
+	</File>
+	<File name="src/openC3DSserial.cpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="5527" topLine="190" />
+		</Cursor>
+	</File>
+	<File name="src/openC3DScam.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="449" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="../../../addons/ofxOpenCv/libs/opencv/include/opencv2/calib3d/calib3d.hpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="13998" topLine="258" />
+		</Cursor>
+	</File>
+	<File name="../../../addons/ofxOpenCv/libs/opencv/include/opencv2/contrib/contrib.hpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="22145" topLine="548" />
+		</Cursor>
+	</File>
+	<File name="src/openC3DScam.cpp" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="914" topLine="12" />
+		</Cursor>
+	</File>
+	<File name="../../../addons/ofxUI/src/ofxUICircleSlider.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1286" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src/openC3DSprocess.cpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="8352" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="../../../addons/ofxUI/src/ofxUIWidget.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2530" topLine="59" />
+		</Cursor>
+	</File>
+	<File name="../../../addons/ofxUI/src/ofxUI.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1173" topLine="1" />
+		</Cursor>
+	</File>
+	<File name="src/ofApp.h" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="859" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="../../../addons/ofxUI/src/ofxUIWidgetWithLabel.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="0" topLine="30" />
+		</Cursor>
+	</File>
+	<File name="../../../addons/ofxUI/src/ofxUICanvas.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="5715" topLine="112" />
 		</Cursor>
 	</File>
 	<File name="../../../addons/ofxUI/src/ofxUIRadio.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -121,9 +121,9 @@
 			<Cursor1 position="3281" topLine="102" />
 		</Cursor>
 	</File>
-	<File name="../../../addons/ofxUI/src/ofxUICanvas.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="../../../addons/ofxUI/src/ofxUIImage.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="5715" topLine="112" />
+			<Cursor1 position="1354" topLine="29" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

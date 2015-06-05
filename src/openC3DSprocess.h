@@ -21,7 +21,7 @@ typedef struct{
 
 typedef struct{
     float x, y, z; //coordenades respecte la referència càmera
-    int r, g, b; //color r g b
+    float r, g, b; //color r g b
     int q; //qualitat mesura
     int a; //amplada linea laser
     float nx, ny, nz;// normals
@@ -53,10 +53,13 @@ class openC3DSprocess{
 		// SENSOR
 		vector <points2DSubpixelPrecision> laserLineSubpixelPoints; // punts de la càmera amb precisió subpixel en x
 		ofImage imgLaserLineSubpixel;
+		unsigned char* colorPixelsRaw;
 
 		vector <points3D> points3Dscanned;
 		ofMesh mesh;
+		ofMesh origin;
 		ofEasyCam cam;
+		ofLight light;
 
 		int _camWidth;
 		int _camHeight;
@@ -72,7 +75,7 @@ class openC3DSprocess{
         float alfa[MAX_NUM_LASERS], zita[MAX_NUM_LASERS];
         float m[MAX_NUM_LASERS]; //pendent linea calibració
         float FCC[MAX_NUM_LASERS]; //constant de la calibració rapida
-        bool laserSide[MAX_NUM_LASERS]; //identificació posició làser esquerra(0) dreta (1)
+        bool laserID[MAX_NUM_LASERS]; //identificació posició làser esquerra(0) dreta (1)
 
         //Paràmetres del sensor
         float GPLL; // llindar de nivell de gris que ja no es considera soroll (int)
