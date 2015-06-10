@@ -61,8 +61,10 @@ class ofApp : public ofBaseApp{
 
 		int scannerState;
 		int scanningSubState;
+		bool bstatePerformedActionOk;
 
         bool bscan;
+        bool bmanualscan;
 
 		//positions
 		float iniAxis1degrees, fiAxis1degrees; // posició angular inicial d'scaneig i posició angular final

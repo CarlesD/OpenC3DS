@@ -20,6 +20,7 @@ void ofApp::setup(){
 
 	// SCANNER
 	bscan = false;
+	bmanualscan = false;
 	scannerState = SCANNER_IDLE;
 	scanningSubState = SCANING_IDLE;
 
@@ -51,7 +52,10 @@ void ofApp::setup(){
     guiOpenC3DS = new ofxUISuperCanvas("MAIN", 0,0, 2*ofGetWidth()/totalGUIs, ofGetHeight());
     guiOpenC3DS->addSpacer();
 
-    guiOpenC3DS->addLabel("SCAN");
+    guiOpenC3DS->addLabel("MANUAL SCAN");
+    guiOpenC3DS->addToggle("manual_scan", &bmanualscan);
+    guiOpenC3DS->addButton("next_scan_state", false);
+    guiOpenC3DS->addLabel("AUTOMATIC SCAN");
     guiOpenC3DS->addButton("start_scan", false);
     guiOpenC3DS->addButton("stop_scan", false);
     guiOpenC3DS->addRangeSlider("turn_deg_axis1", 0, 360, &iniAxis1degrees, &fiAxis1degrees)->setIncrement(1);
@@ -108,6 +112,8 @@ void ofApp::update(){
 
     // SCANNER
     if(bscan){
+        bstatePerformedActionOk = false;
+        // ACTION
         if(scannerState == SCANNER_GOING_START){
             // CAM
             webcamCapture.updateColorImage();
@@ -116,8 +122,7 @@ void ofApp::update(){
             if(serialCommunication.bisDeviceReady){
                 serialCommunication.moveStepperBySteps(recorregutToIniSteps);
                 posAxis1Steps = iniAxis1degrees*STEPS_PER_DEGREE_AXIS1;
-                scannerState = SCANNER_SCANING;
-                scanningSubState = SCANING_IMG_OFF;
+                bstatePerformedActionOk = true;
             }
         }
         else if(scannerState == SCANNER_SCANING){
@@ -126,14 +131,14 @@ void ofApp::update(){
                 float anglerad = ofDegToRad((float)posAxis1Steps / (float)STEPS_PER_DEGREE_AXIS1);
                 ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "ofApp::update::scannerState == SCANNER_SCANING anglerad: " + ofToString(anglerad));
                 scanerProcess.Component_3D_Angular_1_axis_Scan(currentLaser, webcamCapture.colorImage.getPixels(), anglerad);
-                scanningSubState = SCANING_IMG_OFF;
+                bstatePerformedActionOk = true;
             }
             else if( scanningSubState == SCANING_IMG_OFF){
                 webcamCapture.bimageYESlaser = false;
                 if(webcamCapture.updateColorImage() == true){
                     webcamCapture.updateGrayImage();
                     webcamCapture.updateGrayDiff();
-                    scanningSubState = SCANING_LASER_ON;
+                    bstatePerformedActionOk = true;
                 }
             }
             else if( scanningSubState == SCANING_IMG_ON){
@@ -141,20 +146,77 @@ void ofApp::update(){
                 if(webcamCapture.updateColorImage() == true){
                     webcamCapture.updateGrayImage();
                     webcamCapture.updateGrayDiff();
-                    scanningSubState = SCANING_LASER_OFF;
+                    bstatePerformedActionOk = true;
                 }
             }
             else if(scanningSubState == SCANING_LASER_ON){
                 if(serialCommunication.bisDeviceReady){
                     serialCommunication.turnOnLaser(currentLaser);
                     ofSleepMillis(delayLaserms);
-                    scanningSubState = SCANING_IMG_ON;
+                    bstatePerformedActionOk = true;
                 }
             }
             else if(scanningSubState == SCANING_LASER_OFF){
                 if(serialCommunication.bisDeviceReady){
                     serialCommunication.turnOffLaser(currentLaser);
                     ofSleepMillis(delayLaserms);
+                    bstatePerformedActionOk = true;
+                }
+            }
+            else if(scanningSubState == SCANING_CHANGE_LASER){
+                currentLaser++;
+                currentLaser = (currentLaser%NUM_LASERS);
+                if(currentLaser == 0){
+                    currentLaser = NUM_LASERS;
+                }
+                bstatePerformedActionOk = true;
+            }
+            else if(scanningSubState == SCANING_MOVE){
+                if(serialCommunication.bisDeviceReady){
+                    if(posAxis1Steps < fiAxis1degrees*STEPS_PER_DEGREE_AXIS1){
+                        serialCommunication.moveStepperBySteps(incAxis1degrees*STEPS_PER_DEGREE_AXIS1);
+                        ofSleepMillis(delayStepperms);
+                        posAxis1Steps = posAxis1Steps + incAxis1degrees/STEPS_PER_DEGREE_AXIS1;
+                        ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "ofApp::update::scannerState == SCANING_MOVE incAxis1degrees: " + ofToString(incAxis1degrees));
+                        ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "ofApp::update::scannerState == SCANING_MOVE posAxis1Steps: " + ofToString(posAxis1Steps));
+                    }
+                    bstatePerformedActionOk = true;
+                }
+            }
+        }
+
+        if(bmanualscan){
+            bscan = false;
+        }
+
+        // UPDATE STATE for NEXT LOOP
+        if(scannerState == SCANNER_GOING_START){
+            if(bstatePerformedActionOk){
+                scannerState = SCANNER_SCANING;
+                scanningSubState = SCANING_IMG_OFF;
+            }
+        }
+        else if(scannerState == SCANNER_SCANING){
+            if( scanningSubState == SCANING_PROCESS){
+                scanningSubState = SCANING_IMG_OFF;
+            }
+            else if( scanningSubState == SCANING_IMG_OFF){
+                if(bstatePerformedActionOk){
+                    scanningSubState = SCANING_LASER_ON;
+                }
+            }
+            else if( scanningSubState == SCANING_IMG_ON){
+                if(bstatePerformedActionOk){
+                    scanningSubState = SCANING_LASER_OFF;
+                }
+            }
+            else if(scanningSubState == SCANING_LASER_ON){
+                if(bstatePerformedActionOk){
+                    scanningSubState = SCANING_IMG_ON;
+                }
+            }
+            else if(scanningSubState == SCANING_LASER_OFF){
+                if(bstatePerformedActionOk){
                     if(currentLaser != NUM_LASERS){
                         scanningSubState = SCANING_CHANGE_LASER;
                     }
@@ -165,22 +227,11 @@ void ofApp::update(){
                 }
             }
             else if(scanningSubState == SCANING_CHANGE_LASER){
-                currentLaser++;
-                currentLaser = (currentLaser%NUM_LASERS);
-                if(currentLaser == 0){
-                    currentLaser = NUM_LASERS;
-                }
                 scanningSubState = SCANING_PROCESS;
             }
             else if(scanningSubState == SCANING_MOVE){
-                if(serialCommunication.bisDeviceReady){
+                if(bstatePerformedActionOk){
                     if(posAxis1Steps < fiAxis1degrees*STEPS_PER_DEGREE_AXIS1){
-                        serialCommunication.moveStepperBySteps(incAxis1degrees*STEPS_PER_DEGREE_AXIS1);
-                        ofSleepMillis(delayStepperms);
-                        posAxis1Steps = posAxis1Steps + incAxis1degrees/STEPS_PER_DEGREE_AXIS1;
-                        ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "ofApp::update::scannerState == SCANING_MOVE incAxis1degrees: " + ofToString(incAxis1degrees));
-                        ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "ofApp::update::scannerState == SCANING_MOVE posAxis1Steps: " + ofToString(posAxis1Steps));
-
                         scanningSubState = SCANING_PROCESS;
                     }
                     else{
@@ -277,6 +328,9 @@ void ofApp::keyPressed(int key){
     else if(key == 'h'){
         imageMain = LASER_LINE;
     }
+    else if(key == ' '){
+        bscan = true;
+    }
 }
 
 //--------------------------------------------------------------
@@ -328,7 +382,10 @@ void ofApp::guiEvent(ofxUIEventArgs &e){
 	//cout << "  name: " << name << endl;
 	//cout << "  kind: " << kind << endl;
 
-	if(name == "start_scan"){
+    if(name == "next_scan_state"){
+        bscan = true;
+	}
+	else if(name == "start_scan"){
         bscan = true;
         scannerState = SCANNER_GOING_START;
         recorregutToIniSteps = iniAxis1degrees * STEPS_PER_DEGREE_AXIS1 - posAxis1Steps;

@@ -84,6 +84,10 @@ void openC3DSprocess::setupCamResolution(int w, int h){
 //            colorPixelsRaw[index+2] = 0;
 //        }
 //	}
+
+    // DEBUG
+    imgRawforDebug.allocate(_camWidth, _camHeight, OF_IMAGE_COLOR);
+    // end
 }
 
 //--------------------------------------------------------------
@@ -183,7 +187,11 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, unsigne
 
     float delta_alfa, dist_alfa;
     float Xp, Yp;
+
+    // DEBUG
     colorPixelsRaw = pixelsRaw;
+    imgRawforDebug.getTextureReference().loadData(colorPixelsRaw, _camWidth, _camHeight, GL_RGB);
+    // end
 
     for(int i=0; i<_camHeight; i++){
         points3D point3d;
@@ -194,16 +202,22 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, unsigne
 
             if (dist_alfa < 1000){
                 int index = laserLineSubpixelPoints[i].y *_camWidth + laserLineSubpixelPoints[i].x;
-                point3d.r = pixelsRaw[index];
-                point3d.g = pixelsRaw[index+1];
-                point3d.b = pixelsRaw[index+2];
+                ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSprocess::Component_3D_Angular_1_axis_Scan");
+
+                point3d.r = pixelsRaw[index]-'0';
+                point3d.g = pixelsRaw[index+1]-'0';
+                point3d.b = pixelsRaw[index+2]-'0';
                 point3d.q = laserLineSubpixelPoints[i].q;
+
+                ofLog(OF_LOG_NOTICE, "index pixel: " + ofToString(index) + " of color R:" + ofToString(point3d.r) + " G:" + ofToString(point3d.g) + "B:" + ofToString(point3d.b));
 
                 point3d.x = -Xp * cos(phi) - (L + yc[currentLaser] - Yp) * sin(phi);
                 point3d.y = Xp * sin(phi) - (L + yc[currentLaser] - Yp) * cos(phi);
                 point3d.z = dist_alfa * sin(delta_alfa);
             }
             else{
+                ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSprocess::Component_3D_Angular_1_axis_Scan:ERROR:dist_alfa >= 1000");
+
                 point3d.x = -10000;
                 point3d.y = -10000;
                 point3d.z = -10000;
@@ -213,13 +227,13 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, unsigne
             }
 
             if(i == int(_camHeight*0.4)){
-                ofLog(OF_LOG_NOTICE, "openC3DSprocess::Component_3D_Angular_1_axis_Scan");
-                ofLog(OF_LOG_NOTICE, " currentLaser: " + ofToString(currentLaser));
-                ofLog(OF_LOG_NOTICE, " Xp: " + ofToString(Xp) + " Yp: " + ofToString(Yp));
-                ofLog(OF_LOG_NOTICE, " dist_alfa: " + ofToString(dist_alfa));
-                ofLog(OF_LOG_NOTICE, " phi(º): " + ofToString(ofRadToDeg(phi)));
-                ofLog(OF_LOG_NOTICE, " delta_alfa: " + ofToString(delta_alfa));
-                ofLog(OF_LOG_NOTICE, " point3d.x: " + ofToString(point3d.x) + " point3d.y: " + ofToString(point3d.y) + " point3d.z: " + ofToString(point3d.z));
+                ofLog(OF_LOG_ERROR, "openC3DSprocess::Component_3D_Angular_1_axis_Scan");
+                ofLog(OF_LOG_ERROR, " currentLaser: " + ofToString(currentLaser));
+                ofLog(OF_LOG_ERROR, " Xp: " + ofToString(Xp) + " Yp: " + ofToString(Yp));
+                ofLog(OF_LOG_ERROR, " dist_alfa: " + ofToString(dist_alfa));
+                ofLog(OF_LOG_ERROR, " phi(º): " + ofToString(ofRadToDeg(phi)));
+                ofLog(OF_LOG_ERROR, " delta_alfa: " + ofToString(delta_alfa));
+                ofLog(OF_LOG_ERROR, " point3d.x: " + ofToString(point3d.x) + " point3d.y: " + ofToString(point3d.y) + " point3d.z: " + ofToString(point3d.z));
             }
 
         } // end if(laserLineSubpixelPoints[i].x != 1024)
@@ -258,21 +272,23 @@ void openC3DSprocess::cam_dis(int currentLaser, float x, int yp, float *XXp, flo
     if(laserID[currentLaser] == 1){
 
         float x_corregida=(FCC[currentLaser]-(float)yp/m[currentLaser]+x);
+        float xerr = 0; // TODO
+        float partTgDenom1 = tan(beta[currentLaser]) * tan(  0.5*zita[currentLaser] - (x_corregida*zita[currentLaser]) / (_camWidth-1) );
 
-        *YYp = (LB[currentLaser]*sin(beta[currentLaser])+yc[currentLaser]+tan(beta[currentLaser])*(LB[currentLaser]*cos(beta[currentLaser])+LA[currentLaser]+xc[currentLaser]))/(1-tan(beta[currentLaser])*tan( (-0.5*zita[currentLaser]) + x_corregida*zita[currentLaser]/(_camWidth-1) ));
-        *XXp = *YYp*tan( (-0.5*zita[currentLaser]) + x_corregida*zita[currentLaser]/(_camWidth-1) );
-
-        //cout << "coordenada X:" << *XXp << " coordenada Y:" << *YYp << " xp:" << x << " xp corregida:" << x_corregida << endl;
+        *YYp = ( (-LA[currentLaser] - LB[currentLaser]*sin(beta[currentLaser]) + xerr) * tan(beta[currentLaser]) ) - LB[currentLaser]*cos(beta[currentLaser]) - yc[currentLaser];
+        *YYp = *YYp / -1.0 - partTgDenom1;
+        *XXp = *YYp*tan( (-0.5*zita[currentLaser]) + (x_corregida*zita[currentLaser]) / (_camWidth-1) );
     }
 
     else if(laserID[currentLaser] == 2){
 
         float x_corregida=(FCC[currentLaser]-(float)yp/m[currentLaser]+x);
+        float xerr = 0; // TODO
+        float partTgDenom2 = tan(beta[currentLaser]) * tan(  0.5*zita[currentLaser] - (x_corregida*zita[currentLaser]) / (_camWidth-1) );
 
-        *YYp = (LB[currentLaser]*sin(beta[currentLaser])+yc[currentLaser]+tan(beta[currentLaser])*(LB[currentLaser]*cos(beta[currentLaser])+LA[currentLaser]+xc[currentLaser]))/(1-tan(beta[currentLaser])*tan( (-0.5*zita[currentLaser]) + (x_corregida - (_camWidth-1))*zita[currentLaser]/(_camWidth-1) ));
-        *XXp = *YYp*(-1.0)*tan( (-0.5*zita[currentLaser]) + (x_corregida - (_camWidth-1))*zita[currentLaser]/(_camWidth-1) );
-
-        //cout << "Coordenada X:" << *XXp<< "Coordenada Y:" << *YYp<< "xp:" <<x<< "xp corregida:" <<x_corregida<< endl;
+        *YYp = ( (-LA[currentLaser] - LB[currentLaser]*sin(beta[currentLaser]) - xerr) * tan(beta[currentLaser]) ) - LB[currentLaser]*cos(beta[currentLaser]) - yc[currentLaser];
+        *YYp = *YYp / -1.0 + partTgDenom2;
+        *XXp = *YYp*tan( (-0.5*zita[currentLaser]) + (x_corregida*zita[currentLaser]) / (_camWidth-1) );
     }
 
 }
@@ -296,6 +312,10 @@ void openC3DSprocess::draw(){
     origin.drawWireframe();
 	mesh.draw();
 	cam.end();
+
+	// DEBUG
+	imgRawforDebug.draw(20,20,_camWidth*0.3, _camHeight*0.3);
+	// end
 
 }
 

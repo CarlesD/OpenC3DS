@@ -8,15 +8,15 @@
 <Widget>
     <Kind>2</Kind>
     <Name>img_with_laser</Name>
-    <Value>0</Value>
+    <Value>1</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
     <Name>threshold</Name>
-    <Value>14.305418015</Value>
+    <Value>25.123151779</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
     <Name>blur</Name>
-    <Value>5.000000000</Value>
+    <Value>5.571428776</Value>
 </Widget>

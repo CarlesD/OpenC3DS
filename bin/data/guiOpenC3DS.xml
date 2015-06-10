@@ -6,6 +6,11 @@
     <YPosition>1.000000000</YPosition>
 </Canvas>
 <Widget>
+    <Kind>2</Kind>
+    <Name>manual_scan</Name>
+    <Value>0</Value>
+</Widget>
+<Widget>
     <Kind>6</Kind>
     <Name>turn_deg_axis1</Name>
     <HighValue>104.607330322</HighValue>
@@ -19,7 +24,7 @@
 <Widget>
     <Kind>4</Kind>
     <Name>delay_laser_ms</Name>
-    <Value>130.890045166</Value>
+    <Value>117.801048279</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>

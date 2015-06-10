@@ -53,7 +53,6 @@ class openC3DSprocess{
 		// SENSOR
 		vector <points2DSubpixelPrecision> laserLineSubpixelPoints; // punts de la càmera amb precisió subpixel en x
 		ofImage imgLaserLineSubpixel;
-		unsigned char* colorPixelsRaw;
 
 		vector <points3D> points3Dscanned;
 		ofMesh mesh;
@@ -83,4 +82,8 @@ class openC3DSprocess{
         float PMP; // nombre mínim de punts per a generar la paràbola (int)
 
         float L; //Distància fins el centre de rotació
+
+        // DEBUG
+		unsigned char* colorPixelsRaw;
+        ofImage imgRawforDebug;
 };
