@@ -30,16 +30,23 @@ void openC3DSserial::setup(){
 	nRead = 0;
 
     serialPort.setup(serialDeviceName, baudRate);
-    bisDeviceReady = false;
+    bisDeviceReady = true;
 }
 
 //--------------------------------------------------------------
 void openC3DSserial::update(){
     nRead = 0;
     nRead = serialPort.readBytes(bytesReturned, ACK_BYTES);
-    if(nRead > 0){
-        //cout << "readBytes " << nRead << " bytes: " << bytesReturned << endl;
+    if(nRead == OF_SERIAL_ERROR){
+        ofLog(OF_LOG_ERROR, ofGetTimestampString() + "openC3DSserial::update:readBytes error reading from serial");
+    }
+    else if(nRead == OF_SERIAL_NO_DATA){
+    }
+    else if(nRead > 0){
+        ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSserial::update:readBytes: " + ofToString(nRead) + " bytes");
         bisDeviceReady = true;
+        string bytesReadString = (char*) bytesReturned;
+        ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSserial::update:bytesReadString: " + ofToString(bytesReadString));
     }
 
 }
@@ -83,6 +90,7 @@ void openC3DSserial::setGuiSerial(){
 
     guiSerial->addLabel("TEST");
     guiSerial->addButton("send_noise", false);
+    guiSerial->addButton("send_hello", false);
 
     guiSerial->setPosition(0,0);
     guiSerial->autoSizeToFitWidgets();
@@ -119,6 +127,9 @@ void openC3DSserial::guiEvent(ofxUIEventArgs &e){
 	else if(name == "send_noise"){
         sendNoise();
 	}
+	else if(name == "send_hello"){
+        sendHello();
+	}
 	else if(name == "BAUDS"){
         ofxUIRadio *radio = (ofxUIRadio *) e.widget;
         baudRate = ofToInt(radio->getActiveName());
@@ -146,7 +157,7 @@ bool openC3DSserial::moveStepperBySteps(int steps){
 
         strSend += "\n";
         int res = serialPort.writeBytes(&convert(strSend)[0], strSend.length());
-        //cout << "moveStepperBySteps: " << strSend;
+        ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSserial::moveStepperBySteps: " + strSend);
         serialPort.drain();
         bisDeviceReady = false;
 
@@ -156,6 +167,9 @@ bool openC3DSserial::moveStepperBySteps(int steps){
         else{
             return false;
         }
+    }
+    else{
+        ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSserial::moveStepperBySteps:ERROR: device NOT ready");
     }
 }
 
@@ -164,7 +178,7 @@ bool openC3DSserial::moveTestLeft(){
     if(bisDeviceReady){
         strSend = ofToString(MOTOR) + " 1 2 9999\n";
         int res = serialPort.writeBytes(&convert(strSend)[0], strSend.length());
-        //cout << "moveTestLeft: " << strSend;
+        ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSserial::moveTestLeft: " + strSend);
         serialPort.drain();
         bisDeviceReady = false;
 
@@ -175,6 +189,9 @@ bool openC3DSserial::moveTestLeft(){
             return false;
         }
     }
+    else{
+        ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSserial::moveTestLeft:ERROR: device NOT ready");
+    }
 }
 
 //--------------------------------------------------------------
@@ -182,7 +199,7 @@ bool openC3DSserial::moveTestRight(){
     if(bisDeviceReady){
         strSend = ofToString(MOTOR) + " 1 2 -9999\n";
         int res = serialPort.writeBytes(&convert(strSend)[0], strSend.length());
-        //cout << "moveTestRight: " << strSend;
+        ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSserial::moveTestRight: " + strSend);
         serialPort.drain();
         bisDeviceReady = false;
 
@@ -192,6 +209,9 @@ bool openC3DSserial::moveTestRight(){
         else{
             return false;
         }
+    }
+    else{
+        ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSserial::moveTestRight:ERROR: device NOT ready");
     }
 }
 
@@ -201,7 +221,7 @@ bool openC3DSserial::turnOnLaser(int laser){
         strSend = ofToString(laser);
         strSend += " 1 0 0\n";
         int res = serialPort.writeBytes(&convert(strSend)[0], strSend.length());
-        //cout << "turnOnLaser: " << strSend;
+        ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSserial::turnOnLaser: " + strSend);
         serialPort.drain();
         bisDeviceReady = false;
 
@@ -211,6 +231,9 @@ bool openC3DSserial::turnOnLaser(int laser){
         else{
             return false;
         }
+    }
+    else{
+        ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSserial::turnOnLaser:ERROR: device NOT ready");
     }
 }
 
@@ -221,7 +244,7 @@ bool openC3DSserial::turnOffLaser(int laser){
         strSend += " 0 0 0\n";
 
         int res = serialPort.writeBytes(&convert(strSend)[0], strSend.length());
-        //cout << "turnOffLaser: " << strSend;
+        ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSserial::turnOffLaser: " + strSend);
         serialPort.drain();
         bisDeviceReady = false;
 
@@ -231,6 +254,9 @@ bool openC3DSserial::turnOffLaser(int laser){
         else{
             return false;
         }
+    }
+    else{
+        ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSserial::turnOffLaser:ERROR: device NOT ready");
     }
 }
 
@@ -240,7 +266,7 @@ bool openC3DSserial::sendNoise(){
         strSend = "2 2 2 2\n";
 
         int res = serialPort.writeBytes(&convert(strSend)[0], strSend.length());
-        //cout << "sendNoise: " << strSend;
+        ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSserial::sendNoise: " + strSend);
         serialPort.drain();
         bisDeviceReady = false;
 
@@ -251,5 +277,24 @@ bool openC3DSserial::sendNoise(){
             return false;
         }
     }
+    else{
+        ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSserial::sendNoise:ERROR: device NOT ready");
+    }
 }
 
+//--------------------------------------------------------------
+bool openC3DSserial::sendHello(){
+    strSend = "hello\n";
+
+    int res = serialPort.writeBytes(&convert(strSend)[0], strSend.length());
+    ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSserial::sendHello: " + strSend);
+    serialPort.drain();
+    bisDeviceReady = false;
+
+    if(res > 0){
+        return true;
+    }
+    else{
+        return false;
+    }
+}

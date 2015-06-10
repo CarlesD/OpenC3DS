@@ -3,12 +3,12 @@
     <Name>OFX_UI_WIDGET_CANVAS</Name>
     <IsMinified>0</IsMinified>
     <XPosition>1143.000000000</XPosition>
-    <YPosition>336.000000000</YPosition>
+    <YPosition>359.000000000</YPosition>
 </Canvas>
 <Widget>
     <Kind>2</Kind>
     <Name>img_with_laser</Name>
-    <Value>1</Value>
+    <Value>0</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>

@@ -42,6 +42,7 @@ class openC3DSserial{
         bool moveTestLeft();
         bool moveTestRight();
         bool sendNoise();
+        bool sendHello();
 
         // LASER
         bool blaser1On; // laser 1 on?

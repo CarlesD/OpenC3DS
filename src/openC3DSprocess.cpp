@@ -37,6 +37,7 @@ void openC3DSprocess::setup(){
 
         xmlSettings.popTag();
     }
+    xmlSettings.popTag();
 
 	// GUI
 	setGuiProcess();
@@ -212,13 +213,13 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, unsigne
             }
 
             if(i == int(_camHeight*0.4)){
-                ofLog(OF_LOG_VERBOSE, "openC3DSprocess::Component_3D_Angular_1_axis_Scan");
-                ofLog(OF_LOG_VERBOSE, " currentLaser: " + ofToString(currentLaser));
-                ofLog(OF_LOG_VERBOSE, " Xp: " + ofToString(Xp) + " Yp: " + ofToString(Yp));
-                ofLog(OF_LOG_VERBOSE, " dist_alfa: " + ofToString(dist_alfa));
-                ofLog(OF_LOG_VERBOSE, " phi(º): " + ofToString(ofRadToDeg(phi)));
-                ofLog(OF_LOG_VERBOSE, " delta_alfa: " + ofToString(delta_alfa));
-                ofLog(OF_LOG_VERBOSE, " point3d.x: " + ofToString(point3d.x) + " point3d.y: " + ofToString(point3d.y) + " point3d.z: " + ofToString(point3d.z));
+                ofLog(OF_LOG_NOTICE, "openC3DSprocess::Component_3D_Angular_1_axis_Scan");
+                ofLog(OF_LOG_NOTICE, " currentLaser: " + ofToString(currentLaser));
+                ofLog(OF_LOG_NOTICE, " Xp: " + ofToString(Xp) + " Yp: " + ofToString(Yp));
+                ofLog(OF_LOG_NOTICE, " dist_alfa: " + ofToString(dist_alfa));
+                ofLog(OF_LOG_NOTICE, " phi(º): " + ofToString(ofRadToDeg(phi)));
+                ofLog(OF_LOG_NOTICE, " delta_alfa: " + ofToString(delta_alfa));
+                ofLog(OF_LOG_NOTICE, " point3d.x: " + ofToString(point3d.x) + " point3d.y: " + ofToString(point3d.y) + " point3d.z: " + ofToString(point3d.z));
             }
 
         } // end if(laserLineSubpixelPoints[i].x != 1024)
@@ -301,7 +302,8 @@ void openC3DSprocess::draw(){
 //--------------------------------------------------------------
 void openC3DSprocess::exit(){
     xmlSettings.clear();
-    xmlSettings.pushTag("OPENC3DS");
+    xmlSettings.addTag("OPENC3DS");
+    xmlSettings.pushTag("OPENC3DS", 0);
     xmlSettings.setValue("L", L);
 
     for(int i=0; i<numLasers; i++){
