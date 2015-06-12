@@ -45,9 +45,13 @@ void openC3DSprocess::setup(){
 	guiProcess->loadSettings("guiProcess.xml");
 
 	// 3D MESH
+	mesh.setMode(OF_PRIMITIVE_POINTS);
 	mesh.enableColors();
 	mesh.enableIndices();
-	mesh.setMode(OF_PRIMITIVE_POINTS);
+
+	ofEnableDepthTest();
+	glEnable(GL_POINT_SMOOTH); // use circular points instead of square points
+	glPointSize(1); // make the points bigger
 
 	ofIcoSpherePrimitive prmtv;
     prmtv.setPosition(0, 0, 0);
@@ -63,7 +67,7 @@ void openC3DSprocess::setup(){
 
 	// LIGHT
 	light.setup();
-    light.setAmbientColor(ofColor(255));
+    light.setAmbientColor(ofColor(100));
 
 }
 
@@ -203,14 +207,17 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, unsigne
 
             if (dist_alfa < 1000){
                 int index = laserLineSubpixelPoints[i].y *_camWidth + laserLineSubpixelPoints[i].x;
-                ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSprocess::Component_3D_Angular_1_axis_Scan");
 
-                point3d.r = pixelsRaw[index]-'0';
+                point3d.r = pixelsRaw[index]-'0'; // char to int
                 point3d.g = pixelsRaw[index+1]-'0';
                 point3d.b = pixelsRaw[index+2]-'0';
+                //point3d.r = point3d.r / 255.0; // color unitary (between 0-1)
+                //point3d.g = point3d.g / 255.0;
+                //point3d.b = point3d.b / 255.0;
                 point3d.q = laserLineSubpixelPoints[i].q;
 
-                ofLog(OF_LOG_NOTICE, "index pixel: " + ofToString(index) + " of color R:" + ofToString(point3d.r) + " G:" + ofToString(point3d.g) + "B:" + ofToString(point3d.b));
+                ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSprocess::Component_3D_Angular_1_axis_Scan");
+                ofLog(OF_LOG_NOTICE, "   pixel: " + ofToString(index) + " color R:" + ofToString(point3d.r) + " G:" + ofToString(point3d.g) + " B:" + ofToString(point3d.b));
 
                 point3d.x = -Xp * cos(phi) - (L + yc[currentLaser] - Yp) * sin(phi);
                 point3d.y = Xp * sin(phi) - (L + yc[currentLaser] - Yp) * cos(phi);
@@ -249,11 +256,10 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, unsigne
 
         // points 3d
         points3Dscanned.push_back(point3d);
+
         // mesh
-        ofFloatColor c;
-        c.set(point3d.r/255.0, point3d.g/255.0, point3d.b/255.0);
-        //cout << "point3d color: " << point3d.r << ", " << point3d.g << ", " << point3d.b << endl;
-        //cout << "c " << c << endl;
+        ofColor c;
+        c.set(point3d.r, point3d.g, point3d.b);
         mesh.addColor(c);
 		ofVec3f pos(point3d.x, point3d.y, point3d.z);
         mesh.addVertex(pos);
