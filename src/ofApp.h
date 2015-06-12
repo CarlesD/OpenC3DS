@@ -54,7 +54,7 @@ class ofApp : public ofBaseApp{
 		// SCANNER
 		// states
 		enum scannerStates{ SCANNER_IDLE = 0, SCANNER_GOING_HOME, SCANNER_GOING_START, SCANNER_SCANING };
-		enum scanningSubStates{ SCANING_IDLE = 0, SCANING_PROCESS, SCANING_CHANGE_LASER, SCANING_MOVE, SCANING_LASER_ON, SCANING_LASER_OFF, SCANING_IMG_ON, SCANING_IMG_OFF };
+		enum scanningSubStates{ SCANING_IDLE = 0, SCANING_DELAY, SCANING_PROCESS, SCANING_CHANGE_LASER, SCANING_MOVE, SCANING_LASER_ON, SCANING_LASER_OFF, SCANING_IMG_ON, SCANING_IMG_OFF };
         string getStringStates(int s);
         string getStringSubStates(int s);
         string sStateAndInfo;
@@ -64,7 +64,10 @@ class ofApp : public ofBaseApp{
 		bool bstatePerformedActionOk;
 
         bool bscan;
-        bool bmanualscan;
+
+        int prevScanningSubState;
+        float startTimeDelayMillis;
+        float endDelayMillis;
 
 		//positions
 		float iniAxis1degrees, fiAxis1degrees; // posició angular inicial d'scaneig i posició angular final

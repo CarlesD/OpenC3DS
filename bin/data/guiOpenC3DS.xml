@@ -6,11 +6,6 @@
     <YPosition>1.000000000</YPosition>
 </Canvas>
 <Widget>
-    <Kind>2</Kind>
-    <Name>manual_scan</Name>
-    <Value>0</Value>
-</Widget>
-<Widget>
     <Kind>6</Kind>
     <Name>turn_deg_axis1</Name>
     <HighValue>104.607330322</HighValue>
