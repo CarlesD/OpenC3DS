@@ -11,9 +11,10 @@ void openC3DSprocess::setup(){
 
     xmlSettings.pushTag("OPENC3DS");
 	numLasers = xmlSettings.getNumTags("LASER");
+	cout << "OPENC3DS:numLasers = " << numLasers << endl;
 	for(int i=0; i<numLasers; i++){
         xmlSettings.pushTag("LASER", i);
-
+        cout << "OPENC3DS:LASER = " << i << endl;
         beta[i] = xmlSettings.getValue("beta", 0.959931);
         cout << "OPENC3DS:beta = " << beta[i] << endl;
         xc[i] = xmlSettings.getValue("xc", 0);

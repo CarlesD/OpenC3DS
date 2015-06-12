@@ -74,7 +74,7 @@ class openC3DSprocess{
         float alfa[MAX_NUM_LASERS], zita[MAX_NUM_LASERS];
         float m[MAX_NUM_LASERS]; //pendent linea calibració
         float FCC[MAX_NUM_LASERS]; //constant de la calibració rapida
-        bool laserID[MAX_NUM_LASERS]; //identificació posició làser esquerra(0) dreta (1)
+        int laserID[MAX_NUM_LASERS]; //identificació posició làser
 
         //Paràmetres del sensor
         float GPLL; // llindar de nivell de gris que ja no es considera soroll (int)
