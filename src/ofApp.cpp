@@ -199,7 +199,7 @@ void ofApp::update(){
         else if(scannerState == SCANNER_SCANING){
             if( scanningSubState == SCANING_PROCESS){
                 scanerProcess.camCaptureSubpixelProcess(webcamCapture.grayDiff.getPixels());
-                float anglerad = ofDegToRad((float)posAxis1Steps / (float)STEPS_PER_DEGREE_AXIS1);
+                float anglerad = ofDegToRad((float)posAxis1Steps / ((float)STEPS_PER_DEGREE_AXIS1));
                 ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "ofApp::update::scannerState == SCANNER_SCANING anglerad: " + ofToString(anglerad));
                 scanerProcess.Component_3D_Angular_1_axis_Scan(currentLaser, webcamCapture.colorImage.getPixels(), anglerad);
                 bstatePerformedActionOk = true;
@@ -226,7 +226,7 @@ void ofApp::update(){
                     startTimeDelayMillis = ofGetElapsedTimeMillis();
                     endDelayMillis = delayLaserms;
                     prevScanningSubState = SCANING_LASER_ON;
-                    //ofSleepMillis(delayLaserms);
+                    ofSleepMillis(delayLaserms);
                     bstatePerformedActionOk = true;
                 }
             }
@@ -236,7 +236,7 @@ void ofApp::update(){
                     startTimeDelayMillis = ofGetElapsedTimeMillis();
                     endDelayMillis = delayLaserms;
                     prevScanningSubState = SCANING_LASER_OFF;
-                    //ofSleepMillis(delayLaserms);
+                    ofSleepMillis(delayLaserms);
                     bstatePerformedActionOk = true;
                 }
             }
@@ -255,8 +255,8 @@ void ofApp::update(){
                         startTimeDelayMillis = ofGetElapsedTimeMillis();
                         endDelayMillis = delayStepperms;
                         prevScanningSubState = SCANING_MOVE;
-                        //ofSleepMillis(delayStepperms);
-                        posAxis1Steps = posAxis1Steps + incAxis1degrees/STEPS_PER_DEGREE_AXIS1;
+                        ofSleepMillis(delayStepperms);
+                        posAxis1Steps = posAxis1Steps + incAxis1degrees*STEPS_PER_DEGREE_AXIS1;
                         ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "ofApp::update::scannerState == SCANING_MOVE incAxis1degrees: " + ofToString(incAxis1degrees));
                         ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "ofApp::update::scannerState == SCANING_MOVE posAxis1Steps: " + ofToString(posAxis1Steps));
                     }

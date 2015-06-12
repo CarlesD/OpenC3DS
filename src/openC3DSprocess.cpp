@@ -21,9 +21,9 @@ void openC3DSprocess::setup(){
         cout << "OPENC3DS:xc = " << xc[i] << endl;
         yc[i] = xmlSettings.getValue("yc", 8.08);
         cout << "OPENC3DS:yc = " << yc[i] << endl;
-        LA[i] = xmlSettings.getValue("LA", 49.529999);
+        LA[i] = xmlSettings.getValue("LA", 115.989998);
         cout << "OPENC3DS:LA = " << LA[i] << endl;
-        LB[i] = xmlSettings.getValue("LB", 115.989998);
+        LB[i] = xmlSettings.getValue("LB", 49.529999);
         cout << "OPENC3DS:LB = " << LB[i] << endl;
         alfa[i] = xmlSettings.getValue("alfa", 19.4);
         cout << "OPENC3DS:alfa = " << alfa[i] << endl;
@@ -219,8 +219,8 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, unsigne
                 ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSprocess::Component_3D_Angular_1_axis_Scan");
                 ofLog(OF_LOG_NOTICE, "   pixel: " + ofToString(index) + " color R:" + ofToString(point3d.r) + " G:" + ofToString(point3d.g) + " B:" + ofToString(point3d.b));
 
-                point3d.x = -Xp * cos(phi) - (L + yc[currentLaser] - Yp) * sin(phi);
-                point3d.y = Xp * sin(phi) - (L + yc[currentLaser] - Yp) * cos(phi);
+                point3d.x = Xp * cos(phi) + (L + yc[currentLaser] - Yp) * sin(phi);
+                point3d.y = -Xp * sin(phi) + (L + yc[currentLaser] - Yp) * cos(phi);
                 point3d.z = dist_alfa * sin(delta_alfa);
             }
             else{
@@ -271,20 +271,16 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, unsigne
 //--------------------------------------------------------------
 void openC3DSprocess::cam_dis(int currentLaser, float x, int yp, float *XXp, float *YYp){
 
-    float d;
-    int xp;
-
-    xp = (int)x;
-
-    if(laserID[currentLaser] == 1){
+       if(laserID[currentLaser] == 1){
 
         float x_corregida=(FCC[currentLaser]-(float)yp/m[currentLaser]+x);
         float xerr = 0; // TODO
         float partTgDenom1 = tan(beta[currentLaser]) * tan(  0.5*zita[currentLaser] - (x_corregida*zita[currentLaser]) / (_camWidth-1) );
 
         *YYp = ( (-LA[currentLaser] - LB[currentLaser]*sin(beta[currentLaser]) + xerr) * tan(beta[currentLaser]) ) - LB[currentLaser]*cos(beta[currentLaser]) - yc[currentLaser];
-        *YYp = *YYp / -1.0 - partTgDenom1;
-        *XXp = *YYp*tan( (-0.5*zita[currentLaser]) + (x_corregida*zita[currentLaser]) / (_camWidth-1) );
+        *YYp = *YYp / (-1.0 - partTgDenom1);
+        *XXp = *YYp*tan( (0.5*zita[currentLaser]) -(x_corregida*zita[currentLaser]) / (_camWidth-1) )*(-1);
+       // ofLog(OF_LOG_ERROR, " YYP: " + ofToString(*YYp);
     }
 
     else if(laserID[currentLaser] == 2){
@@ -294,11 +290,12 @@ void openC3DSprocess::cam_dis(int currentLaser, float x, int yp, float *XXp, flo
         float partTgDenom2 = tan(beta[currentLaser]) * tan(  0.5*zita[currentLaser] - (x_corregida*zita[currentLaser]) / (_camWidth-1) );
 
         *YYp = ( (-LA[currentLaser] - LB[currentLaser]*sin(beta[currentLaser]) - xerr) * tan(beta[currentLaser]) ) - LB[currentLaser]*cos(beta[currentLaser]) - yc[currentLaser];
-        *YYp = *YYp / -1.0 + partTgDenom2;
-        *XXp = *YYp*tan( (-0.5*zita[currentLaser]) + (x_corregida*zita[currentLaser]) / (_camWidth-1) );
+        *YYp = *YYp / (-1.0 + partTgDenom2);
+        *XXp = *YYp*tan( (0.5*zita[currentLaser]) -(x_corregida*zita[currentLaser]) / (_camWidth-1) )*(-1);
     }
 
 }
+
 
 //--------------------------------------------------------------
 bool openC3DSprocess::update(){
