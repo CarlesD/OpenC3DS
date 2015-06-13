@@ -12,6 +12,7 @@ void ofApp::setup(){
 
     // SERIAL
     serialCommunication.setup();
+
     // CAM
     webcamCapture.setup();
     // PROCESS
