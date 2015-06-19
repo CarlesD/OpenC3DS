@@ -35,6 +35,7 @@ class openC3DScam{
 
         // OPENCV
         ofxCvColorImage			colorImage;
+        ofxCvColorImage			colorImageNOlaser;
         ofxCvGrayscaleImage 	grayImage;
         ofxCvGrayscaleImage 	grayImageNOlaser;
 		ofxCvGrayscaleImage 	grayImageYESlaser;

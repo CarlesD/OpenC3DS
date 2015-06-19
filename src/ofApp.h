@@ -64,6 +64,7 @@ class ofApp : public ofBaseApp{
 		bool bstatePerformedActionOk;
 
         bool bscan;
+        bool bscanstep;
 
         int prevScanningSubState;
         float startTimeDelayMillis;

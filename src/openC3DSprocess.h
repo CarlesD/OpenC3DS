@@ -10,6 +10,8 @@
 
 #include "polifitgsl.h"
 
+#include "ofxOpenCv.h"
+
 #define m(ix,jx)            ix+jx*Ncal
 #define mc(ncolu,ix,jx)     ix*ncolu+jx
 #define DEGREE              3 // grau del polinomi
@@ -43,7 +45,7 @@ class openC3DSprocess{
 
         bool polynomialfit(int obs, int degree, double *dx, double *dy, double *store);
         bool camCaptureSubpixelProcess(unsigned char* pixelsRaw);
-        bool Component_3D_Angular_1_axis_Scan(int currentLaser, unsigned char* pixelsRaw, float phi);
+        bool Component_3D_Angular_1_axis_Scan(int currentLaser, ofxCvColorImage pixelsRaw, float phi);
         void cam_dis(int currentLaser, float x, int yp, float *XXp, float *YYp);
 
         // GUI
@@ -98,6 +100,5 @@ class openC3DSprocess{
         float L; //Distància fins el centre de rotació
 
         // DEBUG
-		unsigned char* colorPixelsRaw;
-        ofImage imgRawforDebug;
+		ofxCvColorImage colorPixelsRaw;
 };

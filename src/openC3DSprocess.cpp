@@ -51,7 +51,7 @@ void openC3DSprocess::setup(){
 
 	ofEnableDepthTest();
 	glEnable(GL_POINT_SMOOTH); // use circular points instead of square points
-	glPointSize(3); // make the points bigger
+	glPointSize(1); // make the points bigger
 
 	ofIcoSpherePrimitive prmtv;
     prmtv.setPosition(0, 0, 0);
@@ -95,7 +95,7 @@ void openC3DSprocess::setupCamResolution(int w, int h){
 //	}
 
     // DEBUG
-    imgRawforDebug.allocate(_camWidth, _camHeight, OF_IMAGE_COLOR);
+    colorPixelsRaw.allocate(_camWidth, _camHeight);
     // end
 }
 
@@ -192,14 +192,13 @@ bool openC3DSprocess::camCaptureSubpixelProcess(unsigned char* pixelsRaw){
 }
 
 //--------------------------------------------------------------
-bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, unsigned char* pixelsRaw, float phi){
+bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, ofxCvColorImage pixelsRaw, float phi){
 
     float delta_alfa, dist_alfa;
     float Xp, Yp;
 
     // DEBUG
     colorPixelsRaw = pixelsRaw;
-    imgRawforDebug.getTextureReference().loadData(colorPixelsRaw, _camWidth, _camHeight, GL_RGB);
     // end
 
     for(int i=0; i<_camHeight; i++){
@@ -210,29 +209,31 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, unsigne
             dist_alfa = sqrt(Xp*Xp+Yp*Yp)/cos(delta_alfa);
 
             if (dist_alfa < 1000){
-                float migalcada = floor(_camHeight*0.5);
-                if(i > migalcada -10 && i < migalcada + 10){
+                //float migalcada = floor(_camHeight*0.5);
+                //if(i > migalcada -10 && i < migalcada + 10){
                     int index = laserLineSubpixelPoints[i].y *_camWidth + laserLineSubpixelPoints[i].x;
 
                     indexPixColorX = (int)laserLineSubpixelPoints[i].x;
                     indexPixColorY = (int)laserLineSubpixelPoints[i].y;
 
+                    ofPixels pix = pixelsRaw.getPixelsRef();
+                    ofColor colorPix = pix.getColor(indexPixColorX, indexPixColorY);
 
-                    point3d.r = pixelsRaw[index+2]-'0'; // char to int
-                    point3d.g = pixelsRaw[index+1]-'0';
-                    point3d.b = pixelsRaw[index]-'0';
+                    point3d.r = colorPix.r;
+                    point3d.g = colorPix.g;
+                    point3d.b = colorPix.b;
                     //point3d.r = point3d.r / 255.0; // color unitary (between 0-1)
                     //point3d.g = point3d.g / 255.0;
                     //point3d.b = point3d.b / 255.0;
                     point3d.q = laserLineSubpixelPoints[i].q;
 
                     ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSprocess::Component_3D_Angular_1_axis_Scan");
-                    ofLog(OF_LOG_NOTICE, "   pixel: " + ofToString(index) + " color R:" + ofToString(point3d.r) + " G:" + ofToString(point3d.g) + " B:" + ofToString(point3d.b));
+                    ofLog(OF_LOG_NOTICE, "pixel at: " + ofToString(indexPixColorX) + ", " + ofToString(indexPixColorY) + " color R:" + ofToString(point3d.r) + " G:" + ofToString(point3d.g) + " B:" + ofToString(point3d.b));
 
                     point3d.x = Xp * cos(phi) + (L + yc[currentLaser] - Yp) * sin(phi);
                     point3d.y = -Xp * sin(phi) + (L + yc[currentLaser] - Yp) * cos(phi);
                     point3d.z = dist_alfa * sin(delta_alfa);
-                }
+                //}
             }
             else{
                 ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSprocess::Component_3D_Angular_1_axis_Scan:ERROR:dist_alfa >= 1000");
@@ -330,11 +331,10 @@ void openC3DSprocess::draw(){
 
 	// DEBUG
 	ofDisableDepthTest();
-	imgRawforDebug.draw(20,20,_camWidth*0.3, _camHeight*0.3);
-	ofNoFill();
-	ofSetLineWidth(10);
-	ofSetColor(255,0,0,255);
-	ofCircle(20+indexPixColorX*0.3, 20+indexPixColorY*0.3, 7);
+	//colorPixelsRaw.draw(20,20,_camWidth*0.3, _camHeight*0.3);
+	//ofNoFill();
+	//ofSetColor(255,0,0,255);
+	//ofCircle(20+indexPixColorX*0.3, 20+indexPixColorY*0.3, 7);
 	// end
 
 }

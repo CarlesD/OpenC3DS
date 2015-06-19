@@ -2,8 +2,8 @@
     <Kind>40</Kind>
     <Name>OFX_UI_WIDGET_CANVAS</Name>
     <IsMinified>0</IsMinified>
-    <XPosition>743.000000000</XPosition>
-    <YPosition>1.000000000</YPosition>
+    <XPosition>909.000000000</XPosition>
+    <YPosition>7.000000000</YPosition>
 </Canvas>
 <Widget>
     <Kind>6</Kind>
@@ -14,15 +14,15 @@
 <Widget>
     <Kind>4</Kind>
     <Name>deg_increment_axis1</Name>
-    <Value>1.649214625</Value>
+    <Value>1.007853389</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
     <Name>delay_laser_ms</Name>
-    <Value>183.246078491</Value>
+    <Value>143.979064941</Value>
 </Widget>
 <Widget>
     <Kind>4</Kind>
     <Name>delay_stepper_ms</Name>
-    <Value>117.801048279</Value>
+    <Value>340.314147949</Value>
 </Widget>
