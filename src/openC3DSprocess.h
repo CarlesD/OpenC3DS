@@ -1,5 +1,9 @@
 #pragma once
 
+#undef Success
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
+
 #include "ofMain.h"
 #include "ofxUI.h"
 #include "ofxXmlSettings.h"
@@ -55,6 +59,9 @@ class openC3DSprocess{
 		ofImage imgLaserLineSubpixel;
 
 		vector <points3D> points3Dscanned;
+		int indexPixColorX;
+		int indexPixColorY;
+
 		ofMesh mesh;
 		ofMesh origin;
 		ofEasyCam cam;
@@ -64,6 +71,13 @@ class openC3DSprocess{
 		int _camHeight;
 
 		int numLasers;
+
+		// POINT CLOUD
+		pcl::PointCloud<pcl::PointXYZRGBNormal> cloud;
+		void fillPointCloud();
+		void savePointCloud();
+        void resetPointCloud();
+        ofxUITextInput *PCDfilename;
 
         //Paràmetres dels Lasers
         // zita -> zita_0 // angle obertura càmera horitzontal

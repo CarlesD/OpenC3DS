@@ -2,7 +2,7 @@
     <CAM>
         <camWidth>1280</camWidth>
         <camHeight>720</camHeight>
-        <deviceID>2</deviceID>
+        <deviceID>1</deviceID>
         <threshold>25.123151779</threshold>
         <blur>5.571428776</blur>
     </CAM>
