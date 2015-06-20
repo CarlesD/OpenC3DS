@@ -221,7 +221,7 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, unsigne
 
                 point3d.x = Xp * cos(phi) + (L + yc[currentLaser] - Yp) * sin(phi);
                 point3d.y = -Xp * sin(phi) + (L + yc[currentLaser] - Yp) * cos(phi);
-                point3d.z = dist_alfa * sin(delta_alfa);
+                point3d.z = (-1)*dist_alfa * sin(delta_alfa);
             }
             else{
                 ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSprocess::Component_3D_Angular_1_axis_Scan:ERROR:dist_alfa >= 1000");
