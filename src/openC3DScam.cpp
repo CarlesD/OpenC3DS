@@ -26,8 +26,8 @@ void openC3DScam::setup(){
 	bimageYESlaser = false;
 
 	// CAM
-	imgWidth = 640;
-	imgHeight = 360;
+	imgWidth = 1280;//640;
+	imgHeight = 720;//360;
 	imgWidthPart = imgWidth * 0.3f;
 	imgHeightPart = imgHeight * 0.3f;
 
@@ -36,6 +36,7 @@ void openC3DScam::setup(){
     vidGrabber.initGrabber(camWidth, camHeight);
 
     colorImage.allocate(camWidth, camHeight);
+	colorImageNOlaser.allocate(camWidth, camHeight);
 	grayImageNOlaser.allocate(camWidth, camHeight);
 	grayImageYESlaser.allocate(camWidth, camHeight);
 	grayDiff.allocate(camWidth, camHeight);
@@ -63,6 +64,7 @@ bool openC3DScam::updateGrayImage(){
     }
     else{
         grayImageNOlaser = colorImage;
+        colorImageNOlaser = colorImage;
         grayImageNOlaser.blurGaussian(blur);
     }
 }

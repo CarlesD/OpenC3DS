@@ -1,10 +1,16 @@
 #pragma once
 
+#undef Success
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
+
 #include "ofMain.h"
 #include "ofxUI.h"
 #include "ofxXmlSettings.h"
 
 #include "polifitgsl.h"
+
+#include "ofxOpenCv.h"
 
 #define m(ix,jx)            ix+jx*Ncal
 #define mc(ncolu,ix,jx)     ix*ncolu+jx
@@ -39,7 +45,7 @@ class openC3DSprocess{
 
         bool polynomialfit(int obs, int degree, double *dx, double *dy, double *store);
         bool camCaptureSubpixelProcess(unsigned char* pixelsRaw);
-        bool Component_3D_Angular_1_axis_Scan(int currentLaser, unsigned char* pixelsRaw, float phi);
+        bool Component_3D_Angular_1_axis_Scan(int currentLaser, ofxCvColorImage pixelsRaw, float phi);
         void cam_dis(int currentLaser, float x, int yp, float *XXp, float *YYp);
 
         // GUI
@@ -55,6 +61,9 @@ class openC3DSprocess{
 		ofImage imgLaserLineSubpixel;
 
 		vector <points3D> points3Dscanned;
+		int indexPixColorX;
+		int indexPixColorY;
+
 		ofMesh mesh;
 		ofMesh origin;
 		ofEasyCam cam;
@@ -64,6 +73,13 @@ class openC3DSprocess{
 		int _camHeight;
 
 		int numLasers;
+
+		// POINT CLOUD
+		pcl::PointCloud<pcl::PointXYZRGBNormal> cloud;
+		void fillPointCloud();
+		void savePointCloud();
+        void resetPointCloud();
+        ofxUITextInput *PCDfilename;
 
         //Paràmetres dels Lasers
         // zita -> zita_0 // angle obertura càmera horitzontal
@@ -84,6 +100,5 @@ class openC3DSprocess{
         float L; //Distància fins el centre de rotació
 
         // DEBUG
-		unsigned char* colorPixelsRaw;
-        ofImage imgRawforDebug;
+		ofxCvColorImage colorPixelsRaw;
 };

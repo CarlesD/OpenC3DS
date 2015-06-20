@@ -69,6 +69,10 @@ void openC3DSprocess::setup(){
 	light.setup();
     light.setAmbientColor(ofColor(100));
 
+    // POINT CLOUD
+    points3Dscanned.clear();
+    resetPointCloud();
+
 }
 
 //--------------------------------------------------------------
@@ -91,7 +95,7 @@ void openC3DSprocess::setupCamResolution(int w, int h){
 //	}
 
     // DEBUG
-    imgRawforDebug.allocate(_camWidth, _camHeight, OF_IMAGE_COLOR);
+    colorPixelsRaw.allocate(_camWidth, _camHeight);
     // end
 }
 
@@ -188,14 +192,13 @@ bool openC3DSprocess::camCaptureSubpixelProcess(unsigned char* pixelsRaw){
 }
 
 //--------------------------------------------------------------
-bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, unsigned char* pixelsRaw, float phi){
+bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, ofxCvColorImage pixelsRaw, float phi){
 
     float delta_alfa, dist_alfa;
     float Xp, Yp;
 
     // DEBUG
     colorPixelsRaw = pixelsRaw;
-    imgRawforDebug.getTextureReference().loadData(colorPixelsRaw, _camWidth, _camHeight, GL_RGB);
     // end
 
     for(int i=0; i<_camHeight; i++){
@@ -206,22 +209,31 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, unsigne
             dist_alfa = sqrt(Xp*Xp+Yp*Yp)/cos(delta_alfa);
 
             if (dist_alfa < 1000){
-                int index = laserLineSubpixelPoints[i].y *_camWidth + laserLineSubpixelPoints[i].x;
+                //float migalcada = floor(_camHeight*0.5);
+                //if(i > migalcada -10 && i < migalcada + 10){
+                    int index = laserLineSubpixelPoints[i].y *_camWidth + laserLineSubpixelPoints[i].x;
 
-                point3d.r = pixelsRaw[index]-'0'; // char to int
-                point3d.g = pixelsRaw[index+1]-'0';
-                point3d.b = pixelsRaw[index+2]-'0';
-                //point3d.r = point3d.r / 255.0; // color unitary (between 0-1)
-                //point3d.g = point3d.g / 255.0;
-                //point3d.b = point3d.b / 255.0;
-                point3d.q = laserLineSubpixelPoints[i].q;
+                    indexPixColorX = (int)laserLineSubpixelPoints[i].x;
+                    indexPixColorY = (int)laserLineSubpixelPoints[i].y;
 
-                ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSprocess::Component_3D_Angular_1_axis_Scan");
-                ofLog(OF_LOG_NOTICE, "   pixel: " + ofToString(index) + " color R:" + ofToString(point3d.r) + " G:" + ofToString(point3d.g) + " B:" + ofToString(point3d.b));
+                    ofPixels pix = pixelsRaw.getPixelsRef();
+                    ofColor colorPix = pix.getColor(indexPixColorX, indexPixColorY);
 
-                point3d.x = Xp * cos(phi) + (L + yc[currentLaser] - Yp) * sin(phi);
-                point3d.y = -Xp * sin(phi) + (L + yc[currentLaser] - Yp) * cos(phi);
-                point3d.z = (-1)*dist_alfa * sin(delta_alfa);
+                    point3d.r = colorPix.r;
+                    point3d.g = colorPix.g;
+                    point3d.b = colorPix.b;
+                    //point3d.r = point3d.r / 255.0; // color unitary (between 0-1)
+                    //point3d.g = point3d.g / 255.0;
+                    //point3d.b = point3d.b / 255.0;
+                    point3d.q = laserLineSubpixelPoints[i].q;
+
+                    ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSprocess::Component_3D_Angular_1_axis_Scan");
+                    ofLog(OF_LOG_NOTICE, "pixel at: " + ofToString(indexPixColorX) + ", " + ofToString(indexPixColorY) + " color R:" + ofToString(point3d.r) + " G:" + ofToString(point3d.g) + " B:" + ofToString(point3d.b));
+
+                    point3d.x = Xp * cos(phi) + (L + yc[currentLaser] - Yp) * sin(phi);
+                    point3d.y = -Xp * sin(phi) + (L + yc[currentLaser] - Yp) * cos(phi);
+                    point3d.z = dist_alfa * sin(delta_alfa);
+                //}
             }
             else{
                 ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSprocess::Component_3D_Angular_1_axis_Scan:ERROR:dist_alfa >= 1000");
@@ -318,7 +330,11 @@ void openC3DSprocess::draw(){
 	cam.end();
 
 	// DEBUG
-	imgRawforDebug.draw(20,20,_camWidth*0.3, _camHeight*0.3);
+	ofDisableDepthTest();
+	//colorPixelsRaw.draw(20,20,_camWidth*0.3, _camHeight*0.3);
+	//ofNoFill();
+	//ofSetColor(255,0,0,255);
+	//ofCircle(20+indexPixColorX*0.3, 20+indexPixColorY*0.3, 7);
 	// end
 
 }
@@ -359,9 +375,18 @@ void openC3DSprocess::setGuiProcess(){
 	guiProcess = new ofxUISuperCanvas("PROCESSING");
     guiProcess->addSpacer();
 
+    guiProcess->addLabel("PROCESS PARAMETERS", OFX_UI_FONT_MEDIUM);
     guiProcess->addSlider("GPLL", 0, 255, &GPLL)->setIncrement(1);
     guiProcess->addSlider("PAP", 3, 100, &PAP)->setIncrement(1);
     guiProcess->addSlider("PMP", 3, 33, &PMP)->setIncrement(1);
+
+    guiProcess->addLabel("POINT CLOUD", OFX_UI_FONT_MEDIUM);
+    PCDfilename = guiProcess->addTextInput("filename", "scan.pcd");
+    PCDfilename->setAutoUnfocus(false);
+    PCDfilename->setAutoClear(false);
+
+    guiProcess->addButton("save point cloud", false);
+    guiProcess->addButton("reset point cloud", false);
 
     guiProcess->setPosition(0,0);
     guiProcess->autoSizeToFitWidgets();
@@ -372,6 +397,54 @@ void openC3DSprocess::setGuiProcess(){
 void openC3DSprocess::guiEvent(ofxUIEventArgs &e){
 	string name = e.getName();
 	int kind = e.getKind();
+
+	if(name == "filename"){
+        ofxUITextInput *PCDfilename = (ofxUITextInput *) e.widget;
+    }
+    else if(name == "save point cloud"){
+        fillPointCloud();
+        savePointCloud();
+    }
+    else if(name == "reset point cloud"){
+        resetPointCloud();
+    }
+}
+
+//--------------------------------------------------------------
+void openC3DSprocess::fillPointCloud(){
+    // http://pointclouds.org/documentation/tutorials/writing_pcd.php
+    cloud.width = points3Dscanned.size();
+    cloud.height = 1;
+    cloud.is_dense = false;
+    cloud.points.resize(cloud.width*cloud.height);
+
+    for(int i=0; i<cloud.points.size(); i++){
+        cloud.points[i].x = points3Dscanned[i].x;
+        cloud.points[i].y = points3Dscanned[i].y;
+        cloud.points[i].z = points3Dscanned[i].z;
+
+        cloud.points[i].normal_x = points3Dscanned[i].nx;
+        cloud.points[i].normal_y = points3Dscanned[i].ny;
+        cloud.points[i].normal_z = points3Dscanned[i].nz;
+
+        cloud.points[i].r = points3Dscanned[i].r;
+        cloud.points[i].g = points3Dscanned[i].g;
+        cloud.points[i].b = points3Dscanned[i].b;
+    }
+}
+
+//--------------------------------------------------------------
+void openC3DSprocess::savePointCloud(){
+
+    if(cloud.points.size() > 0){
+        pcl::io::savePCDFileASCII(ofToDataPath("test.pcd"), cloud);
+        ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSprocess::savePointCloud:saved " + ofToString(cloud.points.size()) + "to " + "test.pcd file");
+    }
+}
+
+//--------------------------------------------------------------
+void openC3DSprocess::resetPointCloud(){
+    cloud.points.resize(0);
 }
 
 //--------------------------------------------------------------

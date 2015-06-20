@@ -103,7 +103,7 @@ PROJECT_LDFLAGS= -lgsl -lgslcblas -lm /usr/lib/libpcl* /usr/lib/libvtk* /usr/lib
 #
 #   Note: Leave a leading space when adding list items with the += operator
 ################################################################################
- PROJECT_CFLAGS = -I/usr/include/pcl-1.7 -I/usr/include/pcl-1.7/pcl/surface -I/usr/include/eigen3 -I/usr/include/vtk-5.8 -I/usr/include -I/usr/include/boost/math -I /usr/local/include/eigen3
+ PROJECT_CFLAGS = -I/usr/include/pcl-1.7 -I/usr/include/pcl-1.7/pcl/surface -I/usr/include/eigen3 -I/usr/include/vtk-5.8 -I/usr/include -I/usr/include/boost/math
 
 ################################################################################
 # PROJECT OPTIMIZATION CFLAGS

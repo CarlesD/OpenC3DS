@@ -2,8 +2,8 @@
     <CAM>
         <camWidth>1280</camWidth>
         <camHeight>720</camHeight>
-        <deviceID>2</deviceID>
-        <threshold>25.123151779</threshold>
-        <blur>5.571428776</blur>
+        <deviceID>1</deviceID>
+        <threshold>75.369461060</threshold>
+        <blur>2.891625643</blur>
     </CAM>
 </OPENC3DS>
