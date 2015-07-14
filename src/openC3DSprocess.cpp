@@ -208,7 +208,7 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, ofxCvCo
             cam_dis(currentLaser, laserLineSubpixelPoints[i].x, laserLineSubpixelPoints[i].y, &Xp,&Yp);
             dist_alfa = sqrt(Xp*Xp+Yp*Yp)/cos(delta_alfa);
 
-            if (dist_alfa < 1000){
+            if (dist_alfa < 500){
                 //float migalcada = floor(_camHeight*0.5);
                 //if(i > migalcada -10 && i < migalcada + 10){
                     int index = laserLineSubpixelPoints[i].y *_camWidth + laserLineSubpixelPoints[i].x;
@@ -288,6 +288,7 @@ void openC3DSprocess::cam_dis(int currentLaser, float x, int yp, float *XXp, flo
         float x_corregida=(FCC[currentLaser]-(float)yp/m[currentLaser]+x);
         float xerr = 0; // TODO
         float partTgDenom1 = tan(beta[currentLaser]) * tan(  0.5*zita[currentLaser] - (x_corregida*zita[currentLaser]) / (_camWidth-1) );
+
 
         *YYp = ( (-LA[currentLaser] - LB[currentLaser]*sin(beta[currentLaser]) + xerr) * tan(beta[currentLaser]) ) - LB[currentLaser]*cos(beta[currentLaser]) - yc[currentLaser];
         *YYp = *YYp / (-1.0 - partTgDenom1);

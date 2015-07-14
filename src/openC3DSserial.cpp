@@ -153,6 +153,7 @@ bool openC3DSserial::moveStepperToHome(){
 //--------------------------------------------------------------
 bool openC3DSserial::moveStepperBySteps(int steps){
     if(bisDeviceReady){
+
         strSend = ofToString(MOTOR) + " 1 2 " + ofToString(steps);
 
         strSend += "\n";
