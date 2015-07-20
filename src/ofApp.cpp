@@ -26,7 +26,7 @@ void ofApp::setup(){
 	scanningSubState = SCANING_IDLE;
 
 	posAxis1Steps = 0;
-	currentLaser = 1;
+	currentLaser = 0;
 
     imgMain = new ofImage();
     imgMain->allocate(webcamCapture.imgWidth, webcamCapture.imgHeight, OF_IMAGE_COLOR);
@@ -56,6 +56,8 @@ void ofApp::setup(){
     guiOpenC3DS->addLabel("AUTOMATIC SCAN");
     guiOpenC3DS->addButton("start_scan", false);
     guiOpenC3DS->addButton("stop_scan", false);
+    guiOpenC3DS->addButton("calibrate_deviation_laser0", false);
+    guiOpenC3DS->addButton("calibrate_deviation_laser1", false);
     guiOpenC3DS->addRangeSlider("turn_deg_axis1", 0, 360, &iniAxis1degrees, &fiAxis1degrees)->setIncrement(1);
     guiOpenC3DS->addSlider("deg_increment_axis1", 0, 5, &incAxis1degrees)->setIncrement(0.05);
     guiOpenC3DS->addSlider("delay_laser_ms", 0, 5000, &delayLaserms)->setIncrement(1);
@@ -74,7 +76,7 @@ void ofApp::setup(){
     guiOpenC3DS->addButton("process_img", false);
     guiOpenC3DS->addButton("calc_dist_laser0", false);
     guiOpenC3DS->addButton("calc_dist_laser1", false);
-    guiOpenC3DS->addSlider("calc_dist_pos_h", 0, webcamCapture.imgHeight, &posH)->setIncrement(1);
+    guiOpenC3DS->addSlider("calc_dist_pos_h", 0, webcamCapture.camHeight, &posH)->setIncrement(1);
 
     guiOpenC3DS->addSpacer();
     sStateAndInfo = "a\n b\n c\n d\n e\n f\n g\n h\n i\n j\n";
@@ -170,7 +172,7 @@ void ofApp::update(){
             else if(scanningSubState == SCANING_CHANGE_LASER){
                 //ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "ofApp::update::scannerState == SCANING_CHANGE_LASER");
                 if(bstatePerformedActionOk){
-                    if(currentLaser != NUM_LASERS){
+                    if(currentLaser != NUM_LASERS-1){
                         scanningSubState = SCANING_LASER_ON;
                     }
                     else{
@@ -193,7 +195,6 @@ void ofApp::update(){
         }
 
     } // end if(bscan) update state
-
 
     // PERFORM ThE STATE ACTION
     if(bscan || bscanstep){
@@ -251,9 +252,8 @@ void ofApp::update(){
             }
             else if(scanningSubState == SCANING_CHANGE_LASER){
                 currentLaser++;
-                currentLaser = (currentLaser%NUM_LASERS);
-                if(currentLaser == 0){
-                    currentLaser = NUM_LASERS;
+                if(currentLaser >= NUM_LASERS){
+                    currentLaser = 0;
                 }
                 bstatePerformedActionOk = true;
             }
@@ -277,6 +277,50 @@ void ofApp::update(){
     else{ // no scaning
         // CAM
         webcamCapture.updateColorImage();
+    }
+
+    if(scannerState == SCANNER_CALIBRATE){
+        if(scanningSubState == CALIBRATE_LASER0_DEVIATION){
+            // laser right
+            serialCommunication.update();
+            serialCommunication.turnOnLaser(0);
+            ofSleepMillis(delayLaserms);
+            webcamCapture.updateColorImage();
+            webcamCapture.bimageYESlaser = true;
+            webcamCapture.updateGrayImage();
+            serialCommunication.update();
+            serialCommunication.turnOffLaser(0);
+            ofSleepMillis(delayLaserms);
+            webcamCapture.updateColorImage();
+            webcamCapture.bimageYESlaser = false;
+            webcamCapture.updateGrayImage();
+            // process
+            webcamCapture.updateGrayDiff();
+            scanerProcess.camCaptureSubpixelProcess(webcamCapture.grayDiff.getPixels());
+            scanerProcess.calibrateLaserDeviation(0);
+            scanningSubState = CALIBRATE_IDLE;
+        }
+        if(scanningSubState == CALIBRATE_LASER1_DEVIATION){
+            // laser left
+            serialCommunication.update();
+            serialCommunication.turnOnLaser(1);
+            ofSleepMillis(delayLaserms);
+            webcamCapture.updateColorImage();
+            webcamCapture.bimageYESlaser = true;
+            webcamCapture.updateGrayImage();
+            serialCommunication.update();
+            serialCommunication.turnOffLaser(1);
+            ofSleepMillis(delayLaserms);
+            webcamCapture.updateColorImage();
+            webcamCapture.bimageYESlaser = false;
+            webcamCapture.updateGrayImage();
+            // process
+            webcamCapture.updateGrayDiff();
+            scanerProcess.camCaptureSubpixelProcess(webcamCapture.grayDiff.getPixels());
+            scanerProcess.calibrateLaserDeviation(1);
+            scanningSubState = CALIBRATE_IDLE;
+        }
+
     }
 
     // update images to showguiOpenC3DS->autoSizeToFitWidgets();
@@ -349,8 +393,9 @@ void ofApp::draw(){
     ofxUIRectangle* rectImg = uiimg->getRect();
     float imagesAreaX = rectImg->getX(false) + generalImagesAreaX;
     float imagesAreaY = rectImg->getY(false) + generalImagesAreaY;
-    ofCircle(imagesAreaX+webcamCapture.imgWidth*0.5, imagesAreaY+posH,3,3);
-    ofLine(imagesAreaX,imagesAreaY+posH, imagesAreaX+webcamCapture.imgWidth,imagesAreaY+posH);
+    float posHH = posH * webcamCapture.imgHeight/webcamCapture.camHeight;
+    ofCircle(imagesAreaX+webcamCapture.imgWidth*0.5, imagesAreaY+posHH,3,3);
+    ofLine(imagesAreaX,imagesAreaY+posHH, imagesAreaX+webcamCapture.imgWidth,imagesAreaY+posHH);
 }
 
 //--------------------------------------------------------------
@@ -548,6 +593,14 @@ void ofApp::guiEvent(ofxUIEventArgs &e){
 	else if(name == "stop_scan"){
         bscan = false;
 	}
+	else if(name == "calibrate_deviation_laser0"){
+        scannerState = SCANNER_CALIBRATE;
+        scanningSubState = CALIBRATE_LASER0_DEVIATION;
+	}
+	else if(name == "calibrate_deviation_laser1"){
+        scannerState = SCANNER_CALIBRATE;
+        scanningSubState = CALIBRATE_LASER1_DEVIATION;
+	}
 	else if(name == "turn_left"){
         serialCommunication.moveStepperBySteps(8888);
 	}
@@ -568,28 +621,8 @@ void ofApp::guiEvent(ofxUIEventArgs &e){
 	else if(name == "process_img"){
         scanerProcess.camCaptureSubpixelProcess(webcamCapture.grayDiff.getPixels());
 	}
-	else if(name == "calc_dist_laser0"){
-        // laser left
-        serialCommunication.update();
-        serialCommunication.turnOnLaser(2);
-        ofSleepMillis(delayLaserms);
-        webcamCapture.updateColorImage();
-        webcamCapture.bimageYESlaser = true;
-        webcamCapture.updateGrayImage();
-        serialCommunication.update();
-        serialCommunication.turnOffLaser(2);
-        ofSleepMillis(delayLaserms);
-        webcamCapture.updateColorImage();
-        webcamCapture.bimageYESlaser = false;
-        webcamCapture.updateGrayImage();
-        // process
-        webcamCapture.updateGrayDiff();
-        bcalcResultForPosHOk = false;
-        scanerProcess.camCaptureSubpixelProcess(webcamCapture.grayDiff.getPixels());
-        bcalcResultForPosHOk = scanerProcess.calculateDistances(posH, 2);
-	}
 	else if(name == "calc_dist_laser1"){
-        // laser right
+        // laser left
         serialCommunication.update();
         serialCommunication.turnOnLaser(1);
         ofSleepMillis(delayLaserms);
@@ -608,6 +641,26 @@ void ofApp::guiEvent(ofxUIEventArgs &e){
         scanerProcess.camCaptureSubpixelProcess(webcamCapture.grayDiff.getPixels());
         bcalcResultForPosHOk = scanerProcess.calculateDistances(posH, 1);
 	}
+	else if(name == "calc_dist_laser0"){
+        // laser right
+        serialCommunication.update();
+        serialCommunication.turnOnLaser(0);
+        ofSleepMillis(delayLaserms);
+        webcamCapture.updateColorImage();
+        webcamCapture.bimageYESlaser = true;
+        webcamCapture.updateGrayImage();
+        serialCommunication.update();
+        serialCommunication.turnOffLaser(0);
+        ofSleepMillis(delayLaserms);
+        webcamCapture.updateColorImage();
+        webcamCapture.bimageYESlaser = false;
+        webcamCapture.updateGrayImage();
+        // process
+        webcamCapture.updateGrayDiff();
+        bcalcResultForPosHOk = false;
+        scanerProcess.camCaptureSubpixelProcess(webcamCapture.grayDiff.getPixels());
+        bcalcResultForPosHOk = scanerProcess.calculateDistances(posH, 0);
+	}
 }
 
 //--------------------------------------------------------------
@@ -623,6 +676,9 @@ string ofApp::getStringStates(int s){
     }
     else if(s == SCANNER_SCANING){
         return "SCANNER_SCANING";
+    }
+    else if(s == SCANNER_CALIBRATE){
+        return "SCANNER_CALIBRATE";
     }
     else{
         return "";
@@ -657,6 +713,15 @@ string ofApp::getStringSubStates(int s){
     }
     else if(s == SCANING_IMG_OFF){
         return "SCANING_IMG_OFF";
+    }
+    else if(s == CALIBRATE_IDLE){
+        return "CALIBRATE_IDLE";
+    }
+    else if(s == CALIBRATE_LASER0_DEVIATION){
+        return "CALIBRATE_LASER0_DEVIATION";
+    }
+    else if(s == CALIBRATE_LASER1_DEVIATION){
+        return "CALIBRATE_LASER1_DEVIATION";
     }
     else{
         return "";

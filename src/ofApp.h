@@ -53,8 +53,9 @@ class ofApp : public ofBaseApp{
 
 		// SCANNER
 		// states
-		enum scannerStates{ SCANNER_IDLE = 0, SCANNER_GOING_HOME, SCANNER_GOING_START, SCANNER_SCANING };
+		enum scannerStates{ SCANNER_IDLE = 0, SCANNER_GOING_HOME, SCANNER_GOING_START, SCANNER_SCANING, SCANNER_CALIBRATE };
 		enum scanningSubStates{ SCANING_IDLE = 0, SCANING_DELAY, SCANING_PROCESS, SCANING_CHANGE_LASER, SCANING_MOVE, SCANING_LASER_ON, SCANING_LASER_OFF, SCANING_IMG_ON, SCANING_IMG_OFF };
+        enum calibrateSubStates{ CALIBRATE_IDLE = 0, CALIBRATE_LASER0_DEVIATION, CALIBRATE_LASER1_DEVIATION };
         string getStringStates(int s);
         string getStringSubStates(int s);
         string sStateAndInfo;
@@ -103,4 +104,5 @@ class ofApp : public ofBaseApp{
 		// caculate distances for debug
 		bool bcalcResultForPosHOk;
 		float posH;
+		float posV;
 };

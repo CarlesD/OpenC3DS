@@ -51,6 +51,7 @@ class openC3DSprocess{
         bool camCaptureSubpixelProcess(unsigned char* pixelsRaw);
         bool Component_3D_Angular_1_axis_Scan(int currentLaser, ofxCvColorImage pixelsRaw, float phi);
         void cam_dis(int currentLaser, float x, int yp, float *XXp, float *YYp);
+        bool calibrateLaserDeviation(int currentLaser);
 
         // GUI
 		ofxUISuperCanvas *guiProcess;
@@ -107,4 +108,5 @@ class openC3DSprocess{
 
         // DEBUG
 		ofxCvColorImage colorPixelsRaw;
+		float posHcalibrationPoint;
 };

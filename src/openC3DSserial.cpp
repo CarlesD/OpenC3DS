@@ -221,7 +221,8 @@ bool openC3DSserial::moveTestLeft(){
 //--------------------------------------------------------------
 bool openC3DSserial::turnOnLaser(int laser){
     if(bisDeviceReady){
-        strSend = ofToString(laser);
+        // TODO lasers numbers in arduino start with 1
+        strSend = ofToString(laser+1);
         strSend += " 1 0 0\n";
         int res = serialPort.writeBytes(&convert(strSend)[0], strSend.length());
         ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSserial::turnOnLaser: " + strSend);
@@ -243,7 +244,8 @@ bool openC3DSserial::turnOnLaser(int laser){
 //--------------------------------------------------------------
 bool openC3DSserial::turnOffLaser(int laser){
     if(bisDeviceReady){
-        strSend = ofToString(laser);
+        // TODO lasers numbers in arduino start with 1
+        strSend = ofToString(laser+1);
         strSend += " 0 0 0\n";
 
         int res = serialPort.writeBytes(&convert(strSend)[0], strSend.length());

@@ -8,9 +8,9 @@
         <LB>49.529998779</LB>
         <alfa>19.399999619</alfa>
         <zita>1.204277039</zita>
-        <m>37.270000458</m>
-        <FCC>5.665021896</FCC>
-        <laserID>1</laserID>
+        <m>-59.750255585</m>
+        <FCC>-18.472906113</FCC>
+        <laserID>0</laserID>
     </LASER>
     <LASER>
         <beta>0.959931016</beta>
@@ -20,8 +20,8 @@
         <LB>49.529998779</LB>
         <alfa>19.399999619</alfa>
         <zita>1.204277039</zita>
-        <m>37.270000458</m>
-        <FCC>5.665021896</FCC>
-        <laserID>2</laserID>
+        <m>-66.037620544</m>
+        <FCC>-9.113300323</FCC>
+        <laserID>1</laserID>
     </LASER>
 </OPENC3DS>

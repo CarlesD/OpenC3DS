@@ -107,7 +107,11 @@ bool openC3DSprocess::calculateDistances(float posH, int laser){
      cout << "laserLineSubpixelPoints[posHint].x: "<< laserLineSubpixelPoints[posHint].x << endl;
      cout << "_camHeight: "<< _camHeight << endl;
      delta_alfa = (PI/180.0f) * alfa[laser] * (-1+((float)posHint/(float)(_camHeight/2.0f)));
+     cout << "laser: " << laser << endl;
+     cout << "alfa[laser]: " << alfa[laser] << endl;
+     cout << "delta_alfa: " << delta_alfa << endl;
      cam_dis(laser, laserLineSubpixelPoints[posHint].x, laserLineSubpixelPoints[posHint].y, &Xp_,&Yp_);
+     cout << "Xp_: " << Xp_ << " Yp_: " << Yp_ << endl;
      dist_alfa = sqrt(Xp_*Xp_+Yp_*Yp_)/cos(delta_alfa);
      cout << "calculateDistances dist_alfa: "<< dist_alfa << endl;
 }
@@ -188,6 +192,8 @@ bool openC3DSprocess::camCaptureSubpixelProcess(unsigned char* pixelsRaw){
         else{
             horizPosMaxIntensity = IMPOSSIBLE_NUMBER;
         }
+
+        cout << "openC3DSprocess::camCaptureSubpixelProcess bcontrol at " << i << " = " << bcontrol << endl;
 
         if(bcontrol == true){
             // fill the laserLineSubpixelPoints
@@ -301,9 +307,9 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, ofxCvCo
 //--------------------------------------------------------------
 void openC3DSprocess::cam_dis(int currentLaser, float x, int yp, float *XXp, float *YYp){
 
-       if(laserID[currentLaser] == 1){
+       if(laserID[currentLaser] == 0){
 
-        float x_corregida=(FCC[currentLaser]-(float)yp/m[currentLaser]+x);
+        float x_corregida = (FCC[currentLaser]-((float)yp/m[currentLaser])+x);
         float xerr = 0; // TODO
         float partTgDenom1 = tan(beta[currentLaser]) * tan(  0.5*zita[currentLaser] - (x_corregida*zita[currentLaser]) / (_camWidth-1) );
 
@@ -314,9 +320,9 @@ void openC3DSprocess::cam_dis(int currentLaser, float x, int yp, float *XXp, flo
        // ofLog(OF_LOG_ERROR, " YYP: " + ofToString(*YYp);
     }
 
-    else if(laserID[currentLaser] == 2){
+    else if(laserID[currentLaser] == 1){
 
-        float x_corregida=(FCC[currentLaser]-(float)yp/m[currentLaser]+x);
+        float x_corregida = (FCC[currentLaser]-((float)yp/m[currentLaser])+x);
         float xerr = 0; // TODO
         float partTgDenom2 = tan(beta[currentLaser]) * tan(  0.5*zita[currentLaser] - (x_corregida*zita[currentLaser]) / (_camWidth-1) );
 
@@ -404,6 +410,14 @@ void openC3DSprocess::setGuiProcess(){
     PCDfilename->setAutoUnfocus(false);
     PCDfilename->setAutoClear(false);
 
+    guiProcess->addLabel("CALIBRATE", OFX_UI_FONT_MEDIUM);
+    float *ptr = FCC;
+    guiProcess->addSlider("FCC_laser0", -50, 50, ptr)->setIncrement(1);
+    guiProcess->addSlider("FCC_laser1", -50, 50, ptr+1)->setIncrement(1);
+    guiProcess->addButton("cal_Yp_laser0", false);
+    guiProcess->addButton("cal_Yp_laser1", false);
+    guiProcess->addSlider("posH_calc_Yp", 0, 720, &posHcalibrationPoint)->setIncrement(1);
+
     guiProcess->addButton("save point cloud", false);
     guiProcess->addButton("reset point cloud", false);
 
@@ -426,6 +440,12 @@ void openC3DSprocess::guiEvent(ofxUIEventArgs &e){
     }
     else if(name == "reset point cloud"){
         resetPointCloud();
+    }
+    else if(name == "cal_Yp_laser0"){
+        calculateDistances(posHcalibrationPoint,0);
+    }
+    else if(name == "cal_Yp_laser1"){
+        calculateDistances(posHcalibrationPoint,1);
     }
 }
 
@@ -502,4 +522,37 @@ bool openC3DSprocess::polynomialfit(int obs, int degree, double *dx, double *dy,
 
   return true; /* we do not "analyse" the result (cov matrix mainly)
                 to know if the fit is "good" */
+}
+
+
+//--------------------------------------------------------------
+bool openC3DSprocess::calibrateLaserDeviation(int currentLaser){
+    double scx, scxx, scy, scxy;
+    scx = scxx = scy = scxy = 0.0;
+    int np = 0; // number of points really used for the calibration
+
+    cout << "openC3DSprocess::calibrateLaserDeviation laser " << currentLaser << endl;
+
+    for(int i=0; i<=_camHeight; i++){
+        if(laserLineSubpixelPoints[i].x != IMPOSSIBLE_NUMBER){
+            scx += (double)laserLineSubpixelPoints[i].x;
+            scy += (double)laserLineSubpixelPoints[i].y;
+            scxy += (double)laserLineSubpixelPoints[i].x*(double)laserLineSubpixelPoints[i].y;
+            scxx += (double)laserLineSubpixelPoints[i].x*(double)laserLineSubpixelPoints[i].x;
+            np = np+1; //nombre total de punts bons de la regressió
+        }
+    }
+
+    double mean_cx = scx / (double)np;
+    double mean_cy = scy / (double)np;
+
+    double varcx = scxx - scx * mean_cx;
+    double covc = scxy - scx * mean_cy;
+
+    cout << "varcx: " << varcx << " covc: " << covc << endl;
+
+    // check for zero varx
+    m[currentLaser] = covc / varcx; //càlcul pendent recta
+    cout << "pendent m: " << m[currentLaser] << endl;
+    cout << "with np points: " << np << endl;
 }
