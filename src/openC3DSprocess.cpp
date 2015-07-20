@@ -307,6 +307,7 @@ void openC3DSprocess::cam_dis(int currentLaser, float x, int yp, float *XXp, flo
         float xerr = 0; // TODO
         float partTgDenom1 = tan(beta[currentLaser]) * tan(  0.5*zita[currentLaser] - (x_corregida*zita[currentLaser]) / (_camWidth-1) );
 
+
         *YYp = ( (-LA[currentLaser] - LB[currentLaser]*sin(beta[currentLaser]) + xerr) * tan(beta[currentLaser]) ) - LB[currentLaser]*cos(beta[currentLaser]) - yc[currentLaser];
         *YYp = *YYp / (-1.0 - partTgDenom1);
         *XXp = *YYp*tan( (0.5*zita[currentLaser]) -(x_corregida*zita[currentLaser]) / (_camWidth-1) )*(-1);
