@@ -68,9 +68,13 @@ void ofApp::setup(){
     guiOpenC3DS->addLabel("CAM");
     guiOpenC3DS->addButton("image_YES_laser", false);
     guiOpenC3DS->addButton("image_NO_laser", false);
+    guiOpenC3DS->addButton("image_diff_and_th", false);
 
     guiOpenC3DS->addLabel("PROCESS");
     guiOpenC3DS->addButton("process_img", false);
+    guiOpenC3DS->addButton("calc_dist_laser0", false);
+    guiOpenC3DS->addButton("calc_dist_laser1", false);
+    guiOpenC3DS->addSlider("calc_dist_pos_h", 0, webcamCapture.imgHeight, &posH)->setIncrement(1);
 
     guiOpenC3DS->addSpacer();
     sStateAndInfo = "a\n b\n c\n d\n e\n f\n g\n h\n i\n j\n";
@@ -81,6 +85,7 @@ void ofApp::setup(){
 	ofAddListener(guiOpenC3DS->newGUIEvent,this,&ofApp::guiEvent);
 
     guiOpenC3DS->loadSettings("guiOpenC3DS.xml");
+    guiOpenC3DS->disableAppDrawCallback();
 
     // GUI images
     guiOpenC3DSimages = new ofxUISuperCanvas("IMAGES", 0,0, webcamCapture.imgWidth, ofGetHeight());
@@ -100,6 +105,9 @@ void ofApp::setup(){
 	ofAddListener(guiOpenC3DSimages->newGUIEvent,this,&ofApp::guiEvent);
 
     guiOpenC3DSimages->loadSettings("guiOpenC3DSimages.xml");
+    guiOpenC3DSimages->disableAppDrawCallback();
+
+    delayMsAfterMouseReleasedToConsiderDoubleClick = 100; // ms
 
 }
 
@@ -303,16 +311,46 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofSetWindowTitle("OpenColor3DScan at " + ofToString(ofGetFrameRate()) + "fps");
+
     ofBackground(blauFons);
+
+    // DEBUF
     sStateAndInfo = "FPS: " + ofToString(ofGetFrameRate()) + "\n" + "\n";
     sStateAndInfo += "scanner state: " + ofToString(getStringStates(scannerState)) + "\n" + "\n";
     sStateAndInfo += "scanning substate: " + ofToString(getStringSubStates(scanningSubState)) + "\n" + "\n";
     sStateAndInfo += "pos axis1 steps: " + ofToString(posAxis1Steps) + "\n" + "\n";
-    sStateAndInfo += "current laser: " + ofToString(currentLaser) + "\n";
+    sStateAndInfo += "current laser: " + ofToString(currentLaser) + "\n" + "\n";
+    sStateAndInfo += "dist_alfa: " + ofToString(scanerProcess.dist_alfa) + "\n" + "\n";
+    sStateAndInfo += "Xp_: " + ofToString(scanerProcess.Xp_) + "\n" + "\n";
+    sStateAndInfo += "Yp_: " + ofToString(scanerProcess.Yp_) + "\n" + "\n";
     ofxUITextArea *ta = (ofxUITextArea *) guiOpenC3DS->getWidget("states_info");
     ta->setTextString(sStateAndInfo);
 
     scanerProcess.draw();
+
+    // GUI
+    guiOpenC3DS->draw();
+    guiOpenC3DSimages->draw();
+
+    // calculate distances posH help
+    ofDisableDepthTest();
+    if(bcalcResultForPosHOk == false){
+        ofNoFill();
+    }
+    else{
+        ofFill();
+    }
+    ofSetColor(255,0,0);
+    ofxUIRectangle* gRectImg = guiOpenC3DSimages->getRect();
+    float generalImagesAreaX = gRectImg->getX(false);
+    float generalImagesAreaY = gRectImg->getY(false);
+
+    ofxUIImage* uiimg = (ofxUIImage *) guiOpenC3DSimages->getWidget("MAIN IMAGE");
+    ofxUIRectangle* rectImg = uiimg->getRect();
+    float imagesAreaX = rectImg->getX(false) + generalImagesAreaX;
+    float imagesAreaY = rectImg->getY(false) + generalImagesAreaY;
+    ofCircle(imagesAreaX+webcamCapture.imgWidth*0.5, imagesAreaY+posH,3,3);
+    ofLine(imagesAreaX,imagesAreaY+posH, imagesAreaX+webcamCapture.imgWidth,imagesAreaY+posH);
 }
 
 //--------------------------------------------------------------
@@ -383,11 +421,99 @@ void ofApp::mouseDragged(int x, int y, int button){
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
 
+    // check double click
+    if(ofGetElapsedTimeMillis() - initTimeMouseReleased < delayMsAfterMouseReleasedToConsiderDoubleClick){
+        // check image selection
+
+        ofxUIRectangle* gRectImg = guiOpenC3DSimages->getRect();
+        float generalImagesAreaX = gRectImg->getX(false);
+        float generalImagesAreaY = gRectImg->getY(false);
+        float generalImagesAreaW = gRectImg->getWidth();
+        float generalImagesAreaH = gRectImg->getHeight();
+
+        ofxUIImage *uiimg = (ofxUIImage *) guiOpenC3DSimages->getWidget("color");
+        ofxUIRectangle* rectImg = uiimg->getRect();
+        float imagesAreaX = rectImg->getX(false) + generalImagesAreaX;
+        float imagesAreaY = rectImg->getY(false) + generalImagesAreaY;
+        float imagesAreaW = rectImg->getWidth();
+        float imagesAreaH = rectImg->getHeight();
+        ofRectangle rectImgColor(imagesAreaX,imagesAreaY, imagesAreaW,imagesAreaH);
+
+        uiimg = (ofxUIImage *) guiOpenC3DSimages->getWidget("YESlaser");
+        rectImg = uiimg->getRect();
+        imagesAreaX = rectImg->getX(false) + generalImagesAreaX;
+        imagesAreaY = rectImg->getY(false) + generalImagesAreaY;
+        imagesAreaW = rectImg->getWidth();
+        imagesAreaH = rectImg->getHeight();
+        ofRectangle rectImgYeslaser(imagesAreaX,imagesAreaY, imagesAreaW,imagesAreaH);
+
+        uiimg = (ofxUIImage *) guiOpenC3DSimages->getWidget("NOlaser");
+        rectImg = uiimg->getRect();
+        imagesAreaX = rectImg->getX(false) + generalImagesAreaX;
+        imagesAreaY = rectImg->getY(false) + generalImagesAreaY;
+        imagesAreaW = rectImg->getWidth();
+        imagesAreaH = rectImg->getHeight();
+        ofRectangle rectImgNolaser(imagesAreaX,imagesAreaY, imagesAreaW,imagesAreaH);
+
+        uiimg = (ofxUIImage *) guiOpenC3DSimages->getWidget("diff");
+        rectImg = uiimg->getRect();
+        imagesAreaX = rectImg->getX(false) + generalImagesAreaX;
+        imagesAreaY = rectImg->getY(false) + generalImagesAreaY;
+        imagesAreaW = rectImg->getWidth();
+        imagesAreaH = rectImg->getHeight();
+        ofRectangle rectImgDiff(imagesAreaX,imagesAreaY, imagesAreaW,imagesAreaH);
+
+        uiimg = (ofxUIImage *) guiOpenC3DSimages->getWidget("threshold");
+        rectImg = uiimg->getRect();
+        imagesAreaX = rectImg->getX(false) + generalImagesAreaX;
+        imagesAreaY = rectImg->getY(false) + generalImagesAreaY;
+        imagesAreaW = rectImg->getWidth();
+        imagesAreaH = rectImg->getHeight();
+        ofRectangle rectImgThreshold(imagesAreaX,imagesAreaY, imagesAreaW,imagesAreaH);
+
+        uiimg = (ofxUIImage *) guiOpenC3DSimages->getWidget("laserLINE");
+        rectImg = uiimg->getRect();
+        imagesAreaX = rectImg->getX(false) + generalImagesAreaX;
+        imagesAreaY = rectImg->getY(false) + generalImagesAreaY;
+        imagesAreaW = rectImg->getWidth();
+        imagesAreaH = rectImg->getHeight();
+        ofRectangle rectImgLaserline(imagesAreaX,imagesAreaY, imagesAreaW,imagesAreaH);
+
+        uiimg = (ofxUIImage *) guiOpenC3DSimages->getWidget("MAIN IMAGE");
+        rectImg = uiimg->getRect();
+        imagesAreaX = rectImg->getX(false) + generalImagesAreaX;
+        imagesAreaY = rectImg->getY(false) + generalImagesAreaY;
+        imagesAreaW = rectImg->getWidth();
+        imagesAreaH = rectImg->getHeight();
+        ofRectangle rectImgMain(imagesAreaX,imagesAreaY, imagesAreaW,imagesAreaH);
+
+        if(rectImgColor.inside(x,y)){
+            imageMain = COLOR;
+        }
+        else if(rectImgYeslaser.inside(x,y)){
+            imageMain = GRAY_YES_LASER;
+        }
+        else if(rectImgNolaser.inside(x,y)){
+            imageMain = GRAY_NO_LASER;
+        }
+        else if(rectImgDiff.inside(x,y)){
+            imageMain = GRAY_DIFF;
+        }
+        else if(rectImgThreshold.inside(x,y)){
+            imageMain = GRAY_DIFF_TH;
+        }
+        else if(rectImgLaserline.inside(x,y)){
+            imageMain = LASER_LINE;
+        }
+        else if(rectImgMain.inside(x,y)){
+            // zoom image
+        }
+    }
 }
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-
+    initTimeMouseReleased = ofGetElapsedTimeMillis();
 }
 
 //--------------------------------------------------------------
@@ -436,8 +562,51 @@ void ofApp::guiEvent(ofxUIEventArgs &e){
         webcamCapture.bimageYESlaser = false;
         webcamCapture.updateGrayImage();
 	}
+	else if(name == "image_diff_and_th"){
+        webcamCapture.updateGrayDiff();
+	}
 	else if(name == "process_img"){
         scanerProcess.camCaptureSubpixelProcess(webcamCapture.grayDiff.getPixels());
+	}
+	else if(name == "calc_dist_laser0"){
+        // laser left
+        serialCommunication.update();
+        serialCommunication.turnOnLaser(2);
+        ofSleepMillis(delayLaserms);
+        webcamCapture.updateColorImage();
+        webcamCapture.bimageYESlaser = true;
+        webcamCapture.updateGrayImage();
+        serialCommunication.update();
+        serialCommunication.turnOffLaser(2);
+        ofSleepMillis(delayLaserms);
+        webcamCapture.updateColorImage();
+        webcamCapture.bimageYESlaser = false;
+        webcamCapture.updateGrayImage();
+        // process
+        webcamCapture.updateGrayDiff();
+        bcalcResultForPosHOk = false;
+        scanerProcess.camCaptureSubpixelProcess(webcamCapture.grayDiff.getPixels());
+        bcalcResultForPosHOk = scanerProcess.calculateDistances(posH, 2);
+	}
+	else if(name == "calc_dist_laser1"){
+        // laser right
+        serialCommunication.update();
+        serialCommunication.turnOnLaser(1);
+        ofSleepMillis(delayLaserms);
+        webcamCapture.updateColorImage();
+        webcamCapture.bimageYESlaser = true;
+        webcamCapture.updateGrayImage();
+        serialCommunication.update();
+        serialCommunication.turnOffLaser(1);
+        ofSleepMillis(delayLaserms);
+        webcamCapture.updateColorImage();
+        webcamCapture.bimageYESlaser = false;
+        webcamCapture.updateGrayImage();
+        // process
+        webcamCapture.updateGrayDiff();
+        bcalcResultForPosHOk = false;
+        scanerProcess.camCaptureSubpixelProcess(webcamCapture.grayDiff.getPixels());
+        bcalcResultForPosHOk = scanerProcess.calculateDistances(posH, 1);
 	}
 }
 

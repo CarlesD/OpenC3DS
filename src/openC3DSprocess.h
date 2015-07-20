@@ -17,6 +17,9 @@
 #define DEGREE              3 // grau del polinomi
 
 #define MAX_NUM_LASERS      4
+#define IMPOSSIBLE_NUMBER   9999999999
+#define MAX_RADIUS          500 // mm maxima distancia/llunyania escanejable
+#define MIN_RADIUS          100
 
 typedef struct{
     float x;
@@ -44,6 +47,7 @@ class openC3DSprocess{
 		void exit();
 
         bool polynomialfit(int obs, int degree, double *dx, double *dy, double *store);
+        bool calculateDistances(float posH, int laser);
         bool camCaptureSubpixelProcess(unsigned char* pixelsRaw);
         bool Component_3D_Angular_1_axis_Scan(int currentLaser, ofxCvColorImage pixelsRaw, float phi);
         void cam_dis(int currentLaser, float x, int yp, float *XXp, float *YYp);
@@ -73,6 +77,8 @@ class openC3DSprocess{
 		int _camHeight;
 
 		int numLasers;
+		float delta_alfa, dist_alfa;
+		float Xp_, Yp_; // for printing
 
 		// POINT CLOUD
 		pcl::PointCloud<pcl::PointXYZRGBNormal> cloud;

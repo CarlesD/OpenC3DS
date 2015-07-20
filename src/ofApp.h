@@ -95,4 +95,12 @@ class ofApp : public ofBaseApp{
 		ofImage *imgSmallLASER;
 		int imgWidth, imgHeight;
 		float imgWidthHalf, imgHeightHalf;
+
+		// double click detection
+		float initTimeMouseReleased;
+		float delayMsAfterMouseReleasedToConsiderDoubleClick;
+
+		// caculate distances for debug
+		bool bcalcResultForPosHOk;
+		float posH;
 };

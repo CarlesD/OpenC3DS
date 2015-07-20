@@ -152,8 +152,9 @@ bool openC3DSserial::moveStepperToHome(){
 
 //--------------------------------------------------------------
 bool openC3DSserial::moveStepperBySteps(int steps){
+    // move clockwise
     if(bisDeviceReady){
-        strSend = ofToString(MOTOR) + " 1 2 " + ofToString(steps);
+        strSend = ofToString(MOTOR) + " 1 2 -" + ofToString(steps);
 
         strSend += "\n";
         int res = serialPort.writeBytes(&convert(strSend)[0], strSend.length());
@@ -174,7 +175,8 @@ bool openC3DSserial::moveStepperBySteps(int steps){
 }
 
 //--------------------------------------------------------------
-bool openC3DSserial::moveTestLeft(){
+bool openC3DSserial::moveTestRight(){
+    // move counter clockwise
     if(bisDeviceReady){
         strSend = ofToString(MOTOR) + " 1 2 9999\n";
         int res = serialPort.writeBytes(&convert(strSend)[0], strSend.length());
@@ -195,7 +197,8 @@ bool openC3DSserial::moveTestLeft(){
 }
 
 //--------------------------------------------------------------
-bool openC3DSserial::moveTestRight(){
+bool openC3DSserial::moveTestLeft(){
+    // move clockwise
     if(bisDeviceReady){
         strSend = ofToString(MOTOR) + " 1 2 -9999\n";
         int res = serialPort.writeBytes(&convert(strSend)[0], strSend.length());

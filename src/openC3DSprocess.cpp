@@ -81,7 +81,7 @@ void openC3DSprocess::setupCamResolution(int w, int h){
 	_camHeight = h;
 
 	imgLaserLineSubpixel.allocate(_camWidth, _camHeight, OF_IMAGE_COLOR);
-    imgLaserLineSubpixel.setColor(ofColor(0,0,0));
+	imgLaserLineSubpixel.setColor(ofColor(0,0,0));
 
     // PIXELS RAW color
 //    for(int j=0; j<_camWidth; j+=3){
@@ -100,6 +100,19 @@ void openC3DSprocess::setupCamResolution(int w, int h){
 }
 
 //--------------------------------------------------------------
+bool openC3DSprocess::calculateDistances(float posH, int laser){
+     int posHint = (int)posH;
+     cout << "posHint: "<< posHint << endl;
+     cout << "laserLineSubpixelPoints[posHint].y: "<< laserLineSubpixelPoints[posHint].y << endl;
+     cout << "laserLineSubpixelPoints[posHint].x: "<< laserLineSubpixelPoints[posHint].x << endl;
+     cout << "_camHeight: "<< _camHeight << endl;
+     delta_alfa = (PI/180.0f) * alfa[laser] * (-1+((float)posHint/(float)(_camHeight/2.0f)));
+     cam_dis(laser, laserLineSubpixelPoints[posHint].x, laserLineSubpixelPoints[posHint].y, &Xp_,&Yp_);
+     dist_alfa = sqrt(Xp_*Xp_+Yp_*Yp_)/cos(delta_alfa);
+     cout << "calculateDistances dist_alfa: "<< dist_alfa << endl;
+}
+
+//--------------------------------------------------------------
 bool openC3DSprocess::camCaptureSubpixelProcess(unsigned char* pixelsRaw){
 
     int horizPosMaxIntensityTemp1, horizPosMaxIntensityTemp2;
@@ -114,17 +127,18 @@ bool openC3DSprocess::camCaptureSubpixelProcess(unsigned char* pixelsRaw){
 
     double coeff[DEGREE];
 
+    laserLineSubpixelPoints.clear();
     for(int i=0; i<_camHeight; ++i){
         // init laserLineSubpixelPoints
         points2DSubpixelPrecision point2d;
-        point2d.x = _camWidth;
+        point2d.x = IMPOSSIBLE_NUMBER;
         point2d.y = 0;
         point2d.q = 0;
         point2d.a = 0;
         laserLineSubpixelPoints.push_back(point2d);
     }
 
-    imgLaserLineSubpixel.setColor(ofColor(0,0,0));
+    imgLaserLineSubpixel.setColor(ofColor(0,0,0)); // reset
 
     // IMAGE PROCESSING TO FIND MAX
     for(int i=0; i<_camHeight; ++i){
@@ -166,13 +180,13 @@ bool openC3DSprocess::camCaptureSubpixelProcess(unsigned char* pixelsRaw){
 
             if(coeff[2] != 0){
                 horizPosMaxIntensity = fabs( (-1 * coeff[1]) / (2 * coeff[2]) );
-                if(fabs(horizPosMaxIntensity-horizPosMaxIntensityTemp1 )> 10){
-                    horizPosMaxIntensity = _camWidth;
+                if(fabs(horizPosMaxIntensity-horizPosMaxIntensityTemp1 )> 10){ // TODO: posar el 10 en un defiine d'error max
+                    horizPosMaxIntensity = IMPOSSIBLE_NUMBER;
                 }
             }
         }
         else{
-            horizPosMaxIntensity = _camWidth;
+            horizPosMaxIntensity = IMPOSSIBLE_NUMBER;
         }
 
         if(bcontrol == true){
@@ -184,31 +198,35 @@ bool openC3DSprocess::camCaptureSubpixelProcess(unsigned char* pixelsRaw){
                 laserLineSubpixelPoints[i].q = kIndexGreyFunction;
                 imgLaserLineSubpixel.setColor(horizPosMaxIntensity,i,ofColor(255,0,0));
             }
+            else{
+                //imgLaserLineSubpixel.setColor(horizPosMaxIntensity,i,ofColor(0,0,0));
+            }
         }
 
     }
     imgLaserLineSubpixel.update();
+
+    colorPixelsRaw.setFromPixels((const unsigned char *)pixelsRaw, _camWidth, _camHeight);
     return true;
 }
 
 //--------------------------------------------------------------
 bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, ofxCvColorImage pixelsRaw, float phi){
-
-    float delta_alfa, dist_alfa;
     float Xp, Yp;
 
     // DEBUG
     colorPixelsRaw = pixelsRaw;
     // end
 
+    dist_alfa = MAX_RADIUS;
     for(int i=0; i<_camHeight; i++){
         points3D point3d;
-        if(laserLineSubpixelPoints[i].x != _camWidth){
+        if(laserLineSubpixelPoints[i].x != IMPOSSIBLE_NUMBER){
             delta_alfa = (PI/180.0f) * alfa[currentLaser] * (-1+((float)i/(float)(_camHeight/2.0f)));
             cam_dis(currentLaser, laserLineSubpixelPoints[i].x, laserLineSubpixelPoints[i].y, &Xp,&Yp);
             dist_alfa = sqrt(Xp*Xp+Yp*Yp)/cos(delta_alfa);
 
-            if (dist_alfa < 1000){
+            if(dist_alfa < MAX_RADIUS){
                 //float migalcada = floor(_camHeight*0.5);
                 //if(i > migalcada -10 && i < migalcada + 10){
                     int index = laserLineSubpixelPoints[i].y *_camWidth + laserLineSubpixelPoints[i].x;
@@ -235,12 +253,12 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, ofxCvCo
                     point3d.z = dist_alfa * sin(delta_alfa);
                 //}
             }
-            else{
+            else{ // if(dist_alfa < 1000)
                 ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSprocess::Component_3D_Angular_1_axis_Scan:ERROR:dist_alfa >= 1000");
 
-                point3d.x = -10000;
-                point3d.y = -10000;
-                point3d.z = -10000;
+                point3d.x = IMPOSSIBLE_NUMBER;
+                point3d.y = 0;
+                point3d.z = 0;
                 point3d.r = 255;
                 point3d.g = 0;
                 point3d.b = 0;
@@ -256,11 +274,11 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, ofxCvCo
                 ofLog(OF_LOG_ERROR, " point3d.x: " + ofToString(point3d.x) + " point3d.y: " + ofToString(point3d.y) + " point3d.z: " + ofToString(point3d.z));
             }
 
-        } // end if(laserLineSubpixelPoints[i].x != 1024)
+        } // end if(laserLineSubpixelPoints[i].x != IMPOSSIBLE_NUMBER)
         else{
-            point3d.x = -10000;
-            point3d.y = -10000;
-            point3d.z = -10000;
+            point3d.x = IMPOSSIBLE_NUMBER;
+            point3d.y = 0;
+            point3d.z = 0;
             point3d.r = 255;
             point3d.g = 0;
             point3d.b = 0;
@@ -331,7 +349,7 @@ void openC3DSprocess::draw(){
 
 	// DEBUG
 	ofDisableDepthTest();
-	//colorPixelsRaw.draw(20,20,_camWidth*0.3, _camHeight*0.3);
+	colorPixelsRaw.draw(20,20,_camWidth*0.3, _camHeight*0.3);
 	//ofNoFill();
 	//ofSetColor(255,0,0,255);
 	//ofCircle(20+indexPixColorX*0.3, 20+indexPixColorY*0.3, 7);

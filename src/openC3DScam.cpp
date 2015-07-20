@@ -12,8 +12,8 @@ void openC3DScam::setup(){
 	threshold = xmlSettings.getValue("OPENC3DS:CAM:threshold", 128);
 	blur = xmlSettings.getValue("OPENC3DS:CAM:blur", 3);
 
-    cout << "OPENC3DS:CAM:L = " << camWidth << endl;
-    cout << "OPENC3DS:CAM:L = " << camHeight << endl;
+    cout << "OPENC3DS:CAM:camWidth = " << camWidth << endl;
+    cout << "OPENC3DS:CAM:camHeight = " << camHeight << endl;
     cout << "OPENC3DS:CAM:deviceID = " << deviceID << endl;
     cout << "OPENC3DS:CAM:threshold = " << threshold << endl;
     cout << "OPENC3DS:CAM:blur = " << blur << endl;
@@ -26,8 +26,8 @@ void openC3DScam::setup(){
 	bimageYESlaser = false;
 
 	// CAM
-	imgWidth = 1280;//640;
-	imgHeight = 720;//360;
+	imgWidth = 640;
+	imgHeight = 360;
 	imgWidthPart = imgWidth * 0.3f;
 	imgHeightPart = imgHeight * 0.3f;
 
@@ -75,6 +75,8 @@ bool openC3DScam::updateGrayDiff(){
         grayDiff.absDiff(grayImageYESlaser, grayImageNOlaser);
         grayDiffTh = grayDiff;
 		grayDiffTh.threshold(threshold);
+		grayDiff.updateTexture();
+		grayDiffTh.updateTexture();
 	}
 }
 
