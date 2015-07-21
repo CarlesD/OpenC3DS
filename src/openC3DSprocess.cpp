@@ -217,6 +217,65 @@ bool openC3DSprocess::camCaptureSubpixelProcess(unsigned char* pixelsRaw){
 }
 
 //--------------------------------------------------------------
+bool openC3DSprocess::checkScan(){
+
+    ofVec3f v(1, 0, 0);
+    ofVec3f O(0,0,0);
+    vector <points3D> points3DscannedOk;
+
+    // neteja de punts
+    for(int i=0; i<points3Dscanned.size(); i++){
+        ofVec3f P(points3Dscanned[i].x, points3Dscanned[i].y, points3Dscanned[i].z);
+        float d = fabs(O.distance(P));
+        if( (d < MAX_DISTANCE)&&(P.x < IMPOSSIBLE_NUMBER) ){
+            // el punt és correcte i el deixem
+            points3DscannedOk.push_back(points3Dscanned[i]);
+        }
+        else{
+            // eliminem el punt perquè no el copiem
+        }
+    }
+    points3Dscanned.clear();
+    points3Dscanned = points3DscannedOk;
+
+    // normal of the first point in case theres only one point :-S
+    if(points3Dscanned.size() ==1){
+        points3Dscanned[0].nx = 0;
+        points3Dscanned[0].ny = -1;
+        points3Dscanned[0].nz = 0;
+    }
+
+    // normals of first point
+    if(points3Dscanned.size() >=2){
+        ofVec3f P(points3Dscanned[0].x, points3Dscanned[0].y, points3Dscanned[0].z);
+        ofVec3f p(P.x,P.y,0);
+        ofVec3f pxP = p.getCrossed(P);
+
+        ofVec3f s(points3Dscanned[0].x-points3Dscanned[1].x, points3Dscanned[0].y-points3Dscanned[1].y, points3Dscanned[0].z-points3Dscanned[1].z);
+        ofVec3f u = pxP.getCrossed(s);
+        ofVec3f un = u.getNormalized();
+        points3Dscanned[0].nx = un.x;
+        points3Dscanned[0].ny = un.y;
+        points3Dscanned[0].nz = un.z;
+    }
+    // normals
+    for(int i=1; i<points3Dscanned.size(); i++){
+        ofVec3f P(points3Dscanned[i].x, points3Dscanned[i].y, points3Dscanned[i].z);
+        ofVec3f p(P.x,P.y,0);
+        ofVec3f pxP = p.getCrossed(P);
+
+        ofVec3f s(points3Dscanned[i-1].x-points3Dscanned[i].x, points3Dscanned[i-1].y-points3Dscanned[i].y, points3Dscanned[i-1].z-points3Dscanned[i].z);
+        ofVec3f u = pxP.getCrossed(s);
+        ofVec3f un = u.getNormalized();
+        points3Dscanned[i].nx = un.x;
+        points3Dscanned[i].ny = un.y;
+        points3Dscanned[i].nz = un.z;
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------
 bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, ofxCvColorImage pixelsRaw, float phi){
     float Xp, Yp;
 
@@ -227,7 +286,7 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, ofxCvCo
     dist_alfa = MAX_RADIUS;
     for(int i=0; i<_camHeight; i++){
         points3D point3d;
-        if(laserLineSubpixelPoints[i].x != IMPOSSIBLE_NUMBER){
+        if(laserLineSubpixelPoints[i].x < IMPOSSIBLE_NUMBER){
             delta_alfa = (PI/180.0f) * alfa[currentLaser] * (-1+((float)i/(float)(_camHeight/2.0f)));
             cam_dis(currentLaser, laserLineSubpixelPoints[i].x, laserLineSubpixelPoints[i].y, &Xp,&Yp);
             dist_alfa = sqrt(Xp*Xp+Yp*Yp)/cos(delta_alfa);
@@ -256,7 +315,7 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, ofxCvCo
 
                     point3d.x = Xp * cos(phi) + (L + yc[currentLaser] - Yp) * sin(phi);
                     point3d.y = -Xp * sin(phi) + (L + yc[currentLaser] - Yp) * cos(phi);
-                    point3d.z = dist_alfa * sin(delta_alfa);
+                    point3d.z = 50+dist_alfa * sin(delta_alfa);
                 //}
             }
             else{ // if(dist_alfa < 1000)
@@ -293,14 +352,21 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, ofxCvCo
         // points 3d
         points3Dscanned.push_back(point3d);
 
-        // mesh
-        ofColor c;
-        c.set(point3d.r, point3d.g, point3d.b);
-        mesh.addColor(c);
-		ofVec3f pos(point3d.x, point3d.y, point3d.z);
-        mesh.addVertex(pos);
-
     } // end for
+
+
+    // filtrem i calculem normals
+    checkScan();
+
+    // mesh
+    for(int i=0; i<points3Dscanned.size(); i++){
+        ofColor c;
+        c.set(points3Dscanned.at(i).r, points3Dscanned.at(i).g, points3Dscanned.at(i).b);
+        mesh.addColor(c);
+        ofVec3f pos(points3Dscanned.at(i).x, points3Dscanned.at(i).y, points3Dscanned.at(i).z);
+        mesh.addVertex(pos);
+    }
+
     return true;
 }
 
@@ -322,7 +388,7 @@ void openC3DSprocess::cam_dis(int currentLaser, float x, int yp, float *XXp, flo
 
     else if(laserID[currentLaser] == 1){
 
-        float x_corregida = (FCC[currentLaser]-((float)yp/m[currentLaser])+x);
+        float x_corregida = (FCC[currentLaser]+((float)yp/m[currentLaser])+x);
         float xerr = 0; // TODO
         float partTgDenom2 = tan(beta[currentLaser]) * tan(  0.5*zita[currentLaser] - (x_corregida*zita[currentLaser]) / (_camWidth-1) );
 
@@ -412,8 +478,8 @@ void openC3DSprocess::setGuiProcess(){
 
     guiProcess->addLabel("CALIBRATE", OFX_UI_FONT_MEDIUM);
     float *ptr = FCC;
-    guiProcess->addSlider("FCC_laser0", -50, 50, ptr)->setIncrement(1);
-    guiProcess->addSlider("FCC_laser1", -50, 50, ptr+1)->setIncrement(1);
+    guiProcess->addSlider("FCC_laser0", -100, 100, ptr)->setIncrement(1);
+    guiProcess->addSlider("FCC_laser1", -100, 100, ptr+1)->setIncrement(1);
     guiProcess->addButton("cal_Yp_laser0", false);
     guiProcess->addButton("cal_Yp_laser1", false);
     guiProcess->addSlider("posH_calc_Yp", 0, 720, &posHcalibrationPoint)->setIncrement(1);
@@ -534,7 +600,7 @@ bool openC3DSprocess::calibrateLaserDeviation(int currentLaser){
     cout << "openC3DSprocess::calibrateLaserDeviation laser " << currentLaser << endl;
 
     for(int i=0; i<=_camHeight; i++){
-        if(laserLineSubpixelPoints[i].x != IMPOSSIBLE_NUMBER){
+        if(laserLineSubpixelPoints[i].x < IMPOSSIBLE_NUMBER){
             scx += (double)laserLineSubpixelPoints[i].x;
             scy += (double)laserLineSubpixelPoints[i].y;
             scxy += (double)laserLineSubpixelPoints[i].x*(double)laserLineSubpixelPoints[i].y;

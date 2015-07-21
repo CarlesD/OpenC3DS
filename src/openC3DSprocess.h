@@ -21,6 +21,8 @@
 #define MAX_RADIUS          500 // mm maxima distancia/llunyania escanejable
 #define MIN_RADIUS          100
 
+#define MAX_DISTANCE        1500 // mm maxima distancia/llunyania des del centre del plat
+
 typedef struct{
     float x;
     int y;
@@ -49,6 +51,7 @@ class openC3DSprocess{
         bool polynomialfit(int obs, int degree, double *dx, double *dy, double *store);
         bool calculateDistances(float posH, int laser);
         bool camCaptureSubpixelProcess(unsigned char* pixelsRaw);
+        bool checkScan();
         bool Component_3D_Angular_1_axis_Scan(int currentLaser, ofxCvColorImage pixelsRaw, float phi);
         void cam_dis(int currentLaser, float x, int yp, float *XXp, float *YYp);
         bool calibrateLaserDeviation(int currentLaser);

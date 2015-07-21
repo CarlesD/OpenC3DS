@@ -22,7 +22,7 @@ void openC3DSserial::setup(){
         }
     }
     // force lasers off
-    blaser1On = blaser2On = false;
+    blaser0On = blaser1On = false;
 
     // SERIAL PORT
 	serialPort.listDevices();
@@ -85,8 +85,8 @@ void openC3DSserial::setGuiSerial(){
     guiSerial->addButton("m_move_right", false);
 
     guiSerial->addLabel("LASERS");
+    guiSerial->addToggle("laser0_on", &blaser0On);
     guiSerial->addToggle("laser1_on", &blaser1On);
-    guiSerial->addToggle("laser2_on", &blaser2On);
 
     guiSerial->addLabel("TEST");
     guiSerial->addButton("send_noise", false);
@@ -108,20 +108,20 @@ void openC3DSserial::guiEvent(ofxUIEventArgs &e){
 	else if(name == "m_move_right"){
         moveTestRight();
 	}
+	else if(name == "laser0_on"){
+        if(blaser0On){
+            turnOnLaser(0);
+        }
+        else{
+            turnOffLaser(0);
+        }
+	}
 	else if(name == "laser1_on"){
         if(blaser1On){
             turnOnLaser(1);
         }
         else{
             turnOffLaser(1);
-        }
-	}
-	else if(name == "laser2_on"){
-        if(blaser2On){
-            turnOnLaser(2);
-        }
-        else{
-            turnOffLaser(2);
         }
 	}
 	else if(name == "send_noise"){

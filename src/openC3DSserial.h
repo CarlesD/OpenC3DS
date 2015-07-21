@@ -45,8 +45,8 @@ class openC3DSserial{
         bool sendHello();
 
         // LASER
-        bool blaser1On; // laser 1 on?
-        bool blaser2On; // laser 2
+        bool blaser0On;
+        bool blaser1On;
         bool turnOnLaser(int laser);
         bool turnOffLaser(int laser);
 };
