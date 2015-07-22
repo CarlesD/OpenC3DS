@@ -67,7 +67,11 @@ void openC3DSprocess::setup(){
 
 	// LIGHT
 	light.setup();
-    light.setAmbientColor(ofColor(100));
+    light.setAmbientColor(ofColor(255));
+    light2.setup();
+    light2.setAmbientColor(ofColor(255));
+    light3.setup();
+    light3.setAmbientColor(ofColor(255));
 
     // POINT CLOUD
     points3Dscanned.clear();
@@ -102,18 +106,25 @@ void openC3DSprocess::setupCamResolution(int w, int h){
 //--------------------------------------------------------------
 bool openC3DSprocess::calculateDistances(float posH, int laser){
      int posHint = (int)posH;
-     cout << "posHint: "<< posHint << endl;
-     cout << "laserLineSubpixelPoints[posHint].y: "<< laserLineSubpixelPoints[posHint].y << endl;
-     cout << "laserLineSubpixelPoints[posHint].x: "<< laserLineSubpixelPoints[posHint].x << endl;
-     cout << "_camHeight: "<< _camHeight << endl;
-     delta_alfa = (PI/180.0f) * alfa[laser] * (-1+((float)posHint/(float)(_camHeight/2.0f)));
-     cout << "laser: " << laser << endl;
-     cout << "alfa[laser]: " << alfa[laser] << endl;
-     cout << "delta_alfa: " << delta_alfa << endl;
-     cam_dis(laser, laserLineSubpixelPoints[posHint].x, laserLineSubpixelPoints[posHint].y, &Xp_,&Yp_);
-     cout << "Xp_: " << Xp_ << " Yp_: " << Yp_ << endl;
-     dist_alfa = sqrt(Xp_*Xp_+Yp_*Yp_)/cos(delta_alfa);
-     cout << "calculateDistances dist_alfa: "<< dist_alfa << endl;
+     cout << "openC3DSprocess::calculateDistances at posHint: "<< posHint << endl;
+
+     if(laserLineSubpixelPoints[posHint].x < IMPOSSIBLE_NUMBER){
+         //cout << "laserLineSubpixelPoints[posHint].y: "<< laserLineSubpixelPoints[posHint].y << endl;
+         //cout << "laserLineSubpixelPoints[posHint].x: "<< laserLineSubpixelPoints[posHint].x << endl;
+         //cout << "_camHeight: "<< _camHeight << endl;
+         delta_alfa = (PI/180.0f) * alfa[laser] * (-1+((float)posHint/(float)(_camHeight/2.0f)));
+         //cout << "laser: " << laser << endl;
+         //cout << "alfa[laser]: " << alfa[laser] << endl;
+         //cout << "delta_alfa: " << delta_alfa << endl;
+         cam_dis(laser, laserLineSubpixelPoints[posHint].x, laserLineSubpixelPoints[posHint].y, &Xp_,&Yp_);
+         //cout << "Xp_: " << Xp_ << " Yp_: " << Yp_ << endl;
+         dist_alfa = sqrt(Xp_*Xp_+Yp_*Yp_)/cos(delta_alfa);
+         //cout << "calculateDistances dist_alfa: "<< dist_alfa << endl;
+         return true;
+     }
+     else{
+        return false;
+     }
 }
 
 //--------------------------------------------------------------
@@ -193,7 +204,7 @@ bool openC3DSprocess::camCaptureSubpixelProcess(unsigned char* pixelsRaw){
             horizPosMaxIntensity = IMPOSSIBLE_NUMBER;
         }
 
-        cout << "openC3DSprocess::camCaptureSubpixelProcess bcontrol at " << i << " = " << bcontrol << endl;
+        //cout << "openC3DSprocess::camCaptureSubpixelProcess bcontrol at " << i << " = " << bcontrol << endl;
 
         if(bcontrol == true){
             // fill the laserLineSubpixelPoints
@@ -414,6 +425,12 @@ void openC3DSprocess::draw(){
     light.setPosition(0, 0, 0);
     light.draw();
     light.enable();
+    light2.setPosition(ofGetWidth(), 0, 0);
+    light2.enable();
+    light2.draw();
+    light3.setPosition(ofGetWidth()*0.5, ofGetHeight(), 0);
+    light3.enable();
+    light3.draw();
 
     cam.begin();
     origin.drawWireframe();
@@ -421,12 +438,10 @@ void openC3DSprocess::draw(){
 	cam.end();
 
 	// DEBUG
-	ofDisableDepthTest();
-	colorPixelsRaw.draw(20,20,_camWidth*0.3, _camHeight*0.3);
-	//ofNoFill();
-	//ofSetColor(255,0,0,255);
-	//ofCircle(20+indexPixColorX*0.3, 20+indexPixColorY*0.3, 7);
-	// end
+	//ofDisableDepthTest();
+	//colorPixelsRaw.draw(20,20,_camWidth*0.3, _camHeight*0.3);
+	ofxUITextArea *ta = (ofxUITextArea *) guiProcess->getWidget("states_info");
+    ta->setTextString(sStateAndInfo);
 
 }
 
@@ -480,12 +495,13 @@ void openC3DSprocess::setGuiProcess(){
     float *ptr = FCC;
     guiProcess->addSlider("FCC_laser0", -100, 100, ptr)->setIncrement(1);
     guiProcess->addSlider("FCC_laser1", -100, 100, ptr+1)->setIncrement(1);
-    guiProcess->addButton("cal_Yp_laser0", false);
-    guiProcess->addButton("cal_Yp_laser1", false);
-    guiProcess->addSlider("posH_calc_Yp", 0, 720, &posHcalibrationPoint)->setIncrement(1);
 
     guiProcess->addButton("save point cloud", false);
     guiProcess->addButton("reset point cloud", false);
+
+    guiProcess->addSpacer();
+    sStateAndInfo = ".\n";
+    guiProcess->addTextArea("states_info", sStateAndInfo, OFX_UI_FONT_SMALL);
 
     guiProcess->setPosition(0,0);
     guiProcess->autoSizeToFitWidgets();
@@ -506,12 +522,6 @@ void openC3DSprocess::guiEvent(ofxUIEventArgs &e){
     }
     else if(name == "reset point cloud"){
         resetPointCloud();
-    }
-    else if(name == "cal_Yp_laser0"){
-        calculateDistances(posHcalibrationPoint,0);
-    }
-    else if(name == "cal_Yp_laser1"){
-        calculateDistances(posHcalibrationPoint,1);
     }
 }
 
@@ -543,8 +553,13 @@ void openC3DSprocess::savePointCloud(){
 
     if(cloud.points.size() > 0){
         pcl::io::savePCDFileASCII(ofToDataPath("test.pcd"), cloud);
-        ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSprocess::savePointCloud:saved " + ofToString(cloud.points.size()) + "to " + "test.pcd file");
+        sStateAndInfo = ofToString(cloud.points.size()) + " points saved to file";
     }
+    else{
+        sStateAndInfo = "0 points, no file saved";
+    }
+    ofLog(OF_LOG_NOTICE, ofGetTimestampString() + "openC3DSprocess::savePointCloud:saved " + ofToString(cloud.points.size()) + "to " + "test.pcd file");
+
 }
 
 //--------------------------------------------------------------
@@ -620,5 +635,7 @@ bool openC3DSprocess::calibrateLaserDeviation(int currentLaser){
     // check for zero varx
     m[currentLaser] = covc / varcx; //càlcul pendent recta
     cout << "pendent m: " << m[currentLaser] << endl;
+    m_ = m[currentLaser];
     cout << "with np points: " << np << endl;
+    mnp_ = np;
 }

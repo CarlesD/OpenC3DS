@@ -87,6 +87,7 @@ class ofApp : public ofBaseApp{
 		// images
 		enum images{ COLOR = 0, GRAY_YES_LASER, GRAY_NO_LASER, GRAY_DIFF, GRAY_DIFF_TH, LASER_LINE};
 		ofImage *imgMain;
+		ofImage *imgMainTmp;
 		int imageMain;
 		ofImage *imgSmall1;
 		ofImage *imgSmall2;
@@ -96,10 +97,19 @@ class ofApp : public ofBaseApp{
 		ofImage *imgSmallLASER;
 		int imgWidth, imgHeight;
 		float imgWidthHalf, imgHeightHalf;
+		float relAspectWidth, relAspectHeight;
 
 		// double click detection
 		float initTimeMouseReleased;
 		float delayMsAfterMouseReleasedToConsiderDoubleClick;
+		bool bdoubleclick;
+		int mousepX, mousepY;
+        bool bmouseDragged;
+		int mouseXdiff, mouseYdiff;
+		int acumulatedDiffX, acumulatedDiffY;
+		bool bzoom;
+		int zoomPosX, zoomPosY;
+		float scale;
 
 		// caculate distances for debug
 		bool bcalcResultForPosHOk;

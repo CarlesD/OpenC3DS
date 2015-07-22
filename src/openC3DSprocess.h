@@ -60,6 +60,7 @@ class openC3DSprocess{
 		ofxUISuperCanvas *guiProcess;
 		void setGuiProcess();
 		void guiEvent(ofxUIEventArgs &e);
+		string sStateAndInfo;
 
 		// XML
 		ofxXmlSettings xmlSettings;
@@ -75,14 +76,16 @@ class openC3DSprocess{
 		ofMesh mesh;
 		ofMesh origin;
 		ofEasyCam cam;
-		ofLight light;
+		ofLight light, light2, light3;
 
 		int _camWidth;
 		int _camHeight;
 
 		int numLasers;
 		float delta_alfa, dist_alfa;
-		float Xp_, Yp_; // for printing
+		float Xp_, Yp_; // for printing debug
+		float m_; // for printing debug
+		float mnp_; // for printing debug
 
 		// POINT CLOUD
 		pcl::PointCloud<pcl::PointXYZRGBNormal> cloud;
@@ -111,5 +114,4 @@ class openC3DSprocess{
 
         // DEBUG
 		ofxCvColorImage colorPixelsRaw;
-		float posHcalibrationPoint;
 };

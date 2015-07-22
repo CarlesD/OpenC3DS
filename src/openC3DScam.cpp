@@ -109,11 +109,6 @@ void openC3DScam::setGuiCam(){
 	guiCam = new ofxUISuperCanvas("WEBCAM");
     guiCam->addSpacer();
 
-    guiCam->addLabel("CAMERA");
-
-    guiCam->addSpacer();
-    guiCam->addLabel("IMAGES");
-    guiCam->addToggle("img_with_laser", &bimageYESlaser);
     guiCam->addSlider("threshold", 0,255, &threshold)->setIncrement(1);
     guiCam->addSlider("blur", 1,33, &blur)->setIncrement(2);
 
