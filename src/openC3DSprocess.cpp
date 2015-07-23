@@ -399,7 +399,7 @@ void openC3DSprocess::cam_dis(int currentLaser, float x, int yp, float *XXp, flo
 
     else if(laserID[currentLaser] == 1){
 
-        float x_corregida = (FCC[currentLaser]+((float)yp/m[currentLaser])+x);
+        float x_corregida = (FCC[currentLaser]-((float)yp/m[currentLaser])+x);
         float xerr = 0; // TODO
         float partTgDenom2 = tan(beta[currentLaser]) * tan(  0.5*zita[currentLaser] - (x_corregida*zita[currentLaser]) / (_camWidth-1) );
 
@@ -612,14 +612,16 @@ bool openC3DSprocess::calibrateLaserDeviation(int currentLaser){
     scx = scxx = scy = scxy = 0.0;
     int np = 0; // number of points really used for the calibration
 
+    checkScan();
+
     cout << "openC3DSprocess::calibrateLaserDeviation laser " << currentLaser << endl;
 
-    for(int i=0; i<=_camHeight; i++){
+    for(int i=0; i<laserLineSubpixelPoints.size(); i++){
         if(laserLineSubpixelPoints[i].x < IMPOSSIBLE_NUMBER){
             scx += (double)laserLineSubpixelPoints[i].x;
             scy += (double)laserLineSubpixelPoints[i].y;
-            scxy += (double)laserLineSubpixelPoints[i].x*(double)laserLineSubpixelPoints[i].y;
-            scxx += (double)laserLineSubpixelPoints[i].x*(double)laserLineSubpixelPoints[i].x;
+            scxy = scxy + (double)laserLineSubpixelPoints[i].x*(double)laserLineSubpixelPoints[i].y;
+            scxx = scxx + (double)laserLineSubpixelPoints[i].x*(double)laserLineSubpixelPoints[i].x;
             np = np+1; //nombre total de punts bons de la regressió
         }
     }
