@@ -370,6 +370,7 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, ofxCvCo
     checkScan();
 
     // mesh
+    /*
     for(int i=0; i<points3Dscanned.size(); i++){
         ofColor c;
         c.set(points3Dscanned.at(i).r, points3Dscanned.at(i).g, points3Dscanned.at(i).b);
@@ -377,6 +378,7 @@ bool openC3DSprocess::Component_3D_Angular_1_axis_Scan(int currentLaser, ofxCvCo
         ofVec3f pos(points3Dscanned.at(i).x, points3Dscanned.at(i).y, points3Dscanned.at(i).z);
         mesh.addVertex(pos);
     }
+    */
 
     return true;
 }
@@ -420,6 +422,7 @@ bool openC3DSprocess::update(){
 void openC3DSprocess::draw(){
     ofSetColor(255);
 
+    /*
     ofEnableLighting();
     ofEnableDepthTest();
     light.setPosition(0, 0, 0);
@@ -436,6 +439,7 @@ void openC3DSprocess::draw(){
     origin.drawWireframe();
 	mesh.draw();
 	cam.end();
+	*/
 
 	// DEBUG
 	//ofDisableDepthTest();
